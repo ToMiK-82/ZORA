@@ -1,0 +1,19 @@
+{
+  "ollama": {
+    "host": "IP_МОЩНОГО_ПК",
+    "port": 11434,
+    "models": [
+      "nomic-embed-text",
+      "llama3.2:3b"
+    ],
+    "start_command": "ollama serve --host 0.0.0.0"
+  },
+  "qdrant": {
+    "host": "localhost",
+    "port": 6333
+  },
+  "zora_config": {
+    "ollama_host_env": "OLLAMA_HOST=http://IP_МОЩНОГО_ПК:11434",
+    "qdrant_host_env": "QDRANT_HOST=localhost"
+  }
+}

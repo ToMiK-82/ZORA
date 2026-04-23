@@ -1,0 +1,686 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ZORA • Оранжевый мониторинг</title>
+    <!-- Chart.js для графиков -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Font Awesome для иконок (опционально, но добавим для стиля) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', 'Inter', system-ui, sans-serif;
+        }
+
+        body {
+            background: #0C111D;
+            color: #FFFFFF;
+            padding: 24px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1920px;
+            margin: 0 auto;
+        }
+
+        /* Заголовок */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+        .title-section h1 {
+            font-size: 2.4rem;
+            font-weight: 600;
+            background: linear-gradient(135deg, #FF8C42 0%, #FFB347 80%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            letter-spacing: -0.5px;
+        }
+        .title-section p {
+            color: #A0B3CC;
+            font-size: 1rem;
+            margin-top: 4px;
+        }
+        .refresh-section {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+        .last-update {
+            color: #859BB2;
+            font-size: 0.9rem;
+        }
+        .refresh-btn {
+            background: #FF8C42;
+            border: none;
+            color: #0C111D;
+            padding: 10px 24px;
+            border-radius: 40px;
+            font-weight: 700;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 0 4px 12px rgba(255, 140, 66, 0.3);
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        .refresh-btn:hover {
+            background: #FFA05E;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 18px rgba(255, 140, 66, 0.4);
+        }
+
+        /* Сетка */
+        .dashboard-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+
+        /* Ряд с карточками ресурсов */
+        .resources-row {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+        }
+
+        /* Стиль карточки */
+        .card {
+            background: #131B2A;
+            border-radius: 28px;
+            padding: 24px;
+            border: 1px solid #2A3A4E;
+            box-shadow: 0 20px 35px -8px rgba(0,0,0,0.6);
+            transition: transform 0.2s, border-color 0.2s;
+            backdrop-filter: blur(4px);
+        }
+        .card:hover {
+            border-color: #FF8C42;
+            transform: translateY(-4px);
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+        .card-header i {
+            font-size: 1.8rem;
+            color: #FF8C42;
+        }
+        .card-header h3 {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: #E9EDF5;
+        }
+        .status-dot {
+            margin-left: auto;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #22C55E;
+            box-shadow: 0 0 10px #22C55E;
+        }
+        .status-dot.warning { background: #F59E0B; box-shadow: 0 0 10px #F59E0B; }
+        .status-dot.critical { background: #EF4444; box-shadow: 0 0 10px #EF4444; }
+
+        /* Кольцевой прогресс (имитация через CSS, будем обновлять JS) */
+        .gauge-container {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+        .gauge {
+            width: 100px;
+            height: 100px;
+        }
+        .gauge-value {
+            font-size: 2.2rem;
+            font-weight: 700;
+            color: #FF8C42;
+        }
+        .gauge-label {
+            color: #A0B3CC;
+            font-size: 0.9rem;
+        }
+
+        .metric-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 14px 10px;
+            margin: 20px 0;
+        }
+        .metric-item {
+            display: flex;
+            flex-direction: column;
+        }
+        .metric-label {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #7E93AA;
+        }
+        .metric-value {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #E9EDF5;
+        }
+        .progress-bar {
+            height: 8px;
+            background: #1F2A3C;
+            border-radius: 20px;
+            margin-top: 12px;
+            overflow: hidden;
+        }
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #FF8C42, #FFB347);
+            border-radius: 20px;
+            width: 0%;
+            transition: width 0.4s;
+        }
+
+        /* ZORA статус (широкая карточка) */
+        .zora-row {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 20px;
+        }
+        .services-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin: 20px 0;
+        }
+        .service-chip {
+            background: #1E2A3A;
+            padding: 8px 18px;
+            border-radius: 40px;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            border: 1px solid #314A62;
+        }
+        .service-chip.active .dot { background: #22C55E; box-shadow: 0 0 8px #22C55E; }
+        .service-chip.inactive .dot { background: #EF4444; }
+        .dot { width: 10px; height: 10px; border-radius: 50%; }
+
+        .health-score-large {
+            font-size: 3.5rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #FF8C42, #22C55E);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        /* Агенты */
+        .agents-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+            gap: 16px;
+        }
+        .agent-card {
+            background: #131B2A;
+            border-radius: 22px;
+            padding: 20px;
+            border: 1px solid #2A3A4E;
+            border-left: 6px solid;
+        }
+        .agent-card.running { border-left-color: #FF8C42; }
+        .agent-card.idle { border-left-color: #22C55E; }
+        .agent-card.unavailable { border-left-color: #EF4444; }
+        .agent-name {
+            font-size: 1.2rem;
+            font-weight: 700;
+            margin-bottom: 6px;
+        }
+        .agent-state {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 30px;
+            font-size: 0.7rem;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+        .state-running { background: #FF8C42; color: #0C111D; }
+        .state-idle { background: #1B3B2A; color: #A3E6A3; }
+        .state-unavailable { background: #4A1E1E; color: #FECACA; }
+
+        /* Инструменты */
+        .tools-flex {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-top: 20px;
+        }
+        .tool-btn {
+            background: #1E2A3A;
+            border: 1px solid #314A62;
+            color: #FFFFFF;
+            padding: 12px 20px;
+            border-radius: 40px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .tool-btn:hover {
+            background: #FF8C42;
+            border-color: #FF8C42;
+            color: #0C111D;
+        }
+
+        /* Адаптив */
+        @media (max-width: 1400px) {
+            .resources-row { grid-template-columns: repeat(2, 1fr); }
+            .zora-row { grid-template-columns: 1fr; }
+        }
+        @media (max-width: 800px) {
+            .resources-row { grid-template-columns: 1fr; }
+        }
+
+        /* График */
+        .chart-container canvas {
+            width: 100% !important;
+            height: 100px !important;
+        }
+
+        /* Анимация */
+        .fade-in { animation: fadeIn 0.5s ease; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    </style>
+</head>
+<body>
+<div class="container">
+    <!-- Шапка -->
+    <div class="header">
+        <div class="title-section">
+            <h1><i class="fas fa-chart-pie" style="margin-right: 12px; color: #FF8C42;"></i>ZORA • Аналитика</h1>
+            <p>Детальный мониторинг железа и платформы</p>
+        </div>
+        <div class="refresh-section">
+            <span class="last-update" id="last-update">Обновление...</span>
+            <button class="refresh-btn" onclick="loadData()"><i class="fas fa-sync-alt"></i> Обновить</button>
+        </div>
+    </div>
+
+    <div class="dashboard-grid">
+        <!-- Ресурсы: CPU, GPU, RAM, Disk -->
+        <div class="resources-row">
+            <!-- CPU -->
+            <div class="card">
+                <div class="card-header">
+                    <i class="fas fa-microchip"></i>
+                    <h3>Процессор</h3>
+                    <span class="status-dot" id="cpu-dot"></span>
+                </div>
+                <div class="gauge-container">
+                    <canvas class="gauge" id="cpuGauge" width="100" height="100"></canvas>
+                    <div>
+                        <div class="gauge-value" id="cpu-load">—%</div>
+                        <div class="gauge-label">Загрузка</div>
+                    </div>
+                </div>
+                <div id="cpu-model" style="color:#A0B3CC; margin-bottom:12px;">—</div>
+                <div class="metric-grid">
+                    <div class="metric-item"><span class="metric-label">Ядра/Потоки</span><span class="metric-value" id="cpu-cores">—</span></div>
+                    <div class="metric-item"><span class="metric-label">Частота</span><span class="metric-value" id="cpu-freq">—</span></div>
+                    <div class="metric-item"><span class="metric-label">Температура</span><span class="metric-value" id="cpu-temp">—</span></div>
+                    <div class="metric-item"><span class="metric-label">Макс.частота</span><span class="metric-value" id="cpu-freq-max">—</span></div>
+                </div>
+                <div class="progress-bar"><div class="progress-fill" id="cpu-progress" style="width:0%"></div></div>
+                <div class="chart-container"><canvas id="cpuChart"></canvas></div>
+            </div>
+
+            <!-- GPU -->
+            <div class="card">
+                <div class="card-header">
+                    <i class="fas fa-tv"></i>
+                    <h3>Графика</h3>
+                    <span class="status-dot" id="gpu-dot"></span>
+                </div>
+                <div class="gauge-container">
+                    <canvas class="gauge" id="gpuGauge" width="100" height="100"></canvas>
+                    <div>
+                        <div class="gauge-value" id="gpu-load">—%</div>
+                        <div class="gauge-label">Загрузка</div>
+                    </div>
+                </div>
+                <div id="gpu-model" style="color:#A0B3CC; margin-bottom:12px;">—</div>
+                <div class="metric-grid">
+                    <div class="metric-item"><span class="metric-label">Видеопамять</span><span class="metric-value" id="gpu-memory">—</span></div>
+                    <div class="metric-item"><span class="metric-label">Температура</span><span class="metric-value" id="gpu-temp">—</span></div>
+                </div>
+                <div class="progress-bar"><div class="progress-fill" id="gpu-progress" style="width:0%"></div></div>
+                <div class="chart-container"><canvas id="gpuChart"></canvas></div>
+            </div>
+
+            <!-- RAM -->
+            <div class="card">
+                <div class="card-header">
+                    <i class="fas fa-memory"></i>
+                    <h3>Память</h3>
+                    <span class="status-dot" id="ram-dot"></span>
+                </div>
+                <div class="gauge-container">
+                    <canvas class="gauge" id="ramGauge" width="100" height="100"></canvas>
+                    <div>
+                        <div class="gauge-value" id="ram-load">—%</div>
+                        <div class="gauge-label">Использовано</div>
+                    </div>
+                </div>
+                <div class="metric-grid">
+                    <div class="metric-item"><span class="metric-label">Всего</span><span class="metric-value" id="ram-total">—</span></div>
+                    <div class="metric-item"><span class="metric-label">Свободно</span><span class="metric-value" id="ram-free">—</span></div>
+                </div>
+                <div class="progress-bar"><div class="progress-fill" id="ram-progress" style="width:0%"></div></div>
+                <div class="chart-container"><canvas id="memoryChart"></canvas></div>
+            </div>
+
+            <!-- Disk -->
+            <div class="card">
+                <div class="card-header">
+                    <i class="fas fa-hdd"></i>
+                    <h3>Накопитель</h3>
+                    <span class="status-dot" id="disk-dot"></span>
+                </div>
+                <div class="gauge-container">
+                    <canvas class="gauge" id="diskGauge" width="100" height="100"></canvas>
+                    <div>
+                        <div class="gauge-value" id="disk-load">—%</div>
+                        <div class="gauge-label">Заполнено</div>
+                    </div>
+                </div>
+                <div id="disk-model" style="color:#A0B3CC; margin-bottom:12px;">—</div>
+                <div class="metric-grid">
+                    <div class="metric-item"><span class="metric-label">Всего</span><span class="metric-value" id="disk-total">—</span></div>
+                    <div class="metric-item"><span class="metric-label">Занято</span><span class="metric-value" id="disk-used">—</span></div>
+                    <div class="metric-item"><span class="metric-label">Температура</span><span class="metric-value" id="disk-temp">—</span></div>
+                </div>
+                <div class="progress-bar"><div class="progress-fill" id="disk-progress" style="width:0%"></div></div>
+                <div class="chart-container"><canvas id="diskChart"></canvas></div>
+            </div>
+        </div>
+
+        <!-- ZORA статус + Здоровье -->
+        <div class="zora-row">
+            <div class="card">
+                <div class="card-header">
+                    <i class="fas fa-cubes"></i>
+                    <h3>Состояние ZORA</h3>
+                    <span class="status-dot" id="zora-dot"></span>
+                </div>
+                <div style="display: flex; align-items: baseline; gap: 24px; flex-wrap: wrap;">
+                    <div><span style="font-size: 2.5rem; font-weight: 700;" id="zora-status-text">—</span></div>
+                    <div><span class="health-score-large" id="health-score">—</span><span style="color: #A0B3CC;">/100</span></div>
+                    <div style="color: #A0B3CC;" id="zora-message"></div>
+                </div>
+                <div class="services-container" id="services-container"></div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; margin: 20px 0;">
+                    <div><span class="metric-label">Компоненты</span><div class="metric-value" id="comp-count">—</div></div>
+                    <div><span class="metric-label">Qdrant векторов</span><div class="metric-value" id="qdrant-vectors">—</div></div>
+                    <div><span class="metric-label">Аптайм</span><div class="metric-value" id="zora-uptime">—</div></div>
+                </div>
+                <div id="issues-box" style="background: rgba(239,68,68,0.1); border-radius: 20px; padding: 16px; margin-top: 12px;">
+                    <ul style="list-style: none; color: #FCA5A5;" id="issues-list"></ul>
+                </div>
+            </div>
+            <div class="card" style="display: flex; flex-direction: column; justify-content: center;">
+                <h3 style="margin-bottom: 24px;"><i class="fas fa-tools" style="color:#FF8C42;"></i> Быстрые действия</h3>
+                <button class="tool-btn" onclick="reindexAll()"><i class="fas fa-sync-alt"></i> Переиндексация</button>
+                <button class="tool-btn" onclick="clearCache()"><i class="fas fa-broom"></i> Сбросить кэш</button>
+                <button class="tool-btn" onclick="restartAgent('developer')"><i class="fas fa-robot"></i> Перезапуск Ria</button>
+            </div>
+        </div>
+
+        <!-- Агенты -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-users"></i>
+                <h3>Агенты</h3>
+                <span id="agents-summary" style="margin-left: auto; color: #A0B3CC;"></span>
+            </div>
+            <div class="agents-grid" id="agents-grid"></div>
+        </div>
+
+        <!-- Инструменты -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-wrench"></i>
+                <h3>Инструменты разработки</h3>
+            </div>
+            <div class="tools-flex">
+                <button class="tool-btn" onclick="indexProject()"><i class="fas fa-folder-open"></i> Индексация</button>
+                <button class="tool-btn" onclick="analyzeCode()"><i class="fas fa-code"></i> Анализ кода</button>
+                <button class="tool-btn" onclick="runTests()"><i class="fas fa-vial"></i> Тесты</button>
+                <button class="tool-btn" onclick="gitStatus()"><i class="fab fa-git-alt"></i> Git статус</button>
+            </div>
+            <div id="tools-result" style="margin-top: 20px; padding: 16px; background: #1A2536; border-radius: 20px;"></div>
+        </div>
+    </div>
+</div>
+
+<script>
+    (function() {
+        // ---------- Графики Chart.js и кастомные "кольца" ----------
+        let cpuChart, gpuChart, memoryChart, diskChart;
+        let cpuData=[], gpuData=[], memData=[], diskData=[];
+        const MAX_POINTS = 25;
+
+        // Инициализация графиков
+        function initCharts() {
+            const chartOpts = {
+                type: 'line',
+                options: {
+                    responsive: true, maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: { y: { min:0, max:100, grid:{color:'#2A3A4E'}, ticks:{color:'#A0B3CC'} }, x:{display:false} }
+                }
+            };
+            cpuChart = new Chart(document.getElementById('cpuChart'), { ...chartOpts, data:{labels:[], datasets:[{data:[], borderColor:'#FF8C42', borderWidth:2, tension:0.3}]}});
+            gpuChart = new Chart(document.getElementById('gpuChart'), { ...chartOpts, data:{labels:[], datasets:[{data:[], borderColor:'#FF8C42', borderWidth:2}]}});
+            memoryChart = new Chart(document.getElementById('memoryChart'), { ...chartOpts, data:{labels:[], datasets:[{data:[], borderColor:'#22C55E', borderWidth:2}]}});
+            diskChart = new Chart(document.getElementById('diskChart'), { ...chartOpts, data:{labels:[], datasets:[{data:[], borderColor:'#F59E0B', borderWidth:2}]}});
+        }
+
+        // Рисование кольцевых датчиков (используем Canvas)
+        function drawGauge(canvasId, percent) {
+            const canvas = document.getElementById(canvasId);
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            const w = 100, h = 100;
+            canvas.width = w; canvas.height = h;
+            ctx.clearRect(0, 0, w, h);
+            
+            // Фон
+            ctx.beginPath();
+            ctx.arc(50, 50, 40, 0, 2 * Math.PI);
+            ctx.strokeStyle = '#1F2A3C';
+            ctx.lineWidth = 8;
+            ctx.stroke();
+            
+            // Прогресс
+            const start = -0.5 * Math.PI;
+            const end = start + (2 * Math.PI * (percent / 100));
+            ctx.beginPath();
+            ctx.arc(50, 50, 40, start, end);
+            ctx.strokeStyle = percent > 90 ? '#EF4444' : (percent > 75 ? '#F59E0B' : '#22C55E');
+            ctx.lineWidth = 8;
+            ctx.lineCap = 'round';
+            ctx.stroke();
+            
+            // Текст внутри
+            ctx.font = 'bold 20px "Segoe UI"';
+            ctx.fillStyle = '#FFFFFF';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(percent.toFixed(0) + '%', 50, 50);
+        }
+
+        // Обновление графика
+        function updateChart(chart, arr, val) {
+            if (arr.length >= MAX_POINTS) arr.shift();
+            arr.push(val);
+            if (chart.data.labels.length >= MAX_POINTS) chart.data.labels.shift();
+            chart.data.labels.push(new Date().toLocaleTimeString().slice(0,5));
+            chart.data.datasets[0].data = arr;
+            chart.update('none');
+        }
+
+        // Главная функция загрузки данных
+        async function loadData() {
+            try {
+                const healthResp = await fetch('/api/health');
+                const healthData = await healthResp.json();
+                const sys = healthData.system || {};
+
+                // CPU
+                const cpuVal = sys.cpu_percent || 0;
+                document.getElementById('cpu-load').textContent = cpuVal.toFixed(1)+'%';
+                document.getElementById('cpu-model').textContent = sys.cpu_name || 'Неизвестный CPU';
+                document.getElementById('cpu-cores').textContent = `${sys.cpu_count||'?'} / ${sys.cpu_count_logical||'?'}`;
+                document.getElementById('cpu-freq').textContent = sys.cpu_freq_current ? sys.cpu_freq_current.toFixed(1)+' GHz' : '—';
+                document.getElementById('cpu-freq-max').textContent = sys.cpu_freq_max ? sys.cpu_freq_max.toFixed(1)+' GHz' : '—';
+                document.getElementById('cpu-temp').textContent = sys.cpu_temp ? sys.cpu_temp+'°C' : '—';
+                document.getElementById('cpu-progress').style.width = cpuVal+'%';
+                document.getElementById('cpu-dot').className = `status-dot ${cpuVal>90?'critical':(cpuVal>75?'warning':'')}`;
+                drawGauge('cpuGauge', cpuVal);
+                updateChart(cpuChart, cpuData, cpuVal);
+
+                // GPU
+                const gpuVal = sys.gpu_percent ?? 0;
+                document.getElementById('gpu-load').textContent = gpuVal>0 ? gpuVal.toFixed(1)+'%' : 'Н/Д';
+                document.getElementById('gpu-model').textContent = sys.gpu_name || 'GPU не обнаружен';
+                document.getElementById('gpu-memory').textContent = (sys.gpu_memory_used&&sys.gpu_memory_total) ? `${sys.gpu_memory_used.toFixed(1)}/${sys.gpu_memory_total.toFixed(1)} GB` : '—';
+                document.getElementById('gpu-temp').textContent = sys.gpu_temp ? sys.gpu_temp+'°C' : '—';
+                document.getElementById('gpu-progress').style.width = gpuVal+'%';
+                document.getElementById('gpu-dot').className = `status-dot ${gpuVal>90?'critical':(gpuVal>75?'warning':(gpuVal>0?'':'warning'))}`;
+                drawGauge('gpuGauge', gpuVal);
+                updateChart(gpuChart, gpuData, gpuVal);
+
+                // RAM
+                const memVal = sys.memory_percent || 0;
+                document.getElementById('ram-load').textContent = memVal.toFixed(1)+'%';
+                document.getElementById('ram-total').textContent = sys.memory_total ? sys.memory_total.toFixed(1)+' GB' : '—';
+                document.getElementById('ram-free').textContent = sys.memory_free ? sys.memory_free.toFixed(1)+' GB' : '—';
+                document.getElementById('ram-progress').style.width = memVal+'%';
+                document.getElementById('ram-dot').className = `status-dot ${memVal>90?'critical':(memVal>75?'warning':'')}`;
+                drawGauge('ramGauge', memVal);
+                updateChart(memoryChart, memData, memVal);
+
+                // Disk
+                const diskVal = sys.disk_percent || 0;
+                document.getElementById('disk-load').textContent = diskVal.toFixed(1)+'%';
+                document.getElementById('disk-model').textContent = sys.disk_name || 'Неизвестный диск';
+                document.getElementById('disk-total').textContent = sys.disk_total ? sys.disk_total.toFixed(0)+' GB' : '—';
+                document.getElementById('disk-used').textContent = sys.disk_used ? sys.disk_used.toFixed(0)+' GB' : '—';
+                document.getElementById('disk-temp').textContent = sys.disk_temp ? sys.disk_temp+'°C' : '—';
+                document.getElementById('disk-progress').style.width = diskVal+'%';
+                document.getElementById('disk-dot').className = `status-dot ${diskVal>95?'critical':(diskVal>85?'warning':'')}`;
+                drawGauge('diskGauge', diskVal);
+                updateChart(diskChart, diskData, diskVal);
+
+                // Здоровье и проблемы
+                const healthScore = healthData.health_score || 0;
+                document.getElementById('health-score').textContent = healthScore;
+                const issues = healthData.issues || [];
+                const issuesList = document.getElementById('issues-list');
+                issuesList.innerHTML = issues.length ? issues.map(i=>`<li style="padding:4px 0;">⚠️ ${i}</li>`).join('') : '<li style="color:#86EFAC;">✔ Система в порядке</li>';
+
+                // ZORA статус
+                const zoraResp = await fetch('/api/zora_status');
+                const zora = await zoraResp.json();
+                if (zora.success) {
+                    document.getElementById('zora-status-text').textContent = zora.status==='running'?'Активна':(zora.status==='partial'?'Частично':'Остановлена');
+                    document.getElementById('zora-message').textContent = zora.message;
+                    const dot = document.getElementById('zora-dot');
+                    dot.className = `status-dot ${zora.status==='running'?'':(zora.status==='partial'?'warning':'critical')}`;
+                    
+                    const comps = zora.components || {};
+                    const working = zora.working_components||0, total = zora.total_components||0;
+                    document.getElementById('comp-count').textContent = `${working}/${total}`;
+                    document.getElementById('qdrant-vectors').textContent = zora.qdrant_vectors || '—';
+                    document.getElementById('zora-uptime').textContent = zora.uptime || '—';
+
+                    // Сервисы
+                    const servicesDiv = document.getElementById('services-container');
+                    servicesDiv.innerHTML = '';
+                    const serviceMap = { core:'Ядро', qdrant:'Qdrant', agents:'Агенты', orchestrator:'Оркестратор', web:'Веб', docker:'Docker', ollama:'Ollama' };
+                    Object.entries(comps).forEach(([k,v])=>{
+                        if (!serviceMap[k]) return;
+                        const chip = document.createElement('div');
+                        chip.className = `service-chip ${v?'active':'inactive'}`;
+                        chip.innerHTML = `<span class="dot"></span> ${serviceMap[k]}`;
+                        servicesDiv.appendChild(chip);
+                    });
+                }
+
+                // Агенты
+                const agentsResp = await fetch('/api/agents');
+                const agentsData = await agentsResp.json();
+                document.getElementById('agents-summary').textContent = `${agentsData.available_agents||0}/${agentsData.total_agents||0} доступно`;
+                const grid = document.getElementById('agents-grid');
+                grid.innerHTML = '';
+                const names = { economist:'Экономист', purchaser:'Закупщик', accountant:'Бухгалтер', support:'Поддержка', smm:'SMM', website:'Веб-сайт', developer:'Ria (Dev)', logistician:'Логист', operator_1c:'1С Оператор' };
+                Object.entries(agentsData.agents||{}).forEach(([name, agent])=>{
+                    let state = agent.state||'unavailable';
+                    if (agent.current_task && agent.current_task!=='Нет активной задачи' && agent.current_task.trim()) state='running';
+                    else if (state==='running') state='idle';
+                    const card = document.createElement('div'); card.className = `agent-card ${state}`;
+                    card.innerHTML = `
+                        <div class="agent-name">${names[name]||name}</div>
+                        <span class="agent-state state-${state}">${state==='running'?'Работает':(state==='idle'?'Простаивает':'Недоступен')}</span>
+                        <div style="margin-top:12px; font-size:0.9rem;">${agent.current_task||'Нет задач'}</div>
+                        <div style="font-size:0.7rem; color:#7E93AA; margin-top:8px;">Активность: ${agent.last_activity?new Date(agent.last_activity).toLocaleTimeString():'—'}</div>
+                    `;
+                    grid.appendChild(card);
+                });
+
+                document.getElementById('last-update').textContent = new Date().toLocaleTimeString();
+            } catch(e) {
+                console.warn('Ошибка загрузки', e);
+            }
+        }
+
+        // Инструменты
+        async function callTool(endpoint, btnId, msg, confirmMsg=null) {
+            if (confirmMsg && !confirm(confirmMsg)) return;
+            const resDiv = document.getElementById('tools-result');
+            resDiv.innerHTML = '⏳ Выполнение...';
+            try {
+                const resp = await fetch(endpoint, {method:'POST'});
+                const data = await resp.json();
+                resDiv.innerHTML = data.success ? `✅ ${data.message||msg}` : `❌ ${data.message||'Ошибка'}`;
+            } catch(e) { resDiv.innerHTML = '❌ Сетевая ошибка'; }
+        }
+        window.indexProject = ()=> callTool('/api/index_project', null, 'Индексация запущена');
+        window.analyzeCode = ()=> callTool('/api/analyze_code', null, 'Анализ завершён');
+        window.runTests = ()=> callTool('/api/run_tests', null, 'Тесты выполнены');
+        window.gitStatus = ()=> callTool('/api/git_status', null, 'Статус Git получен');
+        window.reindexAll = ()=> callTool('/api/reindex', null, 'Полная переиндексация начата', 'Это удалит все векторы. Продолжить?');
+        window.clearCache = ()=> callTool('/api/cache/clear', null, 'Кэш сброшен');
+        window.restartAgent = (agent)=> callTool(`/api/agents/${agent}/restart`, null, `Агент ${agent} перезапущен`);
+
+        window.onload = ()=>{
+            initCharts();
+            loadData();
+            setInterval(loadData, 10000);
+        };
+        window.loadData = loadData;
+    })();
+</script>
+</body>
+</html>

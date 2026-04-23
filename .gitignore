@@ -1,0 +1,44 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.egg-info/
+dist/
+build/
+
+# Virtual environment
+venv/
+.venv/
+
+# Environment variables
+.env
+
+# Logs
+logs/
+*.log
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+Thumbs.db
+.DS_Store
+
+# Qdrant data
+qdrant_storage/
+chroma_db/
+
+# Docker
+.docker/
+
+# Memory
+memory/file_hashes.db
+
+# Data
+data/
+
+# Monitoring
+monitoring/__pycache__/

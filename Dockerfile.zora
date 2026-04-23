@@ -1,0 +1,26 @@
+FROM python:3.11-slim
+
+WORKDIR /app
+
+# Создаём виртуальное окружение
+RUN python -m venv /venv
+ENV PATH="/venv/bin:$PATH"
+
+# Устанавливаем системные зависимости
+RUN apt-get update && apt-get install -y \
+    gcc \
+    g++ \
+    && rm -rf /var/lib/apt/lists/*
+
+# Копируем зависимости
+COPY requirements-docker-simple.txt .
+RUN pip install --no-cache-dir -r requirements-docker-simple.txt
+
+# Копируем весь код
+COPY . .
+
+# Открываем порт
+EXPOSE 8000
+
+# Запускаем веб-сервер
+CMD ["python", "interfaces/web.py", "--port", "8000"]
