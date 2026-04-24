@@ -6,7 +6,7 @@
 import logging
 from typing import Dict, Any
 from agents.base import BaseAgent
-from connectors.llm_client import generate as llm_generate
+from connectors.llm_client_distributed import generate as llm_generate
 try:
     from memory import memory
     MEMORY_AVAILABLE = True

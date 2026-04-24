@@ -21,8 +21,20 @@ from typing import Dict, Any, List, Optional
 from datetime import datetime
 
 # Загрузка переменных окружения из .env файла
+# Сначала удаляем OLLAMA_HOST из os.environ, чтобы системная переменная не переопределила .env
+os.environ.pop("OLLAMA_HOST", None)
 from dotenv import load_dotenv
 load_dotenv(os.path.join(os.path.dirname(__file__), '.env'))
+# Принудительно устанавливаем OLLAMA_HOST из .env (если он там есть)
+_env_ollama = None
+with open(os.path.join(os.path.dirname(__file__), '.env'), 'r', encoding='utf-8') as _f:
+    for _line in _f:
+        _line = _line.strip()
+        if _line.startswith('OLLAMA_HOST='):
+            _env_ollama = _line.split('=', 1)[1].strip().strip('"').strip("'")
+            break
+if _env_ollama:
+    os.environ["OLLAMA_HOST"] = _env_ollama
 
 # Устанавливаем кодировку UTF-8 для stdout/stderr на Windows
 if sys.platform == "win32":
@@ -112,6 +124,9 @@ class SystemChecker:
         """Асинхронно проверяет доступность Ollama."""
         try:
             ollama_host = os.getenv("OLLAMA_HOST", "http://localhost:11434")
+            # Нормализуем URL: добавляем http:// если отсутствует
+            if not ollama_host.startswith(("http://", "https://")):
+                ollama_host = "http://" + ollama_host
             ollama_url = f"{ollama_host}/api/tags"
             
             response = await asyncio.to_thread(requests.get, ollama_url, timeout=5)
@@ -239,6 +254,12 @@ class ServiceManager:
                 'remote': True
             }
         }
+        
+        # Нормализуем URL для Ollama в check_url
+        ollama_host = os.getenv("OLLAMA_HOST", "http://localhost:11434")
+        if not ollama_host.startswith(("http://", "https://")):
+            ollama_host = "http://" + ollama_host
+        self.services['ollama']['check_url'] = f"{ollama_host}/api/tags"
         
         self.checker = SystemChecker()
     
@@ -427,8 +448,8 @@ class ZoraLauncher:
         
         # Импортируем агентов (если они существуют)
         try:
-            from agents.operator_1c_local import Operator1CAgent
-            op_agent = Operator1CAgent()
+            from agents.operator_1c_local import Operator1CLocal
+            op_agent = Operator1CLocal()
             self.background_agents['operator_1c'] = op_agent
             
             # Запуск цикла в 7:30 по будням
@@ -543,4 +564,8 @@ async def main():
 
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    try:
+        asyncio.run(main())
+    except KeyboardInterrupt:
+        print("\n🛑 Система ZORA остановлена.")
+        sys.exit(0)

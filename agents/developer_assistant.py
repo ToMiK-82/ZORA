@@ -18,6 +18,7 @@ from typing import Dict, Any, List
 from agents.base import BaseAgent
 from core.roles import AgentRole, get_system_prompt
 from connectors.llm_client_distributed import generate_sync as llm_generate
+from core.model_selector import get_selector
 
 try:
     from memory import memory
@@ -57,8 +58,11 @@ class DeveloperAssistant(BaseAgent):
         query = state.get("query", "")
         context = state.get("context", "")
         history = state.get("history", [])
-        model = state.get("model", "llama3.2:latest")
-        provider = state.get("provider", "ollama")
+        # Динамический выбор модели через ModelSelector
+        selector = get_selector()
+        model_info = selector.select_planner(query)
+        model = state.get("model", model_info.get("model", "qwen3:8b"))
+        provider = state.get("provider", model_info.get("provider", "ollama"))
         return self._process_specific(query, context, history, model, provider)
 
     def _process_specific(self, query: str, context: str, history: List[Dict],

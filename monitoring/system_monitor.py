@@ -757,7 +757,8 @@ def check_ollama() -> Dict[str, Any]:
     """Проверяет состояние Ollama."""
     try:
         import requests
-        response = requests.get('http://localhost:11434/api/tags', timeout=5)
+        from core.model_selector import OLLAMA_HOST
+        response = requests.get(f"{OLLAMA_HOST}/api/tags", timeout=5)
         if response.status_code == 200:
             models = response.json().get('models', [])
             return {

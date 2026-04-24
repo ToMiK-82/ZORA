@@ -11,7 +11,7 @@ from qdrant_client import QdrantClient
 from qdrant_client.http import models
 from qdrant_client.http.exceptions import UnexpectedResponse
 
-from connectors.llm_client import llm_client
+from connectors.llm_client_distributed import llm_client
 
 
 class ZoraMemory:

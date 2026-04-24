@@ -14,7 +14,7 @@ except ImportError:
     MEMORY_AVAILABLE = False
     memory = None
 
-from connectors.llm_client import llm_client
+from connectors.llm_client_distributed import llm_client
 from core.roles import get_system_prompt
 import asyncio
 from datetime import datetime, time

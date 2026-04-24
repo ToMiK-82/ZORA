@@ -8,6 +8,7 @@ import logging
 from typing import Dict, List, Any, Optional
 import subprocess
 import tempfile
+from core.model_selector import CHAT_MODEL_WEAK
 
 logger = logging.getLogger(__name__)
 
@@ -94,7 +95,7 @@ class ModelTrainer:
         
         return conversations[:limit]
     
-    def create_modelfile(self, base_model: str = "llama3.2:latest",
+    def create_modelfile(self, base_model: str = None,
                         dataset_path: str = None,
                         model_name: str = "zora-finetuned") -> str:
         """
@@ -131,7 +132,7 @@ PARAMETER top_k 40
         
         return modelfile_path
     
-    def train_model(self, base_model: str = "llama3.2:latest",
+    def train_model(self, base_model: str = None,
                    dataset_path: Optional[str] = None,
                    model_name: str = "zora-finetuned",
                    epochs: int = 3) -> Dict[str, Any]:
@@ -297,7 +298,7 @@ PARAMETER top_k 40
             # Получаем модели из конфигурации ZORA
             config_models = []
             try:
-                from config.distributed_models import (
+                from core.model_selector import (
                     CHAT_MODEL_WEAK, 
                     CHAT_MODEL_STRONG, 
                     CHAT_MODEL_STRONG_LOCAL,
@@ -396,7 +397,7 @@ def train_zora_assistant(use_memory_data: bool = True,
     
     # Обучаем модель
     result = trainer.train_model(
-        base_model="llama3.2:latest",
+        base_model=CHAT_MODEL_WEAK,
         dataset_path=dataset_path,
         model_name="zora-assistant",
         epochs=3

@@ -10,7 +10,7 @@ print('🔍 ФИНАЛЬНАЯ ПРОВЕРКА ZORA')
 print('=' * 60)
 
 # Проверяем конфигурацию
-from config.distributed_models import *
+from core.model_selector import *
 print('1. КОНФИГУРАЦИЯ МОДЕЛЕЙ:')
 print(f'   EMBED_MODEL: {EMBED_MODEL}')
 print(f'   CHAT_MODEL_WEAK: {CHAT_MODEL_WEAK}')

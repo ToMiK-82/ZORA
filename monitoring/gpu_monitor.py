@@ -108,7 +108,9 @@ def get_nvidia_gpu_info() -> Dict[str, Any]:
         
         # Берем первую GPU
         handle = pynvml.nvmlDeviceGetHandleByIndex(0)
-        name = pynvml.nvmlDeviceGetName(handle).decode('utf-8')
+        name = pynvml.nvmlDeviceGetName(handle)
+        if isinstance(name, bytes):
+            name = name.decode('utf-8')
         
         # Использование GPU
         utilization = pynvml.nvmlDeviceGetUtilizationRates(handle)
