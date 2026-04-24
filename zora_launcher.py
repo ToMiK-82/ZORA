@@ -427,7 +427,7 @@ class ZoraLauncher:
         
         # Импортируем агентов (если они существуют)
         try:
-            from agents.operator_1c import Operator1CAgent
+            from agents.operator_1c_local import Operator1CAgent
             op_agent = Operator1CAgent()
             self.background_agents['operator_1c'] = op_agent
             
