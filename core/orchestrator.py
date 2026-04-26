@@ -101,10 +101,10 @@ class ZoraOrchestrator:
                 
                 def _call_llm():
                     try:
-                        # Используем более быструю модель для классификации
+                        # Используем llama3.2:latest для классификации
                         response = llm_generate(
                             f"Классифицируй запрос для интерфейса разработчика: {query}\nВерни только: developer или economist",
-                            model="qwen2.5-coder:1.5b", 
+                            model="llama3.2:latest", 
                             temperature=0.1, 
                             use_local_first=True
                         )
@@ -157,7 +157,7 @@ class ZoraOrchestrator:
                     try:
                         response = llm_generate(
                             f"Классифицируй запрос: {query}\nВерни только: economist, support, или developer",
-                            model="qwen2.5-coder:1.5b", 
+                            model="llama3.2:latest", 
                             temperature=0.1, 
                             use_local_first=True
                         )
@@ -566,22 +566,6 @@ class ZoraOrchestrator:
                         except Exception as e:
                             logging.error(f"Ошибка ночного анализа кода: {e}")
                         
-                        # Запуск project_health_check
-                        logging.info("🔧 Запуск автоматической проверки здоровья проекта...")
-                        try:
-                            from agents.developer_assistant import DeveloperAssistant
-                            assistant = DeveloperAssistant()
-                            health_report = assistant._run_project_health_check()
-                            logging.info(f"Результат проверки здоровья проекта: {health_report[:300]}...")
-                            
-                            # Сохраняем отчёт в память
-                            if MEMORY_AVAILABLE and memory:
-                                memory.store(
-                                    text=health_report,
-                                    metadata={"type": "project_health_check", "timestamp": str(now)}
-                                )
-                        except Exception as e:
-                            logging.error(f"Ошибка проверки здоровья проекта: {e}")
                     if now.hour % 6 == 0 and now.minute == 0:
                         logging.info("▶ Запуск анализа уроков для самообучения...")
                         try:

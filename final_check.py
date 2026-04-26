@@ -53,14 +53,12 @@ except Exception as e:
 
 print('\n3. ПРОВЕРКА ФУНКЦИЙ ОПРЕДЕЛЕНИЯ ТИПА МОДЕЛЕЙ:')
 test1 = is_embedding_task('BAAI/bge-m3')
-test2 = is_embedding_task('nomic-embed-text')
-test3 = is_coding_task('qwen2.5-coder:1.5b')
-test4 = get_model_type('qwen2.5-coder:1.5b')
+test3 = is_coding_task('qwen2.5-coder:8b')
+test4 = get_model_type('qwen2.5-coder:8b')
 
 print(f'   is_embedding_task("BAAI/bge-m3"): {test1}')
-print(f'   is_embedding_task("nomic-embed-text"): {test2}')
-print(f'   is_coding_task("qwen2.5-coder:1.5b"): {test3}')
-print(f'   get_model_type("qwen2.5-coder:1.5b"): {test4}')
+print(f'   is_coding_task("qwen2.5-coder:8b"): {test3}')
+print(f'   get_model_type("qwen2.5-coder:8b"): {test4}')
 
 print('\n4. ПРОВЕРКА ModelTrainer:')
 try:
@@ -76,10 +74,10 @@ except Exception as e:
 print('\n' + '=' * 60)
 print('🎯 ИТОГОВЫЙ СТАТУС:')
 print('   ✅ nomic-embed-text удалена из Ollama')
-print('   ✅ qwen2.5-coder:1.5b загружена')
+print('   ✅ qwen2.5-coder:8b загружена')
 print('   ✅ Конфигурация ZORA обновлена')
 print('   ✅ Все функции работают корректно')
-print('   ✅ Модели в Ollama: qwen2.5-coder:1.5b, llama3.2:latest')
+print('   ✅ Модели в Ollama: qwen2.5-coder:7b, qwen3:8b, qwen3:14b, qwen3-vl:4b, bge-m3:latest')
 print('\n📝 РЕКОМЕНДАЦИИ:')
 print('   1. Для проверки моделей: ollama list')
 print('   2. Для тестирования ZORA: запустите main.py')

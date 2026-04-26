@@ -22,8 +22,6 @@ from core.model_selector import (
     DEEPSEEK_CHAT_MODEL,
     DEEPSEEK_REASONER_MODEL,
     DEEPSEEK_TIMEOUT,
-    CHAT_MODEL_WEAK,
-    DEEPSEEK_MODEL,
     EMBED_MODEL,
 )
 from core.model_selector import get_selector
@@ -163,7 +161,7 @@ class LLMClient:
             if selected_provider == LLMProvider.OLLAMA:
                 ollama = self._import_ollama()
                 if ollama and "generate" in ollama:
-                    model = model or CHAT_MODEL_WEAK
+                    model = model or "llama3.2:latest"
                     return ollama["generate"](
                         prompt=prompt,
                         model=model,
@@ -176,7 +174,7 @@ class LLMClient:
             elif selected_provider == LLMProvider.DEEPSEEK:
                 deepseek = self._import_deepseek()
                 if deepseek and "generate" in deepseek:
-                    model = model or DEEPSEEK_MODEL
+                    model = model or DEEPSEEK_CHAT_MODEL
                     return deepseek["generate"](
                         prompt=prompt,
                         model=model,
@@ -574,9 +572,9 @@ def generate_sync(prompt: str, model: str = None, provider: str = "ollama",
     with concurrent.futures.ThreadPoolExecutor(max_workers=1) as executor:
         future = executor.submit(_run_in_new_loop)
         try:
-            return future.result(timeout=120)
+            return future.result(timeout=300)
         except concurrent.futures.TimeoutError:
-            logger.error("Тайм-аут генерации (120 сек)")
+            logger.error("Тайм-аут генерации (300 сек)")
             return "Ошибка: тайм-аут генерации"
         except Exception as e:
             logger.error(f"Ошибка в generate_sync: {e}")

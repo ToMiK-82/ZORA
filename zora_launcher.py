@@ -510,6 +510,12 @@ class ZoraLauncher:
         
         if open_browser:
             await self.open_browser()
+            # Также открываем дашборд мониторинга
+            try:
+                await asyncio.to_thread(webbrowser.open, "http://localhost:8003")
+                logger.info("🌐 Открываю дашборд мониторинга: http://localhost:8003")
+            except Exception as e:
+                logger.warning(f"⚠️ Не удалось открыть дашборд: {e}")
         
         print("\n" + "=" * 60)
         print(">>> СИСТЕМА ZORA УСПЕШНО ЗАПУЩЕНА")

@@ -358,9 +358,9 @@ class Dashboard:
                 from memory.indexer import index_project_files
                 # Очищаем коллекцию Qdrant
                 try:
-                    from memory.qdrant_memory import QdrantMemory
-                    memory = QdrantMemory()
-                    memory.clear_collection()
+                    from memory.qdrant_memory import ZoraMemory
+                    memory = ZoraMemory()
+                    memory.clear()
                     logging.info("Коллекция Qdrant очищена")
                 except Exception as e:
                     logging.warning(f"Не удалось очистить коллекцию Qdrant: {e}")
@@ -394,8 +394,8 @@ class Dashboard:
                 
                 # Очищаем кэш в памяти (если есть)
                 try:
-                    from memory.qdrant_memory import QdrantMemory
-                    memory = QdrantMemory()
+                    from memory.qdrant_memory import ZoraMemory
+                    memory = ZoraMemory()
                     if hasattr(memory, 'clear_cache'):
                         memory.clear_cache()
                         logging.info("Кэш памяти очищен")

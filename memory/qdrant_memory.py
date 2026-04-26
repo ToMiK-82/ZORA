@@ -30,7 +30,7 @@ except ImportError:
 
 class ZoraMemory:
     def __init__(self, host=None, port=None, collection_name="zora_memory",
-                 embedding_model="BAAI/bge-m3", embedding_size=1024,
+                 embedding_model="nomic-embed-text", embedding_size=768,
                  optimizers_config: Optional[Dict] = None):
         if not QDRANT_AVAILABLE:
             raise ImportError("Установите qdrant-client")
@@ -90,8 +90,22 @@ class ZoraMemory:
             )
             logging.info(f"Коллекция {self.collection_name} создана с оптимизатором: {self.optimizers_config}")
 
+    def _truncate_query(self, text: str, max_chars: int = 8000) -> str:
+        """
+        Обрезает текст запроса до указанного количества символов.
+        nomic-embed-text поддерживает до 8192 токенов.
+        """
+        if len(text) <= max_chars:
+            return text
+        truncated = text[:max_chars]
+        logging.warning(f"Запрос обрезан с {len(text)} до {max_chars} символов для эмбеддинга")
+        return truncated
+
     def _embed_text(self, text: str) -> List[float]:
         try:
+            # Обрезаем текст до 8000 символов (nomic-embed-text поддерживает до 8192 токенов)
+            text = self._truncate_query(text, max_chars=8000)
+            
             # Пытаемся импортировать embedding_client, если он не доступен
             global embedding_client
             if embedding_client is None:
