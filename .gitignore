@@ -37,8 +37,8 @@ chroma_db/
 # Memory
 memory/file_hashes.db
 
-# Data
-data/
+# Data - игнорируем только JSON-файлы диалогов, но не .gitkeep
+data/dialogues/*.json
 
 # Monitoring
 monitoring/__pycache__/

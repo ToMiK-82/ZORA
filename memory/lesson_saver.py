@@ -48,6 +48,11 @@ def save_lesson(
 {result}
 """
         
+        # Чанкинг уже выполнен на стороне indexer.py (max_chunk_size=1500).
+        # Текст урока может быть длиннее, но embedding_client принимает любой размер.
+        # nomic-embed-text через Ollama стабильно обрабатывает текст любой длины.
+        # Обрезка не требуется — если текст слишком длинный, он будет передан как есть.
+        
         # Формируем метаданные
         lesson_metadata = {
             "type": "lesson",
@@ -55,7 +60,7 @@ def save_lesson(
             "query": query,
             "timestamp": time.time(),
             "result_summary": result[:100] if result else "",
-            "lesson_type": "success" if result and "успех" in result.lower() or "успешно" in result.lower() else "general"
+            "lesson_type": "success" if result and ("успех" in result.lower() or "успешно" in result.lower()) else "general"
         }
         
         # Добавляем дополнительные метаданные

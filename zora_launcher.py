@@ -428,17 +428,71 @@ class ZoraLauncher:
             logger.error(f"❌ Ошибка запуска веб-сервера: {e}")
             return False
     
+    def _open_url_in_browser(self, url: str):
+        """Открывает URL в браузере.
+        Использует subprocess.Popen (fire-and-forget) — не ждёт завершения.
+        В безголовом режиме (SSH) ничего не делает.
+        """
+        if self._is_headless():
+            return
+        try:
+            if sys.platform == "win32":
+                subprocess.Popen(
+                    ["cmd", "/c", "start", "", url],
+                    shell=True,
+                    stdout=subprocess.DEVNULL,
+                    stderr=subprocess.DEVNULL
+                )
+            else:
+                subprocess.Popen(
+                    ["xdg-open", url],
+                    stdout=subprocess.DEVNULL,
+                    stderr=subprocess.DEVNULL
+                )
+        except Exception as e:
+            logger.debug(f"  Не удалось открыть {url}: {e}")
+    
     async def open_browser(self):
-        """Асинхронно открывает браузер с веб-интерфейсом."""
+        """Асинхронно открывает браузер с веб-интерфейсом.
+        Запускает в отдельном потоке, чтобы не блокировать event loop.
+        """
         url = f"http://localhost:{self.port}/modern"
         logger.info(f"🌐 Открываю браузер: {url}")
+        self._open_url_in_browser(url)
+        return True
+    
+    def _is_headless(self) -> bool:
+        """Определяет, запущена ли система в безголовом режиме (SSH, без GUI).
         
-        try:
-            await asyncio.to_thread(webbrowser.open, url)
+        Проверяет несколько признаков:
+        1. Переменная окружения SSH_CONNECTION (SSH-соединение)
+        2. Переменная окружения DISPLAY не установлена (Linux без GUI)
+        3. На Windows: отсутствие интерактивной сессии пользователя
+        """
+        # Проверка SSH-соединения
+        if os.environ.get("SSH_CONNECTION") or os.environ.get("SSH_CLIENT") or os.environ.get("SSH_TTY"):
             return True
-        except Exception as e:
-            logger.error(f"❌ Не удалось открыть браузер: {e}")
-            return False
+        
+        # На Linux: если DISPLAY не установлен — нет GUI
+        if sys.platform != "win32" and not os.environ.get("DISPLAY"):
+            return True
+        
+        # На Windows: проверяем, есть ли десктопное окружение
+        if sys.platform == "win32":
+            try:
+                import ctypes
+                # GetForegroundWindow() вернёт 0, если нет активного окна (сессия заблокирована)
+                # GetDesktopWindow() вернёт 0 в некоторых headless-ситуациях
+                user32 = ctypes.windll.user32
+                if user32.GetDesktopWindow() == 0:
+                    return True
+                # Дополнительная проверка: GetShellWindow() — возвращает 0 если оболочка не загружена
+                if user32.GetShellWindow() == 0:
+                    return True
+            except Exception:
+                pass
+        
+        return False
     
     def _register_background_agents(self):
         """Регистрирует фоновых агентов в планировщике."""
@@ -477,9 +531,9 @@ class ZoraLauncher:
         global _launcher_instance
         _launcher_instance = self
         
-        print("=" * 60)
-        print(">>> ЗАПУСК СИСТЕМЫ ZORA")
-        print("=" * 60)
+        print("=" * 60, flush=True)
+        print(">>> ЗАПУСК СИСТЕМЫ ZORA", flush=True)
+        print("=" * 60, flush=True)
         
         check_result = await self.checker.run_all_checks()
         
@@ -495,6 +549,7 @@ class ZoraLauncher:
             logger.error("❌ Не удалось запустить веб-сервер")
             return False
         
+        # Запускаем дашборд мониторинга (всегда, чтобы был доступен по сети)
         try:
             logger.info("🔄 Запуск дашборда мониторинга...")
             from monitoring.dashboard import Dashboard
@@ -508,28 +563,31 @@ class ZoraLauncher:
         # Запускаем планировщик фоновых агентов
         self._register_background_agents()
         
-        if open_browser:
+        # Определяем режим запуска (headless или с GUI)
+        headless = self._is_headless()
+        if headless:
+            logger.info("🖥️ Безголовый режим (SSH/без GUI): браузер не открывается автоматически")
+            logger.info("   Веб-интерфейс: http://localhost:8002/modern")
+            logger.info("   Дашборд: http://localhost:8003")
+        elif open_browser:
             await self.open_browser()
-            # Также открываем дашборд мониторинга
-            try:
-                await asyncio.to_thread(webbrowser.open, "http://localhost:8003")
-                logger.info("🌐 Открываю дашборд мониторинга: http://localhost:8003")
-            except Exception as e:
-                logger.warning(f"⚠️ Не удалось открыть дашборд: {e}")
+            # Открываем дашборд мониторинга
+            logger.info("🌐 Открываю дашборд мониторинга: http://localhost:8003")
+            self._open_url_in_browser("http://localhost:8003")
         
-        print("\n" + "=" * 60)
-        print(">>> СИСТЕМА ZORA УСПЕШНО ЗАПУЩЕНА")
-        print("=" * 60)
-        print(f"Веб-интерфейс: http://localhost:{self.port}/modern")
-        print(f"Дашборд мониторинга: http://localhost:8003")
-        print(f"Ollama: {os.getenv('OLLAMA_HOST', 'http://localhost:11434')}")
-        print(f"Qdrant: http://{os.getenv('QDRANT_HOST', 'localhost')}:{os.getenv('QDRANT_PORT', '6333')}")
-        print("\nДля тестирования API:")
-        print(f'curl -X POST http://localhost:{self.port}/ask \\')
-        print('  -H "Content-Type: application/json" \\')
-        print('  -d \'{"query": "Привет! Как дела?", "agent": "developer_assistant"}\'')
-        print("\nДля остановки системы нажмите Ctrl+C")
-        print("=" * 60)
+        print("\n" + "=" * 60, flush=True)
+        print(">>> СИСТЕМА ZORA УСПЕШНО ЗАПУЩЕНА", flush=True)
+        print("=" * 60, flush=True)
+        print(f"Веб-интерфейс: http://localhost:{self.port}/modern", flush=True)
+        print(f"Дашборд мониторинга: http://localhost:8003", flush=True)
+        print(f"Ollama: {os.getenv('OLLAMA_HOST', 'http://localhost:11434')}", flush=True)
+        print(f"Qdrant: http://{os.getenv('QDRANT_HOST', 'localhost')}:{os.getenv('QDRANT_PORT', '6333')}", flush=True)
+        print("\nДля тестирования API:", flush=True)
+        print(f'curl -X POST http://localhost:{self.port}/ask \\', flush=True)
+        print('  -H "Content-Type: application/json" \\', flush=True)
+        print('  -d \'{"query": "Привет! Как дела?", "agent": "developer_assistant"}\'', flush=True)
+        print("\nДля остановки системы нажмите Ctrl+C", flush=True)
+        print("=" * 60, flush=True)
         
         try:
             while True:

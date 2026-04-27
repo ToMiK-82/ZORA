@@ -645,6 +645,30 @@ async def cleanup_memory(days: int = 30):
         logger.error(f"Ошибка очистки памяти: {e}")
         return {"success": False, "error": str(e)}
 
+@app.post("/api/confirm")
+async def confirm_action(request: Request):
+    """Подтверждение критического действия от Ria."""
+    try:
+        data = await request.json()
+        plan = data.get("plan", [])
+        confirm = data.get("confirm", False)
+        
+        if not confirm:
+            return {"success": True, "result": "❌ Действие отменено пользователем"}
+        
+        if not plan:
+            return {"success": False, "error": "Не указан план для выполнения"}
+        
+        # Выполняем план через DeveloperAssistant
+        from agents.developer_assistant import DeveloperAssistant
+        assistant = DeveloperAssistant()
+        results = assistant._execute_plan(plan)
+        
+        return {"success": True, "result": "\n".join(results)}
+    except Exception as e:
+        logger.error(f"Ошибка подтверждения действия: {e}")
+        return {"success": False, "error": str(e)}
+
 @app.post("/api/feedback")
 async def handle_feedback(request: Request):
     """

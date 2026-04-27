@@ -317,36 +317,72 @@ def read_file_content(filepath: str) -> Optional[str]:
         return read_text_file(filepath)
 
 def split_code_into_chunks(content: str, filepath: str) -> List[str]:
+    """
+    Разбивает код на чанки по логическим блокам (классы, функции).
+    Если код не разбился на блоки (маленький файл), использует обычный чанкинг.
+    """
     chunks = []
     current_chunk = []
     lines = content.split('\n')
+
     for line in lines:
         line_stripped = line.strip()
-        if line_stripped.startswith('def ') or line_stripped.startswith('class '):
+        # Начало нового блока
+        if (line_stripped.startswith('def ') or
+            line_stripped.startswith('class ') or
+            line_stripped.startswith('async def ')):
             if current_chunk:
                 chunks.append('\n'.join(current_chunk))
-            current_chunk = [line]
-        else:
-            current_chunk.append(line)
+                current_chunk = []
+        current_chunk.append(line)
+
     if current_chunk:
         chunks.append('\n'.join(current_chunk))
+
+    # Если код не разбился на блоки (маленький файл), используем обычный чанкинг
     if len(chunks) <= 1:
-        return split_text_into_chunks(content)
+        return split_text_into_chunks(content, max_chunk_size=1500, overlap=100)
+
     return chunks
 
-def split_text_into_chunks(content: str, max_chunk_size: int = 2000, overlap: int = 200) -> List[str]:
+
+def split_text_into_chunks(content: str, max_chunk_size: int = 1500, overlap: int = 200) -> List[str]:
+    """
+    Разбивает текст на чанки с перекрытием.
+    - max_chunk_size: 1500 символов (безопасно для nomic-embed-text)
+    - overlap: 200 символов (сохраняет контекст на границах)
+
+    Ищет границу предложения/слова, чтобы не разрывать текст посередине.
+    """
+    if not content:
+        return []
+
     chunks = []
     start = 0
-    while start < len(content):
-        end = min(start + max_chunk_size, len(content))
-        if end < len(content):
+    content_length = len(content)
+
+    while start < content_length:
+        end = min(start + max_chunk_size, content_length)
+
+        # Если не конец текста, ищем границу слова/предложения
+        if end < content_length:
+            # Ищем последний пробел, точку или перенос строки
+            last_space = content.rfind(' ', start, end)
+            last_period = content.rfind('.', start, end)
             last_newline = content.rfind('\n', start, end)
-            if last_newline > start:
-                end = last_newline + 1
+
+            # Берём самую правую границу (приоритет: точка > перенос строки > пробел)
+            boundary = max(last_newline, last_period, last_space)
+            if boundary > start:
+                end = boundary + 1
+
         chunk = content[start:end].strip()
         if chunk:
             chunks.append(chunk)
-        start = end - overlap if end < len(content) else end
+
+        # Сдвигаем на (размер чанка - overlap)
+        start = end - overlap if end < content_length else end
+
     return chunks
 
 def enrich_code_chunk(chunk: str, filepath: str) -> str:

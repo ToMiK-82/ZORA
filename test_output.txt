@@ -1,0 +1,404 @@
+============================================================
+>>> ЗАПУСК СИСТЕМЫ ZORA
+============================================================
+2026-04-26 20:16:24,731 - __main__ - INFO - 🔍 Проверка состояния системы ZORA...
+2026-04-26 20:16:28,245 - __main__ - INFO - 📊 Результаты проверки:
+2026-04-26 20:16:28,245 - __main__ - INFO -   ✅ docker: None
+2026-04-26 20:16:28,245 - __main__ - INFO -   ✅ qdrant: None
+2026-04-26 20:16:28,245 - __main__ - INFO -   ✅ ollama: None
+2026-04-26 20:16:28,245 - __main__ - INFO -   ✅ python_deps: None
+2026-04-26 20:16:28,245 - __main__ - INFO -   ❌ port_8002: Порт занят
+2026-04-26 20:16:28,245 - __main__ - WARNING - ⚠️ Некоторые компоненты недоступны. Система будет работать с ограниченной функциональностью.
+2026-04-26 20:16:28,245 - __main__ - INFO - 🚀 Запуск веб-сервера ZORA на порту 8002...
+2026-04-26 20:16:28,261 - __main__ - INFO - 🛑 Порт 8002 занят, останавливаю процессы...
+2026-04-26 20:16:28,293 - __main__ - INFO -   Останавливаю процесс PID: 24660
+2026-04-26 20:16:30,917 - ZORA.ModelSelector - INFO - ModelSelector: vision=qwen3-vl:4b, executor=llama3.2:latest
+2026-04-26 20:16:30,917 - interfaces.web - INFO - ✅ LangGraph оркестратор ZORA загружен для веб-интерфейса
+2026-04-26 20:16:30,917 - connectors.embedding_client - INFO - Инициализация EmbeddingClient: модель=nomic-embed-text, host=http://localhost:11434
+2026-04-26 20:16:31,141 - httpx - INFO - HTTP Request: GET http://10.160.68.222:6333/collections/zora_memory "HTTP/1.1 200 OK"
+2026-04-26 20:16:31,142 - interfaces.web - INFO - ✅ Векторная память Qdrant загружена
+2026-04-26 20:16:31,143 - zora.telegram.handler - INFO - ✅ Оркестратор ZORA загружен для Telegram-бота
+2026-04-26 20:16:31,143 - zora.telegram.handler - INFO - ℹ️ Классическое ядро ZORA не используется, используется только оркестратор
+2026-04-26 20:16:31,143 - interfaces.web - INFO - ✅ Telegram обработчик загружен для веб-интерфейса
+INFO:     Started server process [23088]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://0.0.0.0:8002 (Press CTRL+C to quit)
+2026-04-26 20:16:31,298 - httpx - INFO - HTTP Request: GET http://10.160.68.222:6333 "HTTP/1.1 200 OK"
+2026-04-26 20:16:31,679 - __main__ - INFO - ✅ Веб-сервер запущен на http://localhost:8002
+2026-04-26 20:16:31,679 - __main__ - INFO - 🔄 Запуск дашборда мониторинга...
+2026-04-26 20:16:31,973 - root - INFO - Запуск дашборда на http://0.0.0.0:8003
+2026-04-26 20:16:31,973 - __main__ - INFO - ✅ Дашборд запущен на http://localhost:8003
+INFO:     Started server process [23088]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://0.0.0.0:8003 (Press CTRL+C to quit)
+2026-04-26 20:16:32,272 - tools.email_sender - INFO - EmailSender инициализирован: smtp.gmail.com:587
+2026-04-26 20:16:34,347 - ZORA.ModelSelector - INFO - Исполнитель: llama3.2:latest
+2026-04-26 20:16:34,347 - zora.agent.operator_1c - INFO - ✅ Соединение с 1С инициализировано (заглушка)
+2026-04-26 20:16:34,347 - zora.agent.operator_1c - INFO - ✅ Соединение с 1С инициализировано (заглушка)
+2026-04-26 20:16:34,348 - apscheduler.scheduler - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2026-04-26 20:16:34,348 - __main__ - INFO - 📅 Оператор 1С запланирован на 7:30 по будням
+2026-04-26 20:16:34,348 - apscheduler.scheduler - INFO - Added job "Operator1CLocal.monitoring_loop" to job store "default"
+2026-04-26 20:16:34,348 - apscheduler.scheduler - INFO - Scheduler started
+2026-04-26 20:16:34,348 - __main__ - INFO - ✅ Планировщик фоновых задач запущен
+2026-04-26 20:16:34,348 - __main__ - INFO - 🖥️ Безголовый режим (SSH/без GUI): браузер не открывается автоматически
+2026-04-26 20:16:34,348 - __main__ - INFO -    Веб-интерфейс: http://localhost:8002/modern
+2026-04-26 20:16:34,348 - __main__ - INFO -    Дашборд: http://localhost:8003
+
+============================================================
+>>> СИСТЕМА ZORA УСПЕШНО ЗАПУЩЕНА
+============================================================
+Веб-интерфейс: http://localhost:8002/modern
+Дашборд мониторинга: http://localhost:8003
+Ollama: http://localhost:11434
+Qdrant: http://10.160.68.222:6333
+
+Для тестирования API:
+curl -X POST http://localhost:8002/ask \
+  -H "Content-Type: application/json" \
+  -d '{"query": "Привет! Как дела?", "agent": "developer_assistant"}'
+
+Для остановки системы нажмите Ctrl+C
+============================================================
+INFO:     10.160.68.174:56842 - "GET /status HTTP/1.1" 200 OK
+INFO:     10.160.68.174:53864 - "GET /status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57985 - "GET /status HTTP/1.1" 200 OK
+INFO:     10.160.68.174:64886 - "GET / HTTP/1.1" 200 OK
+INFO:     10.160.68.174:64886 - "GET /api/health HTTP/1.1" 200 OK
+2026-04-26 20:17:52,621 - httpx - INFO - HTTP Request: GET http://localhost:6333/collections "HTTP/1.1 200 OK"
+2026-04-26 20:17:52,763 - httpx - INFO - HTTP Request: GET http://localhost:6333 "HTTP/1.1 200 OK"
+2026-04-26 20:17:54,861 - httpx - INFO - HTTP Request: GET http://10.160.68.222:6333/collections/zora_memory "HTTP/1.1 200 OK"
+2026-04-26 20:17:54,864 - httpx - INFO - HTTP Request: POST http://10.160.68.222:6333/collections/zora_memory/points/count "HTTP/1.1 200 OK"
+INFO:     10.160.68.174:64886 - "GET /api/zora_status HTTP/1.1" 200 OK
+2026-04-26 20:17:55,003 - httpx - INFO - HTTP Request: GET http://10.160.68.222:6333 "HTTP/1.1 200 OK"
+2026-04-26 20:17:57,002 - ZORA.ModelSelector - INFO - Исполнитель: llama3.2:latest
+2026-04-26 20:17:57,003 - zora.agent.operator_1c - INFO - ✅ Соединение с 1С инициализировано (заглушка)
+INFO:     10.160.68.174:64886 - "GET /api/agents HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58052 - "GET / HTTP/1.1" 200 OK
+INFO:     10.160.68.174:64886 - "GET /api/health HTTP/1.1" 200 OK
+INFO:     10.160.68.174:59158 - "GET /status HTTP/1.1" 200 OK
+2026-04-26 20:18:04,074 - httpx - INFO - HTTP Request: GET http://localhost:6333/collections "HTTP/1.1 200 OK"
+2026-04-26 20:18:04,234 - httpx - INFO - HTTP Request: GET http://localhost:6333 "HTTP/1.1 200 OK"
+2026-04-26 20:18:06,304 - httpx - INFO - HTTP Request: GET http://10.160.68.222:6333/collections/zora_memory "HTTP/1.1 200 OK"
+2026-04-26 20:18:06,308 - httpx - INFO - HTTP Request: POST http://10.160.68.222:6333/collections/zora_memory/points/count "HTTP/1.1 200 OK"
+INFO:     10.160.68.174:64886 - "GET /api/zora_status HTTP/1.1" 200 OK
+2026-04-26 20:18:06,461 - httpx - INFO - HTTP Request: GET http://10.160.68.222:6333 "HTTP/1.1 200 OK"
+INFO:     10.160.68.174:64886 - "GET /api/agents HTTP/1.1" 200 OK
+INFO:     10.160.68.174:64886 - "GET /api/health HTTP/1.1" 200 OK
+2026-04-26 20:18:13,892 - httpx - INFO - HTTP Request: GET http://localhost:6333/collections "HTTP/1.1 200 OK"
+2026-04-26 20:18:14,052 - httpx - INFO - HTTP Request: GET http://localhost:6333 "HTTP/1.1 200 OK"
+2026-04-26 20:18:16,126 - httpx - INFO - HTTP Request: GET http://10.160.68.222:6333/collections/zora_memory "HTTP/1.1 200 OK"
+2026-04-26 20:18:16,128 - httpx - INFO - HTTP Request: POST http://10.160.68.222:6333/collections/zora_memory/points/count "HTTP/1.1 200 OK"
+INFO:     10.160.68.174:64886 - "GET /api/zora_status HTTP/1.1" 200 OK
+2026-04-26 20:18:16,277 - httpx - INFO - HTTP Request: GET http://10.160.68.222:6333 "HTTP/1.1 200 OK"
+INFO:     10.160.68.174:64886 - "GET /api/agents HTTP/1.1" 200 OK
+INFO:     10.160.68.174:64886 - "GET /api/health HTTP/1.1" 200 OK
+2026-04-26 20:18:23,994 - httpx - INFO - HTTP Request: GET http://localhost:6333/collections "HTTP/1.1 200 OK"
+2026-04-26 20:18:24,136 - httpx - INFO - HTTP Request: GET http://localhost:6333 "HTTP/1.1 200 OK"
+2026-04-26 20:18:26,239 - httpx - INFO - HTTP Request: GET http://10.160.68.222:6333/collections/zora_memory "HTTP/1.1 200 OK"
+2026-04-26 20:18:26,242 - httpx - INFO - HTTP Request: POST http://10.160.68.222:6333/collections/zora_memory/points/count "HTTP/1.1 200 OK"
+INFO:     10.160.68.174:64886 - "GET /api/zora_status HTTP/1.1" 200 OK
+INFO:     10.160.68.174:64886 - "GET /api/agents HTTP/1.1" 200 OK
+2026-04-26 20:18:26,379 - httpx - INFO - HTTP Request: GET http://10.160.68.222:6333 "HTTP/1.1 200 OK"
+INFO:     10.160.68.174:51961 - "GET /api/health HTTP/1.1" 200 OK
+2026-04-26 20:18:33,480 - httpx - INFO - HTTP Request: GET http://localhost:6333/collections "HTTP/1.1 200 OK"
+INFO:     10.160.68.174:56761 - "GET /status HTTP/1.1" 200 OK
+2026-04-26 20:18:33,657 - httpx - INFO - HTTP Request: GET http://localhost:6333 "HTTP/1.1 200 OK"
+2026-04-26 20:18:35,720 - httpx - INFO - HTTP Request: GET http://10.160.68.222:6333/collections/zora_memory "HTTP/1.1 200 OK"
+2026-04-26 20:18:35,723 - httpx - INFO - HTTP Request: POST http://10.160.68.222:6333/collections/zora_memory/points/count "HTTP/1.1 200 OK"
+INFO:     10.160.68.174:51961 - "GET /api/zora_status HTTP/1.1" 200 OK
+2026-04-26 20:18:35,875 - httpx - INFO - HTTP Request: GET http://10.160.68.222:6333 "HTTP/1.1 200 OK"
+INFO:     10.160.68.174:51961 - "GET /api/agents HTTP/1.1" 200 OK
+INFO:     10.160.68.174:54680 - "GET /api/health HTTP/1.1" 200 OK
+2026-04-26 20:18:43,848 - httpx - INFO - HTTP Request: GET http://localhost:6333/collections "HTTP/1.1 200 OK"
+2026-04-26 20:18:44,008 - httpx - INFO - HTTP Request: GET http://localhost:6333 "HTTP/1.1 200 OK"
+2026-04-26 20:18:46,084 - httpx - INFO - HTTP Request: GET http://10.160.68.222:6333/collections/zora_memory "HTTP/1.1 200 OK"
+2026-04-26 20:18:46,087 - httpx - INFO - HTTP Request: POST http://10.160.68.222:6333/collections/zora_memory/points/count "HTTP/1.1 200 OK"
+INFO:     10.160.68.174:54680 - "GET /api/zora_status HTTP/1.1" 200 OK
+INFO:     10.160.68.174:54680 - "GET /api/agents HTTP/1.1" 200 OK
+2026-04-26 20:18:46,242 - httpx - INFO - HTTP Request: GET http://10.160.68.222:6333 "HTTP/1.1 200 OK"
+INFO:     10.160.68.174:62352 - "GET /api/health HTTP/1.1" 200 OK
+2026-04-26 20:18:53,494 - httpx - INFO - HTTP Request: GET http://localhost:6333/collections "HTTP/1.1 200 OK"
+2026-04-26 20:18:53,637 - httpx - INFO - HTTP Request: GET http://localhost:6333 "HTTP/1.1 200 OK"
+2026-04-26 20:18:55,733 - httpx - INFO - HTTP Request: GET http://10.160.68.222:6333/collections/zora_memory "HTTP/1.1 200 OK"
+2026-04-26 20:18:55,737 - httpx - INFO - HTTP Request: POST http://10.160.68.222:6333/collections/zora_memory/points/count "HTTP/1.1 200 OK"
+INFO:     10.160.68.174:62352 - "GET /api/zora_status HTTP/1.1" 200 OK
+INFO:     10.160.68.174:62352 - "GET /api/agents HTTP/1.1" 200 OK
+2026-04-26 20:18:55,875 - httpx - INFO - HTTP Request: GET http://10.160.68.222:6333 "HTTP/1.1 200 OK"
+INFO:     10.160.68.174:62352 - "GET /api/health HTTP/1.1" 200 OK
+2026-04-26 20:18:59,936 - httpx - INFO - HTTP Request: GET http://localhost:6333/collections "HTTP/1.1 200 OK"
+2026-04-26 20:19:00,094 - httpx - INFO - HTTP Request: GET http://localhost:6333 "HTTP/1.1 200 OK"
+2026-04-26 20:19:02,168 - httpx - INFO - HTTP Request: GET http://10.160.68.222:6333/collections/zora_memory "HTTP/1.1 200 OK"
+2026-04-26 20:19:02,172 - httpx - INFO - HTTP Request: POST http://10.160.68.222:6333/collections/zora_memory/points/count "HTTP/1.1 200 OK"
+INFO:     10.160.68.174:62352 - "GET /api/zora_status HTTP/1.1" 200 OK
+2026-04-26 20:19:02,330 - httpx - INFO - HTTP Request: GET http://10.160.68.222:6333 "HTTP/1.1 200 OK"
+INFO:     10.160.68.174:55464 - "GET /api/health HTTP/1.1" 200 OK
+INFO:     10.160.68.174:62352 - "GET /api/agents HTTP/1.1" 200 OK
+INFO:     10.160.68.174:62352 - "GET /api/health HTTP/1.1" 200 OK
+2026-04-26 20:19:05,535 - httpx - INFO - HTTP Request: GET http://localhost:6333/collections "HTTP/1.1 200 OK"
+2026-04-26 20:19:05,677 - httpx - INFO - HTTP Request: GET http://localhost:6333 "HTTP/1.1 200 OK"
+2026-04-26 20:19:07,757 - httpx - INFO - HTTP Request: GET http://10.160.68.222:6333/collections/zora_memory "HTTP/1.1 200 OK"
+2026-04-26 20:19:07,760 - httpx - INFO - HTTP Request: POST http://10.160.68.222:6333/collections/zora_memory/points/count "HTTP/1.1 200 OK"
+INFO:     10.160.68.174:55464 - "GET /api/zora_status HTTP/1.1" 200 OK
+2026-04-26 20:19:07,943 - httpx - INFO - HTTP Request: GET http://10.160.68.222:6333 "HTTP/1.1 200 OK"
+2026-04-26 20:19:08,036 - httpx - INFO - HTTP Request: GET http://localhost:6333/collections "HTTP/1.1 200 OK"
+2026-04-26 20:19:08,179 - httpx - INFO - HTTP Request: GET http://localhost:6333 "HTTP/1.1 200 OK"
+2026-04-26 20:19:10,259 - httpx - INFO - HTTP Request: GET http://10.160.68.222:6333/collections/zora_memory "HTTP/1.1 200 OK"
+2026-04-26 20:19:10,262 - httpx - INFO - HTTP Request: POST http://10.160.68.222:6333/collections/zora_memory/points/count "HTTP/1.1 200 OK"
+INFO:     10.160.68.174:62352 - "GET /api/zora_status HTTP/1.1" 200 OK
+INFO:     10.160.68.174:55464 - "GET /api/agents HTTP/1.1" 200 OK
+INFO:     10.160.68.174:62352 - "GET /api/agents HTTP/1.1" 200 OK
+2026-04-26 20:19:10,398 - httpx - INFO - HTTP Request: GET http://10.160.68.222:6333 "HTTP/1.1 200 OK"
+INFO:     10.160.68.174:62352 - "GET /api/health HTTP/1.1" 200 OK
+2026-04-26 20:19:12,659 - httpx - INFO - HTTP Request: GET http://localhost:6333/collections "HTTP/1.1 200 OK"
+2026-04-26 20:19:12,786 - httpx - INFO - HTTP Request: GET http://localhost:6333 "HTTP/1.1 200 OK"
+2026-04-26 20:19:14,902 - httpx - INFO - HTTP Request: GET http://10.160.68.222:6333/collections/zora_memory "HTTP/1.1 200 OK"
+2026-04-26 20:19:14,905 - httpx - INFO - HTTP Request: POST http://10.160.68.222:6333/collections/zora_memory/points/count "HTTP/1.1 200 OK"
+INFO:     10.160.68.174:62352 - "GET /api/zora_status HTTP/1.1" 200 OK
+INFO:     10.160.68.174:62352 - "GET /api/agents HTTP/1.1" 200 OK
+2026-04-26 20:19:15,044 - httpx - INFO - HTTP Request: GET http://10.160.68.222:6333 "HTTP/1.1 200 OK"
+INFO:     10.160.68.174:52676 - "GET /api/health HTTP/1.1" 200 OK
+2026-04-26 20:19:23,448 - httpx - INFO - HTTP Request: GET http://localhost:6333/collections "HTTP/1.1 200 OK"
+2026-04-26 20:19:23,589 - httpx - INFO - HTTP Request: GET http://localhost:6333 "HTTP/1.1 200 OK"
+2026-04-26 20:19:25,689 - httpx - INFO - HTTP Request: GET http://10.160.68.222:6333/collections/zora_memory "HTTP/1.1 200 OK"
+2026-04-26 20:19:25,692 - httpx - INFO - HTTP Request: POST http://10.160.68.222:6333/collections/zora_memory/points/count "HTTP/1.1 200 OK"
+INFO:     10.160.68.174:52676 - "GET /api/zora_status HTTP/1.1" 200 OK
+INFO:     10.160.68.174:52676 - "GET /api/agents HTTP/1.1" 200 OK
+2026-04-26 20:19:25,845 - httpx - INFO - HTTP Request: GET http://10.160.68.222:6333 "HTTP/1.1 200 OK"
+INFO:     10.160.68.174:59754 - "GET /status HTTP/1.1" 200 OK
+INFO:     10.160.68.174:49673 - "GET /api/health HTTP/1.1" 200 OK
+INFO:     10.160.68.174:59754 - "GET /status HTTP/1.1" 200 OK
+2026-04-26 20:19:33,463 - httpx - INFO - HTTP Request: GET http://localhost:6333/collections "HTTP/1.1 200 OK"
+2026-04-26 20:19:33,605 - httpx - INFO - HTTP Request: GET http://localhost:6333 "HTTP/1.1 200 OK"
+2026-04-26 20:19:35,701 - httpx - INFO - HTTP Request: GET http://10.160.68.222:6333/collections/zora_memory "HTTP/1.1 200 OK"
+2026-04-26 20:19:35,704 - httpx - INFO - HTTP Request: POST http://10.160.68.222:6333/collections/zora_memory/points/count "HTTP/1.1 200 OK"
+INFO:     10.160.68.174:49673 - "GET /api/zora_status HTTP/1.1" 200 OK
+INFO:     10.160.68.174:49673 - "GET /api/agents HTTP/1.1" 200 OK
+2026-04-26 20:19:35,858 - httpx - INFO - HTTP Request: GET http://10.160.68.222:6333 "HTTP/1.1 200 OK"
+INFO:     10.160.68.174:58787 - "GET /api/health HTTP/1.1" 200 OK
+2026-04-26 20:19:43,460 - httpx - INFO - HTTP Request: GET http://localhost:6333/collections "HTTP/1.1 200 OK"
+2026-04-26 20:19:43,605 - httpx - INFO - HTTP Request: GET http://localhost:6333 "HTTP/1.1 200 OK"
+2026-04-26 20:19:45,702 - httpx - INFO - HTTP Request: GET http://10.160.68.222:6333/collections/zora_memory "HTTP/1.1 200 OK"
+2026-04-26 20:19:45,705 - httpx - INFO - HTTP Request: POST http://10.160.68.222:6333/collections/zora_memory/points/count "HTTP/1.1 200 OK"
+INFO:     10.160.68.174:58787 - "GET /api/zora_status HTTP/1.1" 200 OK
+INFO:     10.160.68.174:58787 - "GET /api/agents HTTP/1.1" 200 OK
+2026-04-26 20:19:45,859 - httpx - INFO - HTTP Request: GET http://10.160.68.222:6333 "HTTP/1.1 200 OK"
+2026-04-26 20:19:46,176 - root - INFO - Запрос перед поиском: 'История диалога:\nuser: Привет.\nassistant: Привет! 👋\n\nРада познакомиться! Я — Ria, твой ассистент по разработке ZORA.\n\nСудя по тому, что я вижу, у нас уже есть:\n- **README** с описанием агентов и стека (LangGraph, Qdrant, Ollama, PostgreSQL, Redis, FastAPI, Docker)\n- **Purchaser** — агент-закупщик (пока с базовым классом)\n- **ZoraLauncher** — запускатор с проверкой системы и менеджером сервисов\n\nЧем могу помочь? Можем:\n- обсудить архитектуру или требования\n- дописать код для любого агента\n- настроить запуск или инфраструктуру\n- разобрать ошибки\n\nПросто скажи, что нужно! 😊\nuser: Ты можешь очистить память и запустить индексацию?\nassistant: Привет! 👋\n\nДа, могу помочь с очисткой памяти и запуском индексации. Но чтобы выполнить это корректно, нужно уточнить несколько моментов:\n\n1. **Какую именно память очистить?**\n- Векторную память в **Qdrant** (коллекции с эмбеддингами)?\n- Кэш в **Redis**?\n- Локальные временные файлы?\n\n2. **Какую индексацию запустить?**\n- Переиндексацию документов/файлов в Qdrant?\n- Индексацию базы данных (PostgreSQL)?\n- Или что-то другое?\n\n3. **Есть ли конкретные скрипты или команды для этого?**\n- В проекте уже есть утилиты для очистки/индексации?\n- Или нужно написать их с нуля?\n\nРасскажи подробнее, что именно нужно сделать — и я составлю план действий или помогу разобраться! 😊\nuser: Переиндексацию документов/файлов в Qdrant.\nassistant: Отлично, теперь понятно! Нужно:\n1. **Очистить коллекции в Qdrant** (удалить все точки/векторы)\n2. **Запустить переиндексацию** — заново разбить документы на чанки, создать эмбеддинги и загрузить в Qdrant\n\nДавай сначала посмотрим, что уже есть в проекте для работы с Qdrant — есть ли готовые скрипты или модули для очистки и индексации.\n\n👉 **План действий:**\n\n{"plan": [\n{"action": "list_dir", "details": "e:\\\\ZORA"},\n{"action": "list_dir", "details": "e:\\\\ZORA\\\\agents"},\n{"action": "list_dir", "details": "e:\\\\ZORA\\\\memory"},\n{"action": "list_dir", "details": "e:\\\\ZORA\\\\utils"}\n]}\nuser: Давай сначала посмотрим, что уже есть в проекте для работы с Qdrant — есть ли готовые скрипты или модули для очистки и индексации.\n\nТекущий запрос: Давай сначала посмотрим, что уже есть в проекте для работы с Qdrant — есть ли готовые скрипты или модули для очистки и индексации.'
+2026-04-26 20:19:46,176 - root - INFO - ✅ Память Qdrant загружена
+2026-04-26 20:19:46,176 - root - INFO - Поиск в памяти: запрос='История диалога:
+user: Привет.
+assistant: Привет! 👋
+
+Рада познакомиться! Я — Ria, твой ассистент по разработке ZORA.
+
+Судя по тому, что я вижу, у нас уже есть:
+- **README** с описанием агентов и стека (LangGraph, Qdrant, Ollama, PostgreSQL, Redis, FastAPI, Docker)
+- **Purchaser** — агент-закупщик (пока с базовым классом)
+- **ZoraLauncher** — запускатор с проверкой системы и менеджером сервисов
+
+Чем могу помочь? Можем:
+- обсудить архитектуру или требования
+- дописать код для любого агента
+- настроить запуск или инфраструктуру
+- разобрать ошибки
+
+Просто скажи, что нужно! 😊
+user: Ты можешь очистить память и запустить индексацию?
+assistant: Привет! 👋
+
+Да, могу помочь с очисткой памяти и запуском индексации. Но чтобы выполнить это корректно, нужно уточнить несколько моментов:
+
+1. **Какую именно память очистить?**
+- Векторную память в **Qdrant** (коллекции с эмбеддингами)?
+- Кэш в **Redis**?
+- Локальные временные файлы?
+
+2. **Какую индексацию запустить?**
+- Переиндексацию документов/файлов в Qdrant?
+- Индексацию базы данных (PostgreSQL)?
+- Или что-то другое?
+
+3. **Есть ли конкретные скрипты или команды для этого?**
+- В проекте уже есть утилиты для очистки/индексации?
+- Или нужно написать их с нуля?
+
+Расскажи подробнее, что именно нужно сделать — и я составлю план действий или помогу разобраться! 😊
+user: Переиндексацию документов/файлов в Qdrant.
+assistant: Отлично, теперь понятно! Нужно:
+1. **Очистить коллекции в Qdrant** (удалить все точки/векторы)
+2. **Запустить переиндексацию** — заново разбить документы на чанки, создать эмбеддинги и загрузить в Qdrant
+
+Давай сначала посмотрим, что уже есть в проекте для работы с Qdrant — есть ли готовые скрипты или модули для очистки и индексации.
+
+👉 **План действий:**
+
+{"plan": [
+{"action": "list_dir", "details": "e:\\ZORA"},
+{"action": "list_dir", "details": "e:\\ZORA\\agents"},
+{"action": "list_dir", "details": "e:\\ZORA\\memory"},
+{"action": "list_dir", "details": "e:\\ZORA\\utils"}
+]}
+user: Давай сначала посмотрим, что уже есть в проекте для работы с Qdrant — есть ли готовые скрипты или модули для очистки и индексации.
+
+Текущий запрос: Давай сначала посмотрим, что уже есть в проекте для работы с Qdrant — есть ли готовые скрипты или модули для очистки и индексации.' (repr: 'История диалога:\nuser: Привет.\nassistant: Привет! 👋\n\nРада познакомиться! Я — Ria, твой ассистент по разработке ZORA.\n\nСудя по тому, что я вижу, у нас уже есть:\n- **README** с описанием агентов и стека (LangGraph, Qdrant, Ollama, PostgreSQL, Redis, FastAPI, Docker)\n- **Purchaser** — агент-закупщик (пока с базовым классом)\n- **ZoraLauncher** — запускатор с проверкой системы и менеджером сервисов\n\nЧем могу помочь? Можем:\n- обсудить архитектуру или требования\n- дописать код для любого агента\n- настроить запуск или инфраструктуру\n- разобрать ошибки\n\nПросто скажи, что нужно! 😊\nuser: Ты можешь очистить память и запустить индексацию?\nassistant: Привет! 👋\n\nДа, могу помочь с очисткой памяти и запуском индексации. Но чтобы выполнить это корректно, нужно уточнить несколько моментов:\n\n1. **Какую именно память очистить?**\n- Векторную память в **Qdrant** (коллекции с эмбеддингами)?\n- Кэш в **Redis**?\n- Локальные временные файлы?\n\n2. **Какую индексацию запустить?**\n- Переиндексацию документов/файлов в Qdrant?\n- Индексацию базы данных (PostgreSQL)?\n- Или что-то другое?\n\n3. **Есть ли конкретные скрипты или команды для этого?**\n- В проекте уже есть утилиты для очистки/индексации?\n- Или нужно написать их с нуля?\n\nРасскажи подробнее, что именно нужно сделать — и я составлю план действий или помогу разобраться! 😊\nuser: Переиндексацию документов/файлов в Qdrant.\nassistant: Отлично, теперь понятно! Нужно:\n1. **Очистить коллекции в Qdrant** (удалить все точки/векторы)\n2. **Запустить переиндексацию** — заново разбить документы на чанки, создать эмбеддинги и загрузить в Qdrant\n\nДавай сначала посмотрим, что уже есть в проекте для работы с Qdrant — есть ли готовые скрипты или модули для очистки и индексации.\n\n👉 **План действий:**\n\n{"plan": [\n{"action": "list_dir", "details": "e:\\\\ZORA"},\n{"action": "list_dir", "details": "e:\\\\ZORA\\\\agents"},\n{"action": "list_dir", "details": "e:\\\\ZORA\\\\memory"},\n{"action": "list_dir", "details": "e:\\\\ZORA\\\\utils"}\n]}\nuser: Давай сначала посмотрим, что уже есть в проекте для работы с Qdrant — есть ли готовые скрипты или модули для очистки и индексации.\n\nТекущий запрос: Давай сначала посмотрим, что уже есть в проекте для работы с Qdrant — есть ли готовые скрипты или модули для очистки и индексации.')
+2026-04-26 20:19:49,299 - httpx - INFO - HTTP Request: POST http://10.160.68.222:6333/collections/zora_memory/points/query "HTTP/1.1 200 OK"
+2026-04-26 20:19:49,300 - root - INFO - Найдено результатов: 15
+2026-04-26 20:19:49,300 - root - INFO - Поиск контекста для запроса 'История диалога:
+user: Привет.
+assistant: Привет! 👋
+
+Рада познакомиться! Я — Ria, твой ассистент по разработке ZORA.
+
+Судя по тому, что я вижу, у нас уже есть:
+- **README** с описанием агентов и стека (LangGraph, Qdrant, Ollama, PostgreSQL, Redis, FastAPI, Docker)
+- **Purchaser** — агент-закупщик (пока с базовым классом)
+- **ZoraLauncher** — запускатор с проверкой системы и менеджером сервисов
+
+Чем могу помочь? Можем:
+- обсудить архитектуру или требования
+- дописать код для любого агента
+- настроить запуск или инфраструктуру
+- разобрать ошибки
+
+Просто скажи, что нужно! 😊
+user: Ты можешь очистить память и запустить индексацию?
+assistant: Привет! 👋
+
+Да, могу помочь с очисткой памяти и запуском индексации. Но чтобы выполнить это корректно, нужно уточнить несколько моментов:
+
+1. **Какую именно память очистить?**
+- Векторную память в **Qdrant** (коллекции с эмбеддингами)?
+- Кэш в **Redis**?
+- Локальные временные файлы?
+
+2. **Какую индексацию запустить?**
+- Переиндексацию документов/файлов в Qdrant?
+- Индексацию базы данных (PostgreSQL)?
+- Или что-то другое?
+
+3. **Есть ли конкретные скрипты или команды для этого?**
+- В проекте уже есть утилиты для очистки/индексации?
+- Или нужно написать их с нуля?
+
+Расскажи подробнее, что именно нужно сделать — и я составлю план действий или помогу разобраться! 😊
+user: Переиндексацию документов/файлов в Qdrant.
+assistant: Отлично, теперь понятно! Нужно:
+1. **Очистить коллекции в Qdrant** (удалить все точки/векторы)
+2. **Запустить переиндексацию** — заново разбить документы на чанки, создать эмбеддинги и загрузить в Qdrant
+
+Давай сначала посмотрим, что уже есть в проекте для работы с Qdrant — есть ли готовые скрипты или модули для очистки и индексации.
+
+👉 **План действий:**
+
+{"plan": [
+{"action": "list_dir", "details": "e:\\ZORA"},
+{"action": "list_dir", "details": "e:\\ZORA\\agents"},
+{"action": "list_dir", "details": "e:\\ZORA\\memory"},
+{"action": "list_dir", "details": "e:\\ZORA\\utils"}
+]}
+user: Давай сначала посмотрим, что уже есть в проекте для работы с Qdrant — есть ли готовые скрипты или модули для очистки и индексации.
+
+Текущий запрос: Давай сначала посмотрим, что уже есть в проекте для работы с Qdrant — есть ли готовые скрипты или модули для очистки и индексации.' вернул 15 результатов
+2026-04-26 20:19:49,301 - root - INFO - Извлечённые ключевые слова: ['давай', 'сначала', 'посмотрим', 'есть', 'проекте']
+2026-04-26 20:19:49,301 - root - INFO - Поиск в памяти: запрос='давай сначала посмотрим есть проекте' (repr: 'давай сначала посмотрим есть проекте')
+2026-04-26 20:19:51,403 - httpx - INFO - HTTP Request: POST http://10.160.68.222:6333/collections/zora_memory/points/query "HTTP/1.1 200 OK"
+2026-04-26 20:19:51,403 - root - INFO - Найдено результатов: 10
+2026-04-26 20:19:51,404 - root - INFO - Дополнительный поиск по ключевым словам добавил 10 результатов
+2026-04-26 20:19:51,404 - root - INFO - Пример результатов: ['', '']
+2026-04-26 20:19:51,404 - root - INFO - Контекст собран из 5 фрагментов (с path: 1, без path: 15)
+INFO:     10.160.68.174:52039 - "GET /api/health HTTP/1.1" 200 OK
+2026-04-26 20:19:53,435 - httpx - INFO - HTTP Request: GET http://localhost:6333/collections "HTTP/1.1 200 OK"
+2026-04-26 20:19:53,453 - ZORA.ModelSelector - INFO - Исполнитель: llama3.2:latest
+2026-04-26 20:19:53,608 - httpx - INFO - HTTP Request: GET http://localhost:6333 "HTTP/1.1 200 OK"
+2026-04-26 20:19:55,662 - httpx - INFO - HTTP Request: GET http://10.160.68.222:6333/collections/zora_memory "HTTP/1.1 200 OK"
+2026-04-26 20:19:55,664 - httpx - INFO - HTTP Request: POST http://10.160.68.222:6333/collections/zora_memory/points/count "HTTP/1.1 200 OK"
+INFO:     10.160.68.174:52039 - "GET /api/zora_status HTTP/1.1" 200 OK
+INFO:     10.160.68.174:52039 - "GET /api/agents HTTP/1.1" 200 OK
+2026-04-26 20:19:55,819 - httpx - INFO - HTTP Request: GET http://10.160.68.222:6333 "HTTP/1.1 200 OK"
+2026-04-26 20:19:59,069 - root - INFO - store: text='User: История диалога:
+user: Привет.
+assistant: Пр...', vector_size=768, first_5=[-0.8366662859916687, 0.8210971355438232, -2.0719993114471436, -0.2525026500225067, 1.33649742603302]
+2026-04-26 20:19:59,122 - httpx - INFO - HTTP Request: PUT http://10.160.68.222:6333/collections/zora_memory/points?wait=true "HTTP/1.1 200 OK"
+2026-04-26 20:19:59,125 - root - INFO - store: Точка сохранена с ID: d85e017f-20b1-4b7a-b864-510163292234
+2026-04-26 20:20:01,247 - root - INFO - store: text='Привет! 👋
+
+Да, давай посмотрим, что уже есть в про...', vector_size=768, first_5=[-0.8125449419021606, 0.1719878762960434, -2.7686798572540283, 0.13245214521884918, 1.7119613885879517]
+2026-04-26 20:20:01,266 - httpx - INFO - HTTP Request: PUT http://10.160.68.222:6333/collections/zora_memory/points?wait=true "HTTP/1.1 200 OK"
+2026-04-26 20:20:01,267 - root - INFO - store: Точка сохранена с ID: 415e2d78-eb3a-4ae0-96d5-ce230137d00c
+INFO:     10.160.68.174:52142 - "GET /api/health HTTP/1.1" 200 OK
+2026-04-26 20:20:03,460 - httpx - INFO - HTTP Request: GET http://localhost:6333/collections "HTTP/1.1 200 OK"
+2026-04-26 20:20:03,603 - httpx - INFO - HTTP Request: GET http://localhost:6333 "HTTP/1.1 200 OK"
+2026-04-26 20:20:03,685 - root - INFO - store: text='User: История диалога:
+user: Привет.
+assistant: Пр...', vector_size=768, first_5=[-0.8366662859916687, 0.8210971355438232, -2.0719993114471436, -0.2525026500225067, 1.33649742603302]
+2026-04-26 20:20:03,695 - httpx - INFO - HTTP Request: PUT http://10.160.68.222:6333/collections/zora_memory/points?wait=true "HTTP/1.1 200 OK"
+2026-04-26 20:20:03,695 - root - INFO - store: Точка сохранена с ID: bcf27976-0be5-4c54-a577-3e588febdf2b
+2026-04-26 20:20:05,701 - httpx - INFO - HTTP Request: GET http://10.160.68.222:6333/collections/zora_memory "HTTP/1.1 200 OK"
+2026-04-26 20:20:05,703 - httpx - INFO - HTTP Request: POST http://10.160.68.222:6333/collections/zora_memory/points/count "HTTP/1.1 200 OK"
+INFO:     10.160.68.174:52142 - "GET /api/zora_status HTTP/1.1" 200 OK
+INFO:     10.160.68.174:52142 - "GET /api/agents HTTP/1.1" 200 OK
+2026-04-26 20:20:05,841 - httpx - INFO - HTTP Request: GET http://10.160.68.222:6333 "HTTP/1.1 200 OK"
+2026-04-26 20:20:06,077 - root - INFO - store: text='
+Запрос: История диалога:
+user: Привет.
+assistant:...', vector_size=768, first_5=[-0.8323163986206055, 0.9641668796539307, -2.0955893993377686, -0.18406152725219727, 1.3492069244384766]
+2026-04-26 20:20:06,094 - httpx - INFO - HTTP Request: PUT http://10.160.68.222:6333/collections/zora_memory/points?wait=true "HTTP/1.1 200 OK"
+2026-04-26 20:20:06,095 - root - INFO - store: Точка сохранена с ID: 0511527c-3191-4c5b-8d0e-26eb15828b42
+2026-04-26 20:20:06,095 - memory.lesson_saver - INFO - Урок сохранён (ID: 0511527c-3191-4c5b-8d0e-26eb15828b42, агент: developer)
+INFO:     10.160.68.174:60033 - "POST /ask HTTP/1.1" 200 OK
+INFO:     10.160.68.174:52557 - "GET /status HTTP/1.1" 200 OK
+INFO:     10.160.68.174:53230 - "GET /api/health HTTP/1.1" 200 OK
+2026-04-26 20:20:13,481 - httpx - INFO - HTTP Request: GET http://localhost:6333/collections "HTTP/1.1 200 OK"
+2026-04-26 20:20:13,625 - httpx - INFO - HTTP Request: GET http://localhost:6333 "HTTP/1.1 200 OK"
+2026-04-26 20:20:15,726 - httpx - INFO - HTTP Request: GET http://10.160.68.222:6333/collections/zora_memory "HTTP/1.1 200 OK"
+2026-04-26 20:20:15,730 - httpx - INFO - HTTP Request: POST http://10.160.68.222:6333/collections/zora_memory/points/count "HTTP/1.1 200 OK"
+INFO:     10.160.68.174:53230 - "GET /api/zora_status HTTP/1.1" 200 OK
+INFO:     10.160.68.174:53230 - "GET /api/agents HTTP/1.1" 200 OK
+2026-04-26 20:20:15,869 - httpx - INFO - HTTP Request: GET http://10.160.68.222:6333 "HTTP/1.1 200 OK"
+INFO:     10.160.68.174:59166 - "GET /api/health HTTP/1.1" 200 OK
+2026-04-26 20:20:23,469 - httpx - INFO - HTTP Request: GET http://localhost:6333/collections "HTTP/1.1 200 OK"
+2026-04-26 20:20:23,595 - httpx - INFO - HTTP Request: GET http://localhost:6333 "HTTP/1.1 200 OK"
+2026-04-26 20:20:25,685 - httpx - INFO - HTTP Request: GET http://10.160.68.222:6333/collections/zora_memory "HTTP/1.1 200 OK"
+2026-04-26 20:20:25,688 - httpx - INFO - HTTP Request: POST http://10.160.68.222:6333/collections/zora_memory/points/count "HTTP/1.1 200 OK"
+INFO:     10.160.68.174:59166 - "GET /api/zora_status HTTP/1.1" 200 OK
+INFO:     10.160.68.174:59166 - "GET /api/agents HTTP/1.1" 200 OK
+2026-04-26 20:20:25,827 - httpx - INFO - HTTP Request: GET http://10.160.68.222:6333 "HTTP/1.1 200 OK"
+INFO:     10.160.68.174:64629 - "GET /status HTTP/1.1" 200 OK
+INFO:     10.160.68.174:57635 - "GET /api/health HTTP/1.1" 200 OK
+2026-04-26 20:20:37,462 - httpx - INFO - HTTP Request: GET http://localhost:6333/collections "HTTP/1.1 200 OK"
+2026-04-26 20:20:37,620 - httpx - INFO - HTTP Request: GET http://localhost:6333 "HTTP/1.1 200 OK"
+2026-04-26 20:20:39,696 - httpx - INFO - HTTP Request: GET http://10.160.68.222:6333/collections/zora_memory "HTTP/1.1 200 OK"
+2026-04-26 20:20:39,700 - httpx - INFO - HTTP Request: POST http://10.160.68.222:6333/collections/zora_memory/points/count "HTTP/1.1 200 OK"
+INFO:     10.160.68.174:57635 - "GET /api/zora_status HTTP/1.1" 200 OK
+INFO:     10.160.68.174:57635 - "GET /api/agents HTTP/1.1" 200 OK
+2026-04-26 20:20:39,838 - httpx - INFO - HTTP Request: GET http://10.160.68.222:6333 "HTTP/1.1 200 OK"
+INFO:     10.160.68.174:58933 - "GET /status HTTP/1.1" 200 OK
+INFO:     10.160.68.174:51949 - "GET /status HTTP/1.1" 200 OK
+INFO:     10.160.68.174:52270 - "GET /api/health HTTP/1.1" 200 OK
+2026-04-26 20:21:37,480 - httpx - INFO - HTTP Request: GET http://localhost:6333/collections "HTTP/1.1 200 OK"
+2026-04-26 20:21:37,636 - httpx - INFO - HTTP Request: GET http://localhost:6333 "HTTP/1.1 200 OK"
+2026-04-26 20:21:39,716 - httpx - INFO - HTTP Request: GET http://10.160.68.222:6333/collections/zora_memory "HTTP/1.1 200 OK"
+2026-04-26 20:21:39,719 - httpx - INFO - HTTP Request: POST http://10.160.68.222:6333/collections/zora_memory/points/count "HTTP/1.1 200 OK"
+INFO:     10.160.68.174:52270 - "GET /api/zora_status HTTP/1.1" 200 OK
+INFO:     10.160.68.174:52270 - "GET /api/agents HTTP/1.1" 200 OK
+2026-04-26 20:21:39,858 - httpx - INFO - HTTP Request: GET http://10.160.68.222:6333 "HTTP/1.1 200 OK"
+INFO:     10.160.68.174:62190 - "GET /status HTTP/1.1" 200 OK
+INFO:     10.160.68.174:49674 - "GET /status HTTP/1.1" 200 OK
+INFO:     10.160.68.174:56051 - "GET /api/health HTTP/1.1" 200 OK
+2026-04-26 20:22:37,475 - httpx - INFO - HTTP Request: GET http://localhost:6333/collections "HTTP/1.1 200 OK"
+2026-04-26 20:22:37,621 - httpx - INFO - HTTP Request: GET http://localhost:6333 "HTTP/1.1 200 OK"
+2026-04-26 20:22:39,709 - httpx - INFO - HTTP Request: GET http://10.160.68.222:6333/collections/zora_memory "HTTP/1.1 200 OK"
+2026-04-26 20:22:39,711 - httpx - INFO - HTTP Request: POST http://10.160.68.222:6333/collections/zora_memory/points/count "HTTP/1.1 200 OK"
+INFO:     10.160.68.174:56051 - "GET /api/zora_status HTTP/1.1" 200 OK
+INFO:     10.160.68.174:56051 - "GET /api/agents HTTP/1.1" 200 OK
+2026-04-26 20:22:39,850 - httpx - INFO - HTTP Request: GET http://10.160.68.222:6333 "HTTP/1.1 200 OK"
+INFO:     10.160.68.174:51022 - "GET /status HTTP/1.1" 200 OK
+INFO:     10.160.68.174:64902 - "GET /api/health HTTP/1.1" 200 OK
+2026-04-26 20:23:37,761 - httpx - INFO - HTTP Request: GET http://localhost:6333/collections "HTTP/1.1 200 OK"
+2026-04-26 20:23:37,903 - httpx - INFO - HTTP Request: GET http://localhost:6333 "HTTP/1.1 200 OK"
+2026-04-26 20:23:40,000 - httpx - INFO - HTTP Request: GET http://10.160.68.222:6333/collections/zora_memory "HTTP/1.1 200 OK"
+2026-04-26 20:23:40,003 - httpx - INFO - HTTP Request: POST http://10.160.68.222:6333/collections/zora_memory/points/count "HTTP/1.1 200 OK"
+INFO:     10.160.68.174:64902 - "GET /api/zora_status HTTP/1.1" 200 OK
+INFO:     10.160.68.174:64902 - "GET /api/agents HTTP/1.1" 200 OK
+2026-04-26 20:23:40,158 - httpx - INFO - HTTP Request: GET http://10.160.68.222:6333 "HTTP/1.1 200 OK"

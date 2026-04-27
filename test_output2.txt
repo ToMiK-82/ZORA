@@ -1,0 +1,145 @@
+============================================================
+>>> ЗАПУСК СИСТЕМЫ ZORA
+============================================================
+2026-04-26 20:25:48,625 - __main__ - INFO - 🔍 Проверка состояния системы ZORA...
+2026-04-26 20:25:56,079 - __main__ - INFO - 📊 Результаты проверки:
+2026-04-26 20:25:56,079 - __main__ - INFO -   ✅ docker: None
+2026-04-26 20:25:56,079 - __main__ - INFO -   ✅ qdrant: None
+2026-04-26 20:25:56,079 - __main__ - INFO -   ✅ ollama: None
+2026-04-26 20:25:56,079 - __main__ - INFO -   ✅ python_deps: None
+2026-04-26 20:25:56,079 - __main__ - INFO -   ✅ port_8002: Порт свободен
+2026-04-26 20:25:56,079 - __main__ - INFO - 🎉 Все компоненты системы доступны!
+2026-04-26 20:25:56,079 - __main__ - INFO - 🚀 Запуск веб-сервера ZORA на порту 8002...
+2026-04-26 20:25:58,564 - ZORA.ModelSelector - INFO - ModelSelector: vision=qwen3-vl:4b, executor=llama3.2:latest
+2026-04-26 20:25:58,564 - interfaces.web - INFO - ✅ LangGraph оркестратор ZORA загружен для веб-интерфейса
+2026-04-26 20:25:58,564 - connectors.embedding_client - INFO - Инициализация EmbeddingClient: модель=nomic-embed-text, host=http://localhost:11434
+2026-04-26 20:25:58,773 - httpx - INFO - HTTP Request: GET http://10.160.68.222:6333/collections/zora_memory "HTTP/1.1 200 OK"
+2026-04-26 20:25:58,775 - interfaces.web - INFO - ✅ Векторная память Qdrant загружена
+2026-04-26 20:25:58,775 - zora.telegram.handler - INFO - ✅ Оркестратор ZORA загружен для Telegram-бота
+2026-04-26 20:25:58,775 - zora.telegram.handler - INFO - ℹ️ Классическое ядро ZORA не используется, используется только оркестратор
+2026-04-26 20:25:58,775 - interfaces.web - INFO - ✅ Telegram обработчик загружен для веб-интерфейса
+INFO:     Started server process [20184]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://0.0.0.0:8002 (Press CTRL+C to quit)
+2026-04-26 20:25:58,931 - httpx - INFO - HTTP Request: GET http://10.160.68.222:6333 "HTTP/1.1 200 OK"
+2026-04-26 20:25:59,296 - __main__ - INFO - ✅ Веб-сервер запущен на http://localhost:8002
+2026-04-26 20:25:59,296 - __main__ - INFO - 🔄 Запуск дашборда мониторинга...
+2026-04-26 20:25:59,580 - root - INFO - Запуск дашборда на http://0.0.0.0:8003
+2026-04-26 20:25:59,580 - __main__ - INFO - ✅ Дашборд запущен на http://localhost:8003
+INFO:     Started server process [20184]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://0.0.0.0:8003 (Press CTRL+C to quit)
+2026-04-26 20:25:59,866 - tools.email_sender - INFO - EmailSender инициализирован: smtp.gmail.com:587
+2026-04-26 20:26:01,957 - ZORA.ModelSelector - INFO - Исполнитель: llama3.2:latest
+2026-04-26 20:26:01,958 - zora.agent.operator_1c - INFO - ✅ Соединение с 1С инициализировано (заглушка)
+2026-04-26 20:26:01,958 - zora.agent.operator_1c - INFO - ✅ Соединение с 1С инициализировано (заглушка)
+2026-04-26 20:26:01,958 - apscheduler.scheduler - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2026-04-26 20:26:01,958 - __main__ - INFO - 📅 Оператор 1С запланирован на 7:30 по будням
+2026-04-26 20:26:01,962 - apscheduler.scheduler - INFO - Added job "Operator1CLocal.monitoring_loop" to job store "default"
+2026-04-26 20:26:01,962 - apscheduler.scheduler - INFO - Scheduler started
+2026-04-26 20:26:01,962 - __main__ - INFO - ✅ Планировщик фоновых задач запущен
+2026-04-26 20:26:01,962 - __main__ - INFO - 🖥️ Безголовый режим (SSH/без GUI): браузер не открывается автоматически
+2026-04-26 20:26:01,962 - __main__ - INFO -    Веб-интерфейс: http://localhost:8002/modern
+2026-04-26 20:26:01,962 - __main__ - INFO -    Дашборд: http://localhost:8003
+
+============================================================
+>>> СИСТЕМА ZORA УСПЕШНО ЗАПУЩЕНА
+============================================================
+Веб-интерфейс: http://localhost:8002/modern
+Дашборд мониторинга: http://localhost:8003
+Ollama: http://localhost:11434
+Qdrant: http://10.160.68.222:6333
+
+Для тестирования API:
+curl -X POST http://localhost:8002/ask \
+  -H "Content-Type: application/json" \
+  -d '{"query": "Привет! Как дела?", "agent": "developer_assistant"}'
+
+Для остановки системы нажмите Ctrl+C
+============================================================
+INFO:     10.160.68.174:55279 - "GET /status HTTP/1.1" 200 OK
+INFO:     10.160.68.174:49264 - "GET /api/health HTTP/1.1" 200 OK
+2026-04-26 20:26:37,619 - httpx - INFO - HTTP Request: GET http://localhost:6333/collections "HTTP/1.1 200 OK"
+2026-04-26 20:26:37,776 - httpx - INFO - HTTP Request: GET http://localhost:6333 "HTTP/1.1 200 OK"
+2026-04-26 20:26:39,841 - httpx - INFO - HTTP Request: GET http://10.160.68.222:6333/collections/zora_memory "HTTP/1.1 200 OK"
+2026-04-26 20:26:39,845 - httpx - INFO - HTTP Request: POST http://10.160.68.222:6333/collections/zora_memory/points/count "HTTP/1.1 200 OK"
+INFO:     10.160.68.174:49264 - "GET /api/zora_status HTTP/1.1" 200 OK
+2026-04-26 20:26:39,999 - httpx - INFO - HTTP Request: GET http://10.160.68.222:6333 "HTTP/1.1 200 OK"
+2026-04-26 20:26:42,096 - ZORA.ModelSelector - INFO - Исполнитель: llama3.2:latest
+2026-04-26 20:26:42,096 - zora.agent.operator_1c - INFO - ✅ Соединение с 1С инициализировано (заглушка)
+INFO:     10.160.68.174:49264 - "GET /api/agents HTTP/1.1" 200 OK
+2026-04-26 20:26:50,996 - root - INFO - Запрос перед поиском: 'Покажи список файлов в папке agents'
+2026-04-26 20:26:50,996 - root - INFO - ✅ Память Qdrant загружена
+2026-04-26 20:26:50,996 - root - INFO - Поиск в памяти: запрос='Покажи список файлов в папке agents' (repr: 'Покажи список файлов в папке agents')
+2026-04-26 20:26:54,030 - httpx - INFO - HTTP Request: POST http://10.160.68.222:6333/collections/zora_memory/points/query "HTTP/1.1 200 OK"
+2026-04-26 20:26:54,031 - root - INFO - Найдено результатов: 15
+2026-04-26 20:26:54,031 - root - INFO - Поиск контекста для запроса 'Покажи список файлов в папке agents' вернул 15 результатов
+2026-04-26 20:26:54,031 - root - INFO - Пример результатов: ['e:\\ZORA\\README.md', 'e:\\ZORA\\agents\\parser_agent.py']
+2026-04-26 20:26:54,031 - root - INFO - Контекст собран из 5 фрагментов (с path: 11, без path: 4)
+2026-04-26 20:26:56,105 - ZORA.ModelSelector - INFO - Исполнитель: llama3.2:latest
+2026-04-26 20:26:57,530 - agents.developer_assistant - INFO - 🔍 DeepSeek ответ (сырой): {"plan": [{"action": "list_dir", "details": "agents"}]}
+2026-04-26 20:26:57,530 - agents.developer_assistant - INFO - 📋 Получен план из 1 шагов
+2026-04-26 20:26:57,530 - agents.developer_assistant - INFO -    Шаг 1: list_dir — agents
+2026-04-26 20:26:57,530 - agents.developer_assistant - INFO - 📋 Выполняю план из 1 шагов
+2026-04-26 20:26:57,530 - agents.developer_assistant - INFO -    Шаг 1/1: list_dir — agents
+2026-04-26 20:26:57,530 - agents.developer_assistant - INFO -    ✅ Шаг 1 выполнен успешно
+2026-04-26 20:26:57,530 - agents.developer_assistant - INFO - 📋 Выполнение плана завершено. Успешно: True
+2026-04-26 20:26:59,620 - root - INFO - store: text='User: Покажи список файлов в папке agents
+Assistan...', vector_size=768, first_5=[-1.187667965888977, 0.21108601987361908, -3.167466402053833, -0.5483740568161011, 2.1148669719696045]
+2026-04-26 20:26:59,657 - httpx - INFO - HTTP Request: PUT http://10.160.68.222:6333/collections/zora_memory/points?wait=true "HTTP/1.1 200 OK"
+2026-04-26 20:26:59,658 - root - INFO - store: Точка сохранена с ID: 4d947cad-c1fe-488c-b2aa-01e06ef93a7f
+2026-04-26 20:27:01,744 - root - INFO - store: text='✅ list_dir: __pycache__/
+__init__.py
+accountant.py...', vector_size=768, first_5=[-1.0637646913528442, 0.11008304357528687, -3.6031441688537598, -1.2709717750549316, 1.2333238124847412]
+2026-04-26 20:27:01,754 - httpx - INFO - HTTP Request: PUT http://10.160.68.222:6333/collections/zora_memory/points?wait=true "HTTP/1.1 200 OK"
+2026-04-26 20:27:01,755 - root - INFO - store: Точка сохранена с ID: efb7fbfa-1f10-4100-bb29-9175ddaecdb8
+2026-04-26 20:27:03,886 - root - INFO - store: text='User: Покажи список файлов в папке agents
+Assistan...', vector_size=768, first_5=[-1.187667965888977, 0.21108601987361908, -3.167466402053833, -0.5483740568161011, 2.1148669719696045]
+2026-04-26 20:27:03,902 - httpx - INFO - HTTP Request: PUT http://10.160.68.222:6333/collections/zora_memory/points?wait=true "HTTP/1.1 200 OK"
+2026-04-26 20:27:03,903 - root - INFO - store: Точка сохранена с ID: 09e1d008-6eb7-40bb-816e-45b4cea73040
+2026-04-26 20:27:06,065 - root - INFO - store: text='
+Запрос: Покажи список файлов в папке agents
+
+Отве...', vector_size=768, first_5=[-1.0704985857009888, 0.5054336190223694, -3.1420960426330566, -0.42349153757095337, 2.2106592655181885]
+2026-04-26 20:27:06,083 - httpx - INFO - HTTP Request: PUT http://10.160.68.222:6333/collections/zora_memory/points?wait=true "HTTP/1.1 200 OK"
+2026-04-26 20:27:06,084 - root - INFO - store: Точка сохранена с ID: efe4483b-d4cf-400b-b16e-5775634363cc
+2026-04-26 20:27:06,084 - memory.lesson_saver - INFO - Урок сохранён (ID: efe4483b-d4cf-400b-b16e-5775634363cc, агент: developer)
+INFO:     127.0.0.1:53826 - "POST /ask HTTP/1.1" 200 OK
+INFO:     10.160.68.174:51445 - "GET /status HTTP/1.1" 200 OK
+INFO:     10.160.68.174:52850 - "GET /api/health HTTP/1.1" 200 OK
+2026-04-26 20:27:37,595 - httpx - INFO - HTTP Request: GET http://localhost:6333/collections "HTTP/1.1 200 OK"
+2026-04-26 20:27:37,753 - httpx - INFO - HTTP Request: GET http://localhost:6333 "HTTP/1.1 200 OK"
+2026-04-26 20:27:39,833 - httpx - INFO - HTTP Request: GET http://10.160.68.222:6333/collections/zora_memory "HTTP/1.1 200 OK"
+2026-04-26 20:27:39,835 - httpx - INFO - HTTP Request: POST http://10.160.68.222:6333/collections/zora_memory/points/count "HTTP/1.1 200 OK"
+INFO:     10.160.68.174:52850 - "GET /api/zora_status HTTP/1.1" 200 OK
+INFO:     10.160.68.174:52850 - "GET /api/agents HTTP/1.1" 200 OK
+2026-04-26 20:27:39,975 - httpx - INFO - HTTP Request: GET http://10.160.68.222:6333 "HTTP/1.1 200 OK"
+INFO:     10.160.68.174:58562 - "GET /status HTTP/1.1" 200 OK
+INFO:     10.160.68.174:63825 - "GET /api/health HTTP/1.1" 200 OK
+2026-04-26 20:28:37,475 - httpx - INFO - HTTP Request: GET http://localhost:6333/collections "HTTP/1.1 200 OK"
+2026-04-26 20:28:37,622 - httpx - INFO - HTTP Request: GET http://localhost:6333 "HTTP/1.1 200 OK"
+2026-04-26 20:28:39,722 - httpx - INFO - HTTP Request: GET http://10.160.68.222:6333/collections/zora_memory "HTTP/1.1 200 OK"
+2026-04-26 20:28:39,724 - httpx - INFO - HTTP Request: POST http://10.160.68.222:6333/collections/zora_memory/points/count "HTTP/1.1 200 OK"
+INFO:     10.160.68.174:63825 - "GET /api/zora_status HTTP/1.1" 200 OK
+INFO:     10.160.68.174:63825 - "GET /api/agents HTTP/1.1" 200 OK
+2026-04-26 20:28:39,877 - httpx - INFO - HTTP Request: GET http://10.160.68.222:6333 "HTTP/1.1 200 OK"
+INFO:     10.160.68.174:51663 - "GET /status HTTP/1.1" 200 OK
+INFO:     10.160.68.174:49156 - "GET /api/health HTTP/1.1" 200 OK
+2026-04-26 20:29:37,456 - httpx - INFO - HTTP Request: GET http://localhost:6333/collections "HTTP/1.1 200 OK"
+2026-04-26 20:29:37,598 - httpx - INFO - HTTP Request: GET http://localhost:6333 "HTTP/1.1 200 OK"
+2026-04-26 20:29:39,694 - httpx - INFO - HTTP Request: GET http://10.160.68.222:6333/collections/zora_memory "HTTP/1.1 200 OK"
+2026-04-26 20:29:39,697 - httpx - INFO - HTTP Request: POST http://10.160.68.222:6333/collections/zora_memory/points/count "HTTP/1.1 200 OK"
+INFO:     10.160.68.174:49156 - "GET /api/zora_status HTTP/1.1" 200 OK
+INFO:     10.160.68.174:49156 - "GET /api/agents HTTP/1.1" 200 OK
+2026-04-26 20:29:39,852 - httpx - INFO - HTTP Request: GET http://10.160.68.222:6333 "HTTP/1.1 200 OK"
+INFO:     10.160.68.174:50975 - "GET /status HTTP/1.1" 200 OK
+INFO:     10.160.68.174:59895 - "GET /api/health HTTP/1.1" 200 OK
+2026-04-26 20:30:37,471 - httpx - INFO - HTTP Request: GET http://localhost:6333/collections "HTTP/1.1 200 OK"
+2026-04-26 20:30:37,613 - httpx - INFO - HTTP Request: GET http://localhost:6333 "HTTP/1.1 200 OK"
+2026-04-26 20:30:39,698 - httpx - INFO - HTTP Request: GET http://10.160.68.222:6333/collections/zora_memory "HTTP/1.1 200 OK"
+2026-04-26 20:30:39,700 - httpx - INFO - HTTP Request: POST http://10.160.68.222:6333/collections/zora_memory/points/count "HTTP/1.1 200 OK"
+INFO:     10.160.68.174:59895 - "GET /api/zora_status HTTP/1.1" 200 OK
+INFO:     10.160.68.174:59895 - "GET /api/agents HTTP/1.1" 200 OK
+2026-04-26 20:30:39,836 - httpx - INFO - HTTP Request: GET http://10.160.68.222:6333 "HTTP/1.1 200 OK"

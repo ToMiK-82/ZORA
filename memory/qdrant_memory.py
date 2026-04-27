@@ -90,22 +90,12 @@ class ZoraMemory:
             )
             logging.info(f"Коллекция {self.collection_name} создана с оптимизатором: {self.optimizers_config}")
 
-    def _truncate_query(self, text: str, max_chars: int = 8000) -> str:
-        """
-        Обрезает текст запроса до указанного количества символов.
-        nomic-embed-text поддерживает до 8192 токенов.
-        """
-        if len(text) <= max_chars:
-            return text
-        truncated = text[:max_chars]
-        logging.warning(f"Запрос обрезан с {len(text)} до {max_chars} символов для эмбеддинга")
-        return truncated
-
     def _embed_text(self, text: str) -> List[float]:
+        """
+        Генерирует эмбеддинг для текста.
+        Текст должен быть заранее подготовлен чанкером — обрезка не выполняется.
+        """
         try:
-            # Обрезаем текст до 8000 символов (nomic-embed-text поддерживает до 8192 токенов)
-            text = self._truncate_query(text, max_chars=8000)
-            
             # Пытаемся импортировать embedding_client, если он не доступен
             global embedding_client
             if embedding_client is None:
@@ -116,8 +106,7 @@ class ZoraMemory:
                 except ImportError as e:
                     logging.error(f"Не удалось импортировать embedding_client: {e}")
                     return [0.0] * self.embedding_size
-            
-            # Используем embedding_client, который использует SentenceTransformer
+
             if embedding_client:
                 logging.debug(f"Генерация эмбеддинга для текста: {text[:50]}...")
                 emb = embedding_client.generate_embedding(text)

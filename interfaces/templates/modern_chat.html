@@ -316,6 +316,27 @@
             color: #e6edf3;
             align-self: flex-start;
         }
+        .message-actions {
+            display: none;
+            margin-top: 10px;
+            gap: 8px;
+        }
+        .message-actions .confirm-btn {
+            background: #2f81f7;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            color: white;
+        }
+        .message-actions .reject-btn {
+            background: #da3633;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            color: white;
+        }
         .system-message {
             background: #0d1117;
             color: #8b949e;
@@ -709,6 +730,15 @@
         div.appendChild(contentDiv);
         
         if (!isUser) {
+            // Контейнер для кнопок подтверждения (показывается при запросе подтверждения)
+            const actionsDiv = document.createElement('div');
+            actionsDiv.className = 'message-actions';
+            actionsDiv.innerHTML = `
+                <button class="confirm-btn" data-id="${msgId}">✅ Принять</button>
+                <button class="reject-btn" data-id="${msgId}">❌ Отклонить</button>
+            `;
+            div.appendChild(actionsDiv);
+            
             const feedbackDiv = document.createElement('div');
             feedbackDiv.className = 'feedback-buttons';
             feedbackDiv.innerHTML = `
@@ -729,6 +759,11 @@
         }
         area.appendChild(div);
         area.scrollTop = area.scrollHeight;
+        
+        // Проверяем, нужно ли показать кнопки подтверждения
+        if (!isUser) {
+            setTimeout(() => setupConfirmationHandlers(), 100);
+        }
     }
 
     function saveChats() {
@@ -1060,11 +1095,83 @@
         closeModal('trainModal');
     }
 
+    // ========== Обработка подтверждения действий ==========
+    function setupConfirmationHandlers() {
+        document.querySelectorAll('.assistant-message').forEach(msg => {
+            const text = msg.querySelector('.message-content')?.innerText || '';
+            if (text.includes('Требуется подтверждение') && text.includes('"plan"')) {
+                const actions = msg.querySelector('.message-actions');
+                if (actions) actions.style.display = 'flex';
+            }
+        });
+    }
+
     // ========== Обработка обратной связи ==========
     document.getElementById('messagesArea').addEventListener('click', async (e) => {
         const target = e.target;
         const msgDiv = target.closest('.message');
         if (!msgDiv) return;
+        
+        // Обработка кнопок подтверждения
+        if (target.classList.contains('confirm-btn')) {
+            const msgId = target.getAttribute('data-id');
+            const msgContent = msgDiv.querySelector('.message-content')?.innerText || '';
+            // Извлекаем план из сообщения
+            const planMatch = msgContent.match(/"plan":\s*(\[[\s\S]*?\])\s*\n/);
+            if (planMatch) {
+                try {
+                    const plan = JSON.parse(planMatch[1]);
+                    const res = await fetch('/api/confirm', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ plan, confirm: true })
+                    });
+                    const data = await res.json();
+                    if (data.success) {
+                        addSystemMessage(`✅ Выполнено:\n${data.result}`);
+                    } else {
+                        addSystemMessage(`❌ Ошибка: ${data.error}`);
+                    }
+                } catch (e) {
+                    addSystemMessage(`❌ Ошибка выполнения: ${e.message}`);
+                }
+            } else {
+                // Пробуем другой формат — ищем JSON после ```json
+                const jsonMatch = msgContent.match(/```json\n([\s\S]*?)```/);
+                if (jsonMatch) {
+                    try {
+                        const parsed = JSON.parse(jsonMatch[1]);
+                        const plan = parsed.plan || [];
+                        const res = await fetch('/api/confirm', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ plan, confirm: true })
+                        });
+                        const data = await res.json();
+                        if (data.success) {
+                            addSystemMessage(`✅ Выполнено:\n${data.result}`);
+                        } else {
+                            addSystemMessage(`❌ Ошибка: ${data.error}`);
+                        }
+                    } catch (e) {
+                        addSystemMessage(`❌ Ошибка парсинга плана: ${e.message}`);
+                    }
+                } else {
+                    addSystemMessage('❌ Не удалось извлечь план из сообщения');
+                }
+            }
+            // Скрываем кнопки
+            const actions = msgDiv.querySelector('.message-actions');
+            if (actions) actions.style.display = 'none';
+            return;
+        }
+        
+        if (target.classList.contains('reject-btn')) {
+            addSystemMessage('❌ Действие отменено пользователем');
+            const actions = msgDiv.querySelector('.message-actions');
+            if (actions) actions.style.display = 'none';
+            return;
+        }
         
         if (target.classList.contains('useful') || target.classList.contains('not-useful')) {
             const rating = target.classList.contains('useful') ? 'useful' : 'not_useful';

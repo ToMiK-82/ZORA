@@ -403,15 +403,6 @@ class ZoraOrchestrator:
             agent = agent_class()
             result = agent.process(state)
             state["result"] = result.get("result", "")
-            
-            # Не сохраняем ошибки таймаута в память
-            if MEMORY_AVAILABLE and memory and state["result"]:
-                result_text = state["result"].lower()
-                if "тайм-аут" not in result_text and "ошибка: тайм-аут" not in result_text:
-                    memory.store(
-                        text=state["result"],
-                        metadata={"agent": agent_name, "query": state.get("query", "")}
-                    )
         except Exception as e:
             logging.error(f"Ошибка при вызове агента {agent_name}: {e}")
             state["result"] = f"Ошибка в работе агента {agent_name}: {str(e)}"
@@ -441,15 +432,6 @@ class ZoraOrchestrator:
             agent = DeveloperAssistant()
             result = agent.process(state)
             state["result"] = result.get("result", "")
-            
-            # Не сохраняем ошибки таймаута в память
-            if MEMORY_AVAILABLE and memory and state["result"]:
-                result_text = state["result"].lower()
-                if "тайм-аут" not in result_text and "ошибка: тайм-аут" not in result_text:
-                    memory.store(
-                        text=state["result"],
-                        metadata={"agent": "developer_assistant", "query": state.get("query", "")}
-                    )
         except Exception as e:
             logging.error(f"Ошибка при вызове агента разработчика: {e}")
             state["result"] = f"Ошибка в работе агента разработчика: {str(e)}"
@@ -461,15 +443,6 @@ class ZoraOrchestrator:
             agent = ParserAgent()
             result = agent.process(state)
             state["result"] = result.get("result", "")
-            
-            # Не сохраняем ошибки таймаута в память
-            if MEMORY_AVAILABLE and memory and state["result"]:
-                result_text = state["result"].lower()
-                if "тайм-аут" not in result_text and "ошибка: тайм-аут" not in result_text:
-                    memory.store(
-                        text=state["result"],
-                        metadata={"agent": "parser", "query": state.get("query", "")}
-                    )
         except Exception as e:
             logging.error(f"Ошибка при вызове агента-парсера: {e}")
             state["result"] = f"Ошибка в работе агента-парсера: {str(e)}"
