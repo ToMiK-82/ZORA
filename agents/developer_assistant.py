@@ -41,6 +41,8 @@ class DeveloperAssistant(BaseAgent):
         model_info = self.selector.select_executor()
         self.executor_model = model_info.get("model", "llama3.2:latest")
         self.logger.info(f"DeveloperAssistant инициализирован, executor_model={self.executor_model}")
+        # Множество хэшей уже подтверждённых планов (для защиты от зацикливания)
+        self.confirmed_plans = set()
 
     def process(self, state: Dict[str, Any]) -> Dict[str, Any]:
         query = state.get("query", "")
@@ -90,15 +92,22 @@ class DeveloperAssistant(BaseAgent):
                         break
                 
                 if needs_confirmation:
-                    # Возвращаем запрос на подтверждение вместо выполнения
-                    logger.warning(f"⚠️ План требует подтверждения: {result['plan']}")
-                    return {
-                        "success": True,
-                        "result": f"⚠️ **Требуется подтверждение**\n\nПлан содержит изменения в файлах конфигурации или опасные команды:\n```json\n{json.dumps(result['plan'], ensure_ascii=False, indent=2)}\n```\n\nПодтверждаете выполнение? (да/нет)",
-                        "agent": self.agent_name,
-                        "mode": "confirmation_required",
-                        "pending_plan": result["plan"]
-                    }
+                    # Проверяем, не был ли этот план уже подтверждён
+                    plan_hash = json.dumps(result["plan"], sort_keys=True)
+                    if plan_hash in self.confirmed_plans:
+                        # Уже подтверждено — выполняем сразу
+                        self.confirmed_plans.discard(plan_hash)
+                        logger.info(f"✅ План уже подтверждён пользователем, выполняю: {result['plan']}")
+                    else:
+                        # Возвращаем запрос на подтверждение вместо выполнения
+                        logger.warning(f"⚠️ План требует подтверждения: {result['plan']}")
+                        return {
+                            "success": True,
+                            "result": f"⚠️ **Требуется подтверждение**\n\nПлан содержит изменения в файлах конфигурации или опасные команды:\n```json\n{json.dumps(result['plan'], ensure_ascii=False, indent=2)}\n```\n\nПодтверждаете выполнение? (да/нет)",
+                            "agent": self.agent_name,
+                            "mode": "confirmation_required",
+                            "pending_plan": result["plan"]
+                        }
                 
                 # Выполняем план
                 logger.info(f"📋 Получен план из {len(result['plan'])} шагов")

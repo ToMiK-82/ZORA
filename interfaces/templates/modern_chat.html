@@ -496,6 +496,44 @@
             margin-top: 8px;
             font-style: italic;
         }
+        /* Кнопки подтверждения */
+        .confirmation-buttons {
+            display: flex;
+            gap: 12px;
+            margin-top: 12px;
+            padding-top: 8px;
+            border-top: 1px solid #2d333b;
+        }
+        .confirm-btn {
+            background: #2f81f7;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background 0.2s;
+        }
+        .confirm-btn:hover {
+            background: #1a6bbf;
+        }
+        .reject-btn {
+            background: #da3633;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background 0.2s;
+        }
+        .reject-btn:hover {
+            background: #b52a27;
+        }
+        .confirmation-buttons button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
     </style>
 </head>
 <body>
@@ -672,73 +710,181 @@
         return map[ext] || 'text/plain';
     }
 
-    // ========== Сохранение и загрузка состояния ==========
-    function saveAllState() {
-        localStorage.setItem('zora_chats', JSON.stringify(chats));
-        localStorage.setItem('zora_current_chat', currentChatId);
-        const messagesArea = document.getElementById('messagesArea');
-        if (messagesArea) localStorage.setItem('zora_scroll_top', messagesArea.scrollTop);
-        const reasoning = document.getElementById('reasoningContent');
-        if (reasoning) localStorage.setItem('zora_reasoning_html', reasoning.innerHTML);
-    }
-
-    function loadAllState() {
-        const savedChats = localStorage.getItem('zora_chats');
-        if (savedChats) {
-            try { chats = JSON.parse(savedChats); } catch(e) { console.error(e); }
+    // ========== Загрузка чатов и сообщений с сервера (PostgreSQL) ==========
+    async function loadChats() {
+        try {
+            const response = await fetch('/api/chats');
+            const data = await response.json();
+            if (data.success) {
+                chats = {};
+                for (let chat of data.chats) {
+                    chats[chat.chat_id] = {
+                        id: chat.chat_id,
+                        name: chat.name,
+                        messages: []
+                    };
+                }
+            }
+        } catch (e) {
+            console.error('Ошибка загрузки чатов:', e);
         }
-        if (!chats.default) chats.default = { id: 'default', name: 'Основной чат', messages: [] };
-        currentChatId = localStorage.getItem('zora_current_chat') || 'default';
-        if (!chats[currentChatId]) currentChatId = 'default';
+        // Всегда есть чат по умолчанию
+        if (!chats.default) {
+            // Создаём чат по умолчанию, если его нет
+            try {
+                await fetch('/api/chats', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ chat_id: 'default', name: 'Основной чат' })
+                });
+            } catch(e) {}
+            chats.default = { id: 'default', name: 'Основной чат', messages: [] };
+        }
         renderChatsList();
-        const savedReasoning = localStorage.getItem('zora_reasoning_html');
-        if (savedReasoning) document.getElementById('reasoningContent').innerHTML = savedReasoning;
-        const savedScroll = localStorage.getItem('zora_scroll_top');
-        if (savedScroll) {
-            setTimeout(() => {
-                const area = document.getElementById('messagesArea');
-                if (area) area.scrollTop = parseInt(savedScroll, 10);
-            }, 100);
-        }
-        restoreCurrentChat();
     }
 
-    function restoreCurrentChat() {
+    async function loadMessages(chatId) {
+        try {
+            const response = await fetch(`/api/chats/${chatId}/messages?limit=50`);
+            const data = await response.json();
+            if (data.success) {
+                if (!chats[chatId]) {
+                    chats[chatId] = { id: chatId, name: 'Чат', messages: [] };
+                }
+                chats[chatId].messages = data.messages.map(msg => ({
+                    text: msg.content,
+                    isUser: msg.role === 'user',
+                    id: msg.message_id,
+                    agent: msg.agent
+                }));
+            }
+        } catch (e) {
+            console.error('Ошибка загрузки сообщений:', e);
+        }
+    }
+
+    async function restoreCurrentChat() {
         const area = document.getElementById('messagesArea');
         area.innerHTML = '';
+        await loadMessages(currentChatId);
         const messages = chats[currentChatId]?.messages || [];
         for (let msg of messages) {
             addMessageToDOM(msg.text, msg.isUser, msg.id, msg.agent);
         }
-        saveAllState();
     }
 
-    function addMessageToDOM(text, isUser, msgId, agent = '') {
-        const area = document.getElementById('messagesArea');
+    async function saveMessageToServer(chatId, messageId, role, content, agent = null) {
+        try {
+            await fetch(`/api/chats/${chatId}/messages`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ message_id: messageId, role, content, agent })
+            });
+        } catch (e) {
+            console.error('Ошибка сохранения сообщения:', e);
+        }
+    }
+
+    function renderAssistantMessage(text, msgId, agent) {
         const div = document.createElement('div');
-        div.className = `message ${isUser ? 'user-message' : 'assistant-message'}`;
+        div.className = 'assistant-message';
         div.setAttribute('data-message-id', msgId);
-        if (!isUser && agent) {
+        
+        // Проверяем, есть ли запрос на подтверждение
+        const isConfirmation = text.includes('Требуется подтверждение') && text.includes('"plan"');
+        
+        // Извлекаем план из сообщения (если есть)
+        let plan = null;
+        if (isConfirmation) {
+            const planMatch = text.match(/"plan":\s*(\[[\s\S]*?\])/);
+            if (planMatch) {
+                try {
+                    plan = JSON.parse(planMatch[1]);
+                } catch(e) {
+                    console.error('Ошибка парсинга плана:', e);
+                }
+            }
+        }
+        
+        // Обычное содержимое (без JSON)
+        let displayText = text;
+        if (isConfirmation && plan) {
+            // Убираем JSON из отображаемого текста, оставляя только описание
+            displayText = text.replace(/```json[\s\S]*?```/, '```json\n[план действий]\n```');
+        }
+        
+        if (agent) {
             const header = document.createElement('div');
             header.className = 'message-header';
             header.textContent = agent;
             div.appendChild(header);
         }
+        
         const contentDiv = document.createElement('div');
         contentDiv.className = 'message-content';
-        contentDiv.innerHTML = text.replace(/\n/g, '<br>');
+        contentDiv.innerHTML = displayText.replace(/\n/g, '<br>');
         div.appendChild(contentDiv);
         
-        if (!isUser) {
-            // Контейнер для кнопок подтверждения (показывается при запросе подтверждения)
-            const actionsDiv = document.createElement('div');
-            actionsDiv.className = 'message-actions';
-            actionsDiv.innerHTML = `
-                <button class="confirm-btn" data-id="${msgId}">✅ Принять</button>
-                <button class="reject-btn" data-id="${msgId}">❌ Отклонить</button>
-            `;
-            div.appendChild(actionsDiv);
+        // Добавляем кнопки подтверждения, если нужно
+        if (isConfirmation && plan) {
+            const buttonsDiv = document.createElement('div');
+            buttonsDiv.className = 'confirmation-buttons';
             
+            const confirmBtn = document.createElement('button');
+            confirmBtn.textContent = '✅ Принять';
+            confirmBtn.className = 'confirm-btn';
+            
+            const rejectBtn = document.createElement('button');
+            rejectBtn.textContent = '❌ Отклонить';
+            rejectBtn.className = 'reject-btn';
+            
+            confirmBtn.onclick = async () => {
+                confirmBtn.disabled = true;
+                rejectBtn.disabled = true;
+                confirmBtn.textContent = '⏳ Выполняется...';
+                
+                try {
+                    const response = await fetch('/api/confirm', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ plan: plan, confirm: true })
+                    });
+                    const data = await response.json();
+                    
+                    if (data.success) {
+                        // Заменяем сообщение на результат
+                        const resultDiv = document.createElement('div');
+                        resultDiv.className = 'assistant-message';
+                        resultDiv.innerHTML = `<div class="message-content">✅ Выполнено:<br>${data.result.replace(/\n/g, '<br>')}</div>`;
+                        div.replaceWith(resultDiv);
+                    } else {
+                        confirmBtn.textContent = '❌ Ошибка';
+                        confirmBtn.style.background = '#da3633';
+                        rejectBtn.remove();
+                        const errorDiv = document.createElement('div');
+                        errorDiv.className = 'system-message';
+                        errorDiv.textContent = `Ошибка: ${data.error}`;
+                        buttonsDiv.appendChild(errorDiv);
+                    }
+                } catch (e) {
+                    confirmBtn.textContent = '❌ Ошибка';
+                    console.error(e);
+                }
+            };
+            
+            rejectBtn.onclick = () => {
+                const rejectMsg = document.createElement('div');
+                rejectMsg.className = 'system-message';
+                rejectMsg.textContent = '❌ Действие отменено пользователем';
+                div.parentNode?.insertBefore(rejectMsg, div.nextSibling);
+                div.remove();
+            };
+            
+            buttonsDiv.appendChild(confirmBtn);
+            buttonsDiv.appendChild(rejectBtn);
+            div.appendChild(buttonsDiv);
+        } else if (!isUser) {
+            // Кнопки обратной связи (только для обычных сообщений)
             const feedbackDiv = document.createElement('div');
             feedbackDiv.className = 'feedback-buttons';
             feedbackDiv.innerHTML = `
@@ -757,26 +903,28 @@
             `;
             div.appendChild(commentBox);
         }
-        area.appendChild(div);
-        area.scrollTop = area.scrollHeight;
         
-        // Проверяем, нужно ли показать кнопки подтверждения
-        if (!isUser) {
-            setTimeout(() => setupConfirmationHandlers(), 100);
-        }
+        return div;
     }
 
-    function saveChats() {
-        const messages = [];
-        document.querySelectorAll('#messagesArea .message:not(.system-message)').forEach(el => {
-            const isUser = el.classList.contains('user-message');
-            const text = el.querySelector('.message-content')?.innerText || '';
-            const id = el.getAttribute('data-message-id') || '';
-            const agent = el.querySelector('.message-header')?.textContent || '';
-            if (text) messages.push({ text, isUser, id, agent });
-        });
-        chats[currentChatId].messages = messages;
-        saveAllState();
+    function addMessageToDOM(text, isUser, msgId, agent = '') {
+        const area = document.getElementById('messagesArea');
+        let div;
+        
+        if (isUser) {
+            div = document.createElement('div');
+            div.className = 'user-message';
+            div.setAttribute('data-message-id', msgId);
+            const contentDiv = document.createElement('div');
+            contentDiv.className = 'message-content';
+            contentDiv.innerHTML = text.replace(/\n/g, '<br>');
+            div.appendChild(contentDiv);
+        } else {
+            div = renderAssistantMessage(text, msgId, agent);
+        }
+        
+        area.appendChild(div);
+        area.scrollTop = area.scrollHeight;
     }
 
     function renderChatsList() {
@@ -791,30 +939,51 @@
         });
     }
 
-    function switchChat(chatId) {
+    async function switchChat(chatId) {
         if (!chats[chatId]) return;
-        saveChats();
         currentChatId = chatId;
         renderChatsList();
-        restoreCurrentChat();
-        saveAllState();
+        await restoreCurrentChat();
     }
 
-    function createNewChat() {
+    async function createNewChat() {
         const name = prompt('Название чата:', 'Новый чат');
         if (!name) return;
         const id = 'chat_' + Date.now();
-        chats[id] = { id, name, messages: [] };
-        renderChatsList();
-        switchChat(id);
+        try {
+            const response = await fetch('/api/chats', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ chat_id: id, name: name })
+            });
+            const data = await response.json();
+            if (data.success) {
+                chats[id] = { id, name, messages: [] };
+                renderChatsList();
+                await switchChat(id);
+            } else {
+                addSystemMessage(`Ошибка создания чата: ${data.error}`);
+            }
+        } catch (e) {
+            addSystemMessage(`Ошибка сети: ${e.message}`);
+        }
     }
 
-    function deleteCurrentChat() {
+    async function deleteCurrentChat() {
         if (currentChatId === 'default') { addSystemMessage('Основной чат нельзя удалить'); return; }
-        if (confirm('Удалить чат?')) {
-            delete chats[currentChatId];
-            renderChatsList();
-            switchChat('default');
+        if (!confirm('Удалить чат?')) return;
+        try {
+            const response = await fetch(`/api/chats/${currentChatId}`, { method: 'DELETE' });
+            const data = await response.json();
+            if (data.success) {
+                delete chats[currentChatId];
+                renderChatsList();
+                await switchChat('default');
+            } else {
+                addSystemMessage(`Ошибка удаления: ${data.error}`);
+            }
+        } catch (e) {
+            addSystemMessage(`Ошибка сети: ${e.message}`);
         }
     }
 
@@ -826,6 +995,9 @@
         const msgId = 'msg_' + Date.now() + '_' + Math.random().toString(36).substr(2, 6);
         addMessageToDOM(query, true, msgId);
         input.value = '';
+        
+        // Сохраняем сообщение пользователя на сервер
+        await saveMessageToServer(currentChatId, msgId, 'user', query);
         
         const history = [];
         const messageElements = document.querySelectorAll('#messagesArea .message:not(.system-message)');
@@ -851,21 +1023,25 @@
             if (data.success) {
                 const assistantMsgId = 'msg_' + Date.now() + '_' + Math.random().toString(36).substr(2, 6);
                 addMessageToDOM(data.result, false, assistantMsgId, data.agent);
+                // Сохраняем ответ ассистента на сервер
+                await saveMessageToServer(currentChatId, assistantMsgId, 'assistant', data.result, data.agent);
                 if (data.reasoning) updateReasoning(data.reasoning);
             } else {
-                addMessageToDOM(`Ошибка: ${data.error || 'Неизвестная ошибка'}`, false, 'err_' + Date.now());
+                const errMsg = `Ошибка: ${data.error || 'Неизвестная ошибка'}`;
+                addMessageToDOM(errMsg, false, 'err_' + Date.now());
+                await saveMessageToServer(currentChatId, 'err_' + Date.now(), 'assistant', errMsg);
             }
         } catch (e) {
-            addMessageToDOM(`Ошибка соединения: ${e.message}`, false, 'err_' + Date.now());
+            const errMsg = `Ошибка соединения: ${e.message}`;
+            addMessageToDOM(errMsg, false, 'err_' + Date.now());
+            await saveMessageToServer(currentChatId, 'err_' + Date.now(), 'assistant', errMsg);
         }
-        saveChats();
     }
 
     function updateReasoning(reasoning) {
         const container = document.getElementById('reasoningContent');
         if (typeof reasoning === 'string') container.innerHTML = `<div class="reasoning-step">${reasoning}</div>`;
         else if (Array.isArray(reasoning)) container.innerHTML = reasoning.map(r => `<div class="reasoning-step">${r}</div>`).join('');
-        saveAllState();
     }
 
     function addSystemMessage(text) {
@@ -875,7 +1051,6 @@
         div.innerText = text;
         area.appendChild(div);
         area.scrollTop = area.scrollHeight;
-        saveChats();
     }
 
     // ========== Файловое дерево и редактор ==========
@@ -989,7 +1164,9 @@
 
     async function runCode() {
         const code = editor.getValue();
-        addMessageToDOM(`Выполнение кода:\n\`\`\`\n${code}\n\`\`\``, true, 'code_' + Date.now());
+        const msgId = 'code_' + Date.now();
+        addMessageToDOM(`Выполнение кода:\n\`\`\`\n${code}\n\`\`\``, true, msgId);
+        await saveMessageToServer(currentChatId, msgId, 'user', `Выполнение кода:\n${code}`);
         try {
             const res = await fetch('/api/command', {
                 method: 'POST',
@@ -997,12 +1174,19 @@
                 body: JSON.stringify({ command: `python -c "${code.replace(/"/g, '\\"').replace(/\n/g, '; ')}"` })
             });
             const data = await res.json();
-            if (data.success) addMessageToDOM(`Результат:\n${data.output}`, false, 'res_' + Date.now());
-            else addMessageToDOM(`Ошибка: ${data.error}`, false, 'err_' + Date.now());
+            const resMsgId = 'res_' + Date.now();
+            if (data.success) {
+                addMessageToDOM(`Результат:\n${data.output}`, false, resMsgId);
+                await saveMessageToServer(currentChatId, resMsgId, 'assistant', `Результат:\n${data.output}`);
+            } else {
+                addMessageToDOM(`Ошибка: ${data.error}`, false, resMsgId);
+                await saveMessageToServer(currentChatId, resMsgId, 'assistant', `Ошибка: ${data.error}`);
+            }
         } catch (e) {
-            addMessageToDOM(`Ошибка: ${e.message}`, false, 'err_' + Date.now());
+            const errMsgId = 'err_' + Date.now();
+            addMessageToDOM(`Ошибка: ${e.message}`, false, errMsgId);
+            await saveMessageToServer(currentChatId, errMsgId, 'assistant', `Ошибка: ${e.message}`);
         }
-        saveChats();
     }
 
     // ========== Терминал ==========
@@ -1232,9 +1416,10 @@
     });
 
     // ========== Инициализация страницы ==========
-    window.onload = () => {
+    window.onload = async () => {
         initEditor();
-        loadAllState();
+        await loadChats();
+        await restoreCurrentChat();
         refreshFileTree();
         setInterval(() => fetch('/status').catch(e=>{}), 30000);
         document.getElementById('chatInput').focus();

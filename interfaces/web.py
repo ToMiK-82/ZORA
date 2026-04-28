@@ -17,12 +17,29 @@ from fastapi.middleware.cors import CORSMiddleware
 import shutil
 import uuid
 
+# Импорт модуля истории чатов
+from core.chat_history import (
+    init_db, get_chats, create_chat, update_chat_name, delete_chat,
+    get_messages, add_message, delete_messages
+)
+
 # Добавляем путь к проекту
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 logger = logging.getLogger(__name__)
 
 app = FastAPI(title="ZORA Assistant Web Interface", version="1.0.0")
+
+# Инициализация БД при старте
+@app.on_event("startup")
+async def startup_event():
+    """Инициализирует таблицы истории чатов при запуске."""
+    try:
+        await init_db()
+        logger.info("✅ История чатов инициализирована (PostgreSQL)")
+    except Exception as e:
+        logger.warning(f"⚠️ История чатов недоступна: {e}")
+        logger.warning("⚠️ Система будет работать без сохранения истории диалогов")
 
 # Настраиваем CORS
 app.add_middleware(
@@ -135,33 +152,6 @@ async def ask(request: Request):
 
         answer = result.get("result", "Нет ответа")
         used_agent = result.get("agent", "developer")
-
-        # Сохраняем диалог в векторную память
-        if MEMORY_AVAILABLE and _memory is not None:
-            try:
-                _memory.store(
-                    text=f"User: {query}\nAssistant: {answer}",
-                    metadata={
-                        "type": "dialogue",
-                        "query": query,
-                        "agent": used_agent,
-                        "timestamp": datetime.now().isoformat()
-                    }
-                )
-            except Exception as e:
-                logger.warning(f"Не удалось сохранить диалог в память: {e}")
-
-        # Сохраняем в lessons
-        try:
-            from memory.lesson_saver import save_lesson
-            save_lesson(
-                query=query,
-                response=answer,
-                result=answer,
-                agent=used_agent
-            )
-        except Exception as e:
-            logger.warning(f"Не удалось сохранить урок: {e}")
 
         return {
             "success": True,
@@ -422,46 +412,6 @@ async def set_provider(request: Request):
         logger.error(f"Ошибка переключения провайдера: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
-@app.post("/api/feedback")
-async def save_feedback(request: Request):
-    try:
-        data = await request.json()
-        data["timestamp"] = datetime.now().isoformat()
-        feedback_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "data")
-        os.makedirs(feedback_dir, exist_ok=True)
-        feedback_file = os.path.join(feedback_dir, "feedback.json")
-        try:
-            with open(feedback_file, "r", encoding="utf-8") as f:
-                feedbacks = json.load(f)
-        except (FileNotFoundError, json.JSONDecodeError):
-            feedbacks = []
-        feedbacks.append(data)
-        with open(feedback_file, "w", encoding="utf-8") as f:
-            json.dump(feedbacks, f, ensure_ascii=False, indent=2)
-        # Если полезный отзыв – сохраняем как урок
-        if data.get("rating") == "useful":
-            try:
-                query = data.get("query", "")
-                assistant_response = data.get("assistant_response", "")
-                agent_name = data.get("agent", "unknown")
-                if query and assistant_response and MEMORY_AVAILABLE and _memory:
-                    lesson_text = f"User: {query}\nAssistant: {assistant_response}"
-                    _memory.store(
-                        text=lesson_text,
-                        metadata={
-                            "type": "lesson",
-                            "agent": agent_name,
-                            "rating": "useful",
-                            "timestamp": data["timestamp"],
-                            "source": "feedback"
-                        }
-                    )
-            except Exception as e:
-                logger.error(f"Ошибка сохранения урока из feedback: {e}")
-        return {"success": True, "message": "Спасибо за обратную связь!"}
-    except Exception as e:
-        logger.error(f"Ошибка сохранения feedback: {e}")
-        return {"success": False, "error": str(e)}
 
 @app.get("/user", response_class=HTMLResponse)
 async def user_chat():
@@ -662,6 +612,13 @@ async def confirm_action(request: Request):
         # Выполняем план через DeveloperAssistant
         from agents.developer_assistant import DeveloperAssistant
         assistant = DeveloperAssistant()
+        
+        # Добавляем хэш плана в confirmed_plans, чтобы при повторном вызове
+        # (через оркестратор) план выполнился без повторного запроса подтверждения
+        import json as _json
+        plan_hash = _json.dumps(plan, sort_keys=True)
+        assistant.confirmed_plans.add(plan_hash)
+        
         results = assistant._execute_plan(plan)
         
         return {"success": True, "result": "\n".join(results)}
@@ -728,6 +685,90 @@ async def handle_feedback(request: Request):
             
     except Exception as e:
         logger.error(f"Ошибка обработки обратной связи: {e}")
+        return {"success": False, "error": str(e)}
+
+# ========== Эндпоинты для истории чатов (PostgreSQL) ==========
+
+@app.get("/api/chats")
+async def api_get_chats(user_id: str = "default"):
+    """Возвращает список чатов пользователя."""
+    try:
+        chats = await get_chats(user_id)
+        return {"success": True, "chats": chats}
+    except Exception as e:
+        logger.error(f"Ошибка получения чатов: {e}")
+        return {"success": False, "error": str(e), "chats": []}
+
+@app.post("/api/chats")
+async def api_create_chat(request: Request):
+    """Создаёт новый чат."""
+    try:
+        data = await request.json()
+        chat_id = data.get("chat_id") or f"chat_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
+        name = data.get("name", "Новый чат")
+        user_id = data.get("user_id", "default")
+        await create_chat(chat_id, name, user_id)
+        return {"success": True, "chat_id": chat_id}
+    except Exception as e:
+        logger.error(f"Ошибка создания чата: {e}")
+        return {"success": False, "error": str(e)}
+
+@app.delete("/api/chats/{chat_id}")
+async def api_delete_chat(chat_id: str):
+    """Удаляет чат."""
+    try:
+        await delete_chat(chat_id)
+        return {"success": True}
+    except Exception as e:
+        logger.error(f"Ошибка удаления чата: {e}")
+        return {"success": False, "error": str(e)}
+
+@app.put("/api/chats/{chat_id}")
+async def api_update_chat(chat_id: str, request: Request):
+    """Обновляет название чата."""
+    try:
+        data = await request.json()
+        name = data.get("name")
+        if name:
+            await update_chat_name(chat_id, name)
+        return {"success": True}
+    except Exception as e:
+        logger.error(f"Ошибка обновления чата: {e}")
+        return {"success": False, "error": str(e)}
+
+@app.get("/api/chats/{chat_id}/messages")
+async def api_get_messages(chat_id: str, limit: int = 50):
+    """Возвращает сообщения чата."""
+    try:
+        messages = await get_messages(chat_id, limit)
+        return {"success": True, "messages": messages}
+    except Exception as e:
+        logger.error(f"Ошибка получения сообщений: {e}")
+        return {"success": False, "error": str(e), "messages": []}
+
+@app.post("/api/chats/{chat_id}/messages")
+async def api_add_message(chat_id: str, request: Request):
+    """Добавляет сообщение в чат."""
+    try:
+        data = await request.json()
+        message_id = data.get("message_id") or f"msg_{datetime.now().strftime('%Y%m%d_%H%M%S')}_{uuid.uuid4().hex[:6]}"
+        role = data.get("role", "user")
+        content = data.get("content", "")
+        agent = data.get("agent")
+        await add_message(chat_id, message_id, role, content, agent)
+        return {"success": True}
+    except Exception as e:
+        logger.error(f"Ошибка добавления сообщения: {e}")
+        return {"success": False, "error": str(e)}
+
+@app.delete("/api/chats/{chat_id}/messages")
+async def api_delete_messages(chat_id: str):
+    """Удаляет все сообщения чата."""
+    try:
+        await delete_messages(chat_id)
+        return {"success": True}
+    except Exception as e:
+        logger.error(f"Ошибка удаления сообщений: {e}")
         return {"success": False, "error": str(e)}
 
 if __name__ == "__main__":

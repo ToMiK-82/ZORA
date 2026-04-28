@@ -271,10 +271,6 @@ class BaseAgent(ABC):
                 "result": f"Агент {self.agent_name} столкнулся с ошибкой при обработке."
             }
 
-        # Сохраняем результат в память
-        if result.get("success", True) and "result" in result:
-            self._store_result(query, result["result"])
-
         # Обновляем состояние
         state.update(result)
         return state
