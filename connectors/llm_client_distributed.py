@@ -1,8 +1,9 @@
 """
 Универсальный клиент для работы с LLM моделями.
 Поддерживает:
-1. Удалённый Ollama сервер - основной провайдер
-2. DeepSeek API - резервный провайдер
+1. Удалённый Ollama сервер - основной локальный провайдер
+2. DeepSeek V4 API (OpenAI SDK) - основной облачный провайдер
+3. DeepSeek Legacy API (deepseek-chat/deepseek-reasoner) - обратная совместимость
 
 Содержит как асинхронный (LLMClientDistributed), так и синхронный (LLMClient) клиенты.
 """
@@ -21,6 +22,10 @@ from core.model_selector import (
     DEEPSEEK_API_BASE,
     DEEPSEEK_CHAT_MODEL,
     DEEPSEEK_REASONER_MODEL,
+    DEEPSEEK_V4_FLASH,
+    DEEPSEEK_V4_PRO,
+    DEEPSEEK_LEGACY_MODE,
+    DEEPSEEK_DEFAULT_REASONING,
     DEEPSEEK_TIMEOUT,
     EMBED_MODEL,
 )
@@ -32,7 +37,7 @@ logger = logging.getLogger("ZORA.LLM.Distributed")
 class LLMProvider(Enum):
     """Провайдеры LLM моделей"""
     OLLAMA = "ollama"      # Удалённый Ollama сервер
-    DEEPSEEK = "deepseek"  # DeepSeek API
+    DEEPSEEK = "deepseek"  # DeepSeek API (V4 или Legacy)
     AUTO = "auto"          # Автоматический выбор
 
 
@@ -49,6 +54,7 @@ class LLMClient:
         self._deepseek_available = None
         self._ollama_client = None
         self._deepseek_client = None
+        self._deepseek_v4_client = None
 
     def _import_ollama(self):
         """Ленивый импорт Ollama клиента"""
@@ -65,20 +71,34 @@ class LLMClient:
                 self._ollama_client = None
         return self._ollama_client
 
-    def _import_deepseek(self):
-        """Ленивый импорт DeepSeek клиента"""
+    def _import_deepseek_v4(self):
+        """Ленивый импорт DeepSeek V4 клиента (OpenAI SDK)"""
+        if self._deepseek_v4_client is None:
+            try:
+                from connectors.deepseek_v4_client import get_v4_client
+                self._deepseek_v4_client = get_v4_client()
+            except ImportError as e:
+                logger.warning(f"⚠️ DeepSeek V4 клиент не найден: {e}")
+                self._deepseek_v4_client = None
+        return self._deepseek_v4_client
+
+    def _import_deepseek_legacy(self):
+        """Ленивый импорт DeepSeek Legacy клиента (для обратной совместимости)"""
         if self._deepseek_client is None:
             try:
-                from connectors.deepseek_client import generate as deepseek_generate
-                from connectors.deepseek_client import generate_embedding as deepseek_embedding
-                from connectors.deepseek_client import check_deepseek_available
-                self._deepseek_client = {
-                    "generate": deepseek_generate,
-                    "generate_embedding": deepseek_embedding,
-                    "check_available": check_deepseek_available
-                }
+                # Пробуем V4 клиент как замену Legacy
+                from connectors.deepseek_v4_client import get_v4_client
+                v4 = get_v4_client()
+                if v4 and v4.is_available():
+                    self._deepseek_client = {
+                        "generate": v4.generate,
+                        "generate_embedding": lambda text, model=None: [],
+                        "check_available": v4.is_available
+                    }
+                else:
+                    self._deepseek_client = None
             except ImportError as e:
-                logger.warning(f"⚠️ DeepSeek клиент не найден: {e}")
+                logger.warning(f"⚠️ DeepSeek V4 клиент не найден: {e}")
                 self._deepseek_client = None
         return self._deepseek_client
 
@@ -95,14 +115,22 @@ class LLMClient:
         return self._ollama_available
 
     def check_deepseek_available(self) -> bool:
-        """Проверка доступности DeepSeek API"""
-        if self._deepseek_available is None:
-            deepseek = self._import_deepseek()
-            if deepseek and "check_available" in deepseek:
-                self._deepseek_available = deepseek["check_available"]()
-                logger.info(f"✅ DeepSeek доступен: {self._deepseek_available}")
-            else:
-                self._deepseek_available = False
+        """Проверка доступности DeepSeek API (V4 или Legacy)"""
+        # Сначала пробуем V4
+        v4 = self._import_deepseek_v4()
+        if v4 and v4.is_available():
+            self._deepseek_available = True
+            logger.info("✅ DeepSeek V4 доступен")
+            return True
+
+        # Fallback на Legacy
+        legacy = self._import_deepseek_legacy()
+        if legacy and "check_available" in legacy:
+            self._deepseek_available = legacy["check_available"]()
+            logger.info(f"✅ DeepSeek Legacy доступен: {self._deepseek_available}")
+        else:
+            self._deepseek_available = False
+
         return self._deepseek_available
 
     def get_available_providers(self) -> List[LLMProvider]:
@@ -145,6 +173,9 @@ class LLMClient:
         system: Optional[str] = None,
         format: str = None,
         provider: Optional[LLMProvider] = None,
+        tools: Optional[List[Dict]] = None,
+        thinking: Optional[Dict] = None,
+        reasoning_effort: Optional[str] = None,
         **kwargs
     ) -> str:
         """
@@ -172,10 +203,46 @@ class LLMClient:
                     )
 
             elif selected_provider == LLMProvider.DEEPSEEK:
-                deepseek = self._import_deepseek()
-                if deepseek and "generate" in deepseek:
+                # Пробуем V4 клиент в первую очередь
+                v4 = self._import_deepseek_v4()
+                if v4 and v4.is_available():
+                    # Определяем модель
+                    if model is None:
+                        model = DEEPSEEK_V4_FLASH if not DEEPSEEK_LEGACY_MODE else DEEPSEEK_CHAT_MODEL
+
+                    # Если есть tools — используем chat_completion_sync
+                    if tools:
+                        messages = []
+                        if system:
+                            messages.append({"role": "system", "content": system})
+                        messages.append({"role": "user", "content": prompt})
+
+                        return v4.chat_completion_sync(
+                            messages=messages,
+                            model=model,
+                            tools=tools,
+                            thinking=thinking,
+                            reasoning_effort=reasoning_effort,
+                            temperature=temperature,
+                            **kwargs
+                        )
+                    else:
+                        return v4.generate(
+                            prompt=prompt,
+                            system=system,
+                            model=model,
+                            temperature=temperature,
+                            thinking=thinking,
+                            reasoning_effort=reasoning_effort,
+                            **kwargs
+                        )
+
+                # Fallback на Legacy
+                logger.warning("⚠️ DeepSeek V4 недоступен, пробую Legacy")
+                legacy = self._import_deepseek_legacy()
+                if legacy and "generate" in legacy:
                     model = model or DEEPSEEK_CHAT_MODEL
-                    return deepseek["generate"](
+                    return legacy["generate"](
                         prompt=prompt,
                         model=model,
                         temperature=temperature,
@@ -200,6 +267,9 @@ class LLMClient:
                     system=system,
                     format=format,
                     provider=other_providers[0],
+                    tools=tools,
+                    thinking=thinking,
+                    reasoning_effort=reasoning_effort,
                     **kwargs
                 )
 
@@ -228,10 +298,10 @@ class LLMClient:
                     return ollama["generate_embedding"](text, model)
 
             elif selected_provider == LLMProvider.DEEPSEEK:
-                deepseek = self._import_deepseek()
-                if deepseek and "generate_embedding" in deepseek:
+                legacy = self._import_deepseek_legacy()
+                if legacy and "generate_embedding" in legacy:
                     model = model or "text-embedding"
-                    return deepseek["generate_embedding"](text, model)
+                    return legacy["generate_embedding"](text, model)
 
             raise ValueError(f"Провайдер {selected_provider.value} не поддерживает эмбеддинги")
 
@@ -260,6 +330,9 @@ def generate(
     temperature: float = 0.7,
     system: Optional[str] = None,
     format: str = None,
+    tools: Optional[List[Dict]] = None,
+    thinking: Optional[Dict] = None,
+    reasoning_effort: Optional[str] = None,
     **kwargs
 ) -> str:
     """Синхронная генерация (для обратной совместимости)"""
@@ -271,6 +344,9 @@ def generate(
         temperature=temperature,
         system=system,
         format=format,
+        tools=tools,
+        thinking=thinking,
+        reasoning_effort=reasoning_effort,
         **kwargs
     )
 
@@ -291,8 +367,19 @@ class LLMClientDistributed:
         self.preferred_provider = preferred_provider
         self._session = None
         self.selector = get_selector()
+        self._deepseek_v4_client = None
 
         logger.info(f"Инициализация LLMClientDistributed с OLLAMA_HOST={OLLAMA_HOST}")
+
+    def _get_deepseek_v4(self):
+        """Ленивый импорт DeepSeek V4 клиента"""
+        if self._deepseek_v4_client is None:
+            try:
+                from connectors.deepseek_v4_client import get_v4_client
+                self._deepseek_v4_client = get_v4_client()
+            except ImportError:
+                self._deepseek_v4_client = None
+        return self._deepseek_v4_client
 
     async def _get_session(self):
         """Ленивое создание aiohttp сессии"""
@@ -369,11 +456,46 @@ class LLMClientDistributed:
             raise
 
     async def _call_deepseek(self, prompt: str, model: str, temperature: float = 0.7,
-                            system_prompt: Optional[str] = None) -> str:
-        """Вызывает DeepSeek API (асинхронно)"""
+                            system_prompt: Optional[str] = None,
+                            tools: Optional[List[Dict]] = None,
+                            thinking: Optional[Dict] = None,
+                            reasoning_effort: Optional[str] = None) -> str:
+        """Вызывает DeepSeek API (асинхронно) через V4 клиент или Legacy"""
         if not DEEPSEEK_API_KEY:
-            raise ValueError("DEEPSEEK_API_KEY не установен")
+            raise ValueError("DEEPSEEK_API_KEY не установлен")
 
+        # Пробуем V4 клиент
+        v4 = self._get_deepseek_v4()
+        if v4 and v4.is_available():
+            messages = []
+            if system_prompt:
+                messages.append({"role": "system", "content": system_prompt})
+            messages.append({"role": "user", "content": prompt})
+
+            result = v4.chat_completion(
+                messages=messages,
+                model=model,
+                tools=tools,
+                thinking=thinking,
+                reasoning_effort=reasoning_effort,
+                temperature=temperature,
+                max_tokens=4096
+            )
+
+            if result.get("success"):
+                # Если есть tool_calls, возвращаем JSON
+                if result.get("tool_calls"):
+                    import json
+                    return json.dumps({
+                        "tool_calls": result["tool_calls"],
+                        "content": result.get("content", "")
+                    }, ensure_ascii=False)
+                return result.get("content", "")
+
+            # Если V4 не сработал, пробуем Legacy
+            logger.warning(f"⚠️ DeepSeek V4 ошибка: {result.get('error')}, пробую Legacy")
+
+        # Fallback на Legacy (ручной HTTP)
         try:
             session = await self._get_session()
 
@@ -388,7 +510,7 @@ class LLMClientDistributed:
             messages.append({"role": "user", "content": prompt})
 
             payload = {
-                "model": model,
+                "model": model or DEEPSEEK_CHAT_MODEL,
                 "messages": messages,
                 "temperature": temperature,
                 "max_tokens": 4096
@@ -399,7 +521,7 @@ class LLMClientDistributed:
                 "Content-Type": "application/json"
             }
 
-            logger.info(f"Вызов DeepSeek API: модель={model}, промпт='{prompt[:50]}...'")
+            logger.info(f"Вызов DeepSeek Legacy API: модель={model}, промпт='{prompt[:50]}...'")
 
             async with session.post(
                 f"{DEEPSEEK_API_BASE}/chat/completions",
@@ -410,7 +532,7 @@ class LLMClientDistributed:
                 response.raise_for_status()
                 result = await response.json()
                 response_text = result["choices"][0]["message"]["content"].strip()
-                logger.info(f"✅ Успешный ответ от DeepSeek API (модель: {model})")
+                logger.info(f"✅ Успешный ответ от DeepSeek Legacy API (модель: {model})")
                 return response_text
 
         except Exception as e:
@@ -431,6 +553,11 @@ class LLMClientDistributed:
         if not provider or not model:
             return "Ошибка: не указан провайдер или модель"
 
+        # Извлекаем дополнительные параметры для DeepSeek V4
+        tools = model_info.get("tools")
+        thinking = model_info.get("thinking")
+        reasoning_effort = model_info.get("reasoning_effort")
+
         try:
             if provider == "ollama":
                 return await self._call_ollama(
@@ -444,7 +571,10 @@ class LLMClientDistributed:
                     prompt=prompt,
                     model=model,
                     temperature=temperature,
-                    system_prompt=system_prompt
+                    system_prompt=system_prompt,
+                    tools=tools,
+                    thinking=thinking,
+                    reasoning_effort=reasoning_effort
                 )
             else:
                 return f"Ошибка: неизвестный провайдер '{provider}'"
@@ -522,9 +652,12 @@ async def generate_async(prompt: str, task_type: str = "planner", temperature: f
 
 def generate_sync(prompt: str, model: str = None, provider: str = "ollama", 
                  temperature: float = 0.7, max_tokens: int = None, 
-                 system_prompt: str = None, **kwargs) -> str:
+                 system_prompt: str = None, tools: Optional[List[Dict]] = None,
+                 thinking: Optional[Dict] = None, reasoning_effort: Optional[str] = None,
+                 **kwargs) -> str:
     """
     Синхронная обёртка для асинхронной генерации (через отдельный event loop)
+    Поддерживает Function Calling (tools), thinking, reasoning_effort.
     """
     if not prompt:
         return "Пустой запрос"
@@ -549,7 +682,10 @@ def generate_sync(prompt: str, model: str = None, provider: str = "ollama",
                     else:
                         model_info = {
                             "provider": provider,
-                            "model": model
+                            "model": model,
+                            "tools": tools,
+                            "thinking": thinking,
+                            "reasoning_effort": reasoning_effort
                         }
                         return await client.generate(
                             prompt=prompt,

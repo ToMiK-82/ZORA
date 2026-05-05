@@ -1,0 +1,20 @@
+Команда: E:\ZORA\venv\Scripts\python.exe -m pytest e:\ZORA\tools\__pycache__ -v --tb=short -v --tb=short
+Время: 2026-05-01 22:20:52
+
+📊 Результаты тестов:
+✅ Пройдено: 0
+❌ Не пройдено: 0
+⏭️  Пропущено: 0
+
+
+Полный вывод:
+============================= test session starts =============================
+platform win32 -- Python 3.11.8, pytest-9.0.3, pluggy-1.6.0 -- E:\ZORA\venv\Scripts\python.exe
+cachedir: .pytest_cache
+rootdir: e:\ZORA
+configfile: pyproject.toml
+plugins: anyio-4.13.0, langsmith-0.7.35, cov-7.1.0
+collecting ... collected 0 items
+
+============================ no tests ran in 0.02s ============================
+

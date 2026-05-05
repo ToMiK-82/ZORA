@@ -204,15 +204,38 @@ class ZoraMemory:
             logging.error(f"Ошибка удаления по фильтру {filter_dict}: {e}")
 
     def search(self, query: str, limit: int = 5, agent: Optional[str] = None,
-               threshold: float = 0.7) -> List[Dict[str, Any]]:
-        logging.info(f"Поиск в памяти: запрос='{query}' (repr: {repr(query)})")
+               threshold: float = 0.7, types: Optional[List[str]] = None) -> List[Dict[str, Any]]:
+        """Поиск в памяти с фильтрацией по типам.
+        
+        Args:
+            query: Текстовый запрос
+            limit: Максимальное количество результатов
+            agent: Фильтр по агенту (опционально)
+            threshold: Порог сходства (0.0-1.0)
+            types: Список типов для фильтрации (например, ["code", "lesson", "dialogue_fragment"])
+        """
+        logging.info(f"Поиск в памяти: запрос='{query}' (repr: {repr(query)}), types={types}")
         query_embedding = self._embed_text(query)
-        filter_condition = None
-        # Временно отключаем фильтр по агенту, так как при индексации поле agent не заполняется
+        
+        # Строим фильтр
+        must_conditions = []
+        
+        # Фильтр по типам
+        if types:
+            must_conditions.append(
+                models.FieldCondition(key="type", match=models.MatchAny(any=types))
+            )
+        
+        # Фильтр по агенту (пока отключен, т.к. при индексации поле agent не заполняется)
         # if agent:
-        #     filter_condition = models.Filter(
-        #         must=[models.FieldCondition(key="agent", match=models.MatchValue(value=agent))]
+        #     must_conditions.append(
+        #         models.FieldCondition(key="agent", match=models.MatchValue(value=agent))
         #     )
+        
+        filter_condition = None
+        if must_conditions:
+            filter_condition = models.Filter(must=must_conditions)
+        
         try:
             # Используем query_points (современный метод)
             results = self.client.query_points(

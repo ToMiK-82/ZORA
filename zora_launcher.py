@@ -127,6 +127,8 @@ class SystemChecker:
             # Нормализуем URL: добавляем http:// если отсутствует
             if not ollama_host.startswith(("http://", "https://")):
                 ollama_host = "http://" + ollama_host
+            # Заменяем 0.0.0.0 на localhost для подключения (0.0.0.0 - адрес прослушивания)
+            ollama_host = ollama_host.replace("://0.0.0.0", "://localhost")
             ollama_url = f"{ollama_host}/api/tags"
             
             response = await asyncio.to_thread(requests.get, ollama_url, timeout=5)
@@ -259,6 +261,8 @@ class ServiceManager:
         ollama_host = os.getenv("OLLAMA_HOST", "http://localhost:11434")
         if not ollama_host.startswith(("http://", "https://")):
             ollama_host = "http://" + ollama_host
+        # Заменяем 0.0.0.0 на localhost для подключения
+        ollama_host = ollama_host.replace("://0.0.0.0", "://localhost")
         self.services['ollama']['check_url'] = f"{ollama_host}/api/tags"
         
         self.checker = SystemChecker()
@@ -549,16 +553,8 @@ class ZoraLauncher:
             logger.error("❌ Не удалось запустить веб-сервер")
             return False
         
-        # Запускаем дашборд мониторинга (всегда, чтобы был доступен по сети)
-        try:
-            logger.info("🔄 Запуск дашборда мониторинга...")
-            from monitoring.dashboard import Dashboard
-            dashboard = Dashboard(host="0.0.0.0", port=8003)
-            dashboard_thread = threading.Thread(target=dashboard.run, daemon=True)
-            dashboard_thread.start()
-            logger.info(f"✅ Дашборд запущен на http://localhost:8003")
-        except Exception as e:
-            logger.warning(f"⚠️ Не удалось запустить дашборд: {e}")
+        # Дашборд мониторинга встроен в основной веб-интерфейс (порт 8002)
+        logger.info("✅ Дашборд доступен по адресу http://localhost:8002/dashboard")
         
         # Запускаем планировщик фоновых агентов
         self._register_background_agents()
@@ -568,18 +564,17 @@ class ZoraLauncher:
         if headless:
             logger.info("🖥️ Безголовый режим (SSH/без GUI): браузер не открывается автоматически")
             logger.info("   Веб-интерфейс: http://localhost:8002/modern")
-            logger.info("   Дашборд: http://localhost:8003")
+            logger.info("   Дашборд: http://localhost:8002/dashboard")
         elif open_browser:
             await self.open_browser()
-            # Открываем дашборд мониторинга
-            logger.info("🌐 Открываю дашборд мониторинга: http://localhost:8003")
-            self._open_url_in_browser("http://localhost:8003")
+            # Дашборд встроен в основной веб-интерфейс
+            logger.info("🌐 Дашборд мониторинга: http://localhost:8002/dashboard")
         
         print("\n" + "=" * 60, flush=True)
         print(">>> СИСТЕМА ZORA УСПЕШНО ЗАПУЩЕНА", flush=True)
         print("=" * 60, flush=True)
         print(f"Веб-интерфейс: http://localhost:{self.port}/modern", flush=True)
-        print(f"Дашборд мониторинга: http://localhost:8003", flush=True)
+        print(f"Дашборд мониторинга: http://localhost:{self.port}/dashboard", flush=True)
         print(f"Ollama: {os.getenv('OLLAMA_HOST', 'http://localhost:11434')}", flush=True)
         print(f"Qdrant: http://{os.getenv('QDRANT_HOST', 'localhost')}:{os.getenv('QDRANT_PORT', '6333')}", flush=True)
         print("\nДля тестирования API:", flush=True)

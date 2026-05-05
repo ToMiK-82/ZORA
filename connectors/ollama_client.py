@@ -9,7 +9,7 @@ from typing import List, Optional
 logger = logging.getLogger("ZORA.Ollama")
 
 # Используем переменную окружения или значение по умолчанию
-OLLAMA_BASE_URL = os.getenv("OLLAMA_HOST_LOCAL", "http://localhost:11434")
+OLLAMA_BASE_URL = os.getenv("OLLAMA_HOST", "http://localhost:11434")
 # Нормализуем URL: добавляем http:// если отсутствует
 if not OLLAMA_BASE_URL.startswith(("http://", "https://")):
     OLLAMA_BASE_URL = "http://" + OLLAMA_BASE_URL

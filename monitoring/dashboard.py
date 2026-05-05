@@ -164,25 +164,22 @@ class Dashboard:
         
         @self.app.post("/api/parse_its")
         async def parse_its_docs():
-            """Запускает парсинг документации ИТС 1С."""
+            """Запускает парсинг документации ИТС 1С через коллектор."""
             try:
-                from parsers.its_parser import ITSParser, index_to_memory
-                parser = ITSParser(headless=True)
-                documents = parser.parse_all_documentation(limit_sections=2)
-                parser.close()
-                
-                if documents:
-                    # Индексируем в память
-                    index_to_memory(documents)
+                from collectors.its_collector import run as run_its
+                result = run_its(limit=5)
+                if result.get("success"):
                     return {
                         "success": True,
-                        "message": f"Успешно собрано {len(documents)} документов и проиндексировано в память",
-                        "documents_count": len(documents)
+                        "message": f"ИТС: обработано {result.get('articles_processed', 0)} статей, "
+                                   f"проиндексировано {result.get('chunks_indexed', 0)} чанков",
+                        "articles_processed": result.get("articles_processed", 0),
+                        "chunks_indexed": result.get("chunks_indexed", 0)
                     }
                 else:
                     return {
                         "success": False,
-                        "message": "Не удалось собрать документы"
+                        "message": f"Ошибка: {result.get('error', 'Неизвестная ошибка')}"
                     }
             except Exception as e:
                 logging.error(f"Ошибка парсинга ИТС: {e}")
@@ -463,14 +460,9 @@ def generate_sample_data():
     print(f"Сгенерировано {len(data)} записей в {log_file}")
 
 
+# ⚠️ Дашборд встроен в основной веб-интерфейс (порт 8002).
+# Отдельный запуск на порту 8003 больше не используется.
+# Для просмотра дашборда откройте http://localhost:8002/dashboard
 if __name__ == "__main__":
-    import asyncio
-    
-    # Генерируем пример данных, если нет файла
-    log_file = os.path.join(os.path.dirname(__file__), "monitor_log.json")
-    if not os.path.exists(log_file):
-        generate_sample_data()
-    
-    # Запускаем дашборд
-    dashboard = Dashboard()
-    dashboard.run()
+    print("⚠️ Дашборд встроен в основной веб-интерфейс на порту 8002.")
+    print("   Откройте http://localhost:8002/dashboard")

@@ -1,0 +1,93 @@
+{
+  "url": "https://portal.1c.ru/",
+  "title": "Поддержка пользователей системы \"1С:Предприятие 8\"",
+  "auth_requests": [
+    {
+      "url": "https://portal.1c.ru/front-api/locale/load/localizationParameters",
+      "method": "POST",
+      "headers": {
+        "Allow-Switch-Subscriber": "false",
+        "Cache-Control": "no-cache,no-store,must-revalidate,max-age=-1,private",
+        "Content-Type": "application/json",
+        "Expires": "-1",
+        "Referer": "https://portal.1c.ru/",
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/147.0.0.0 Safari/537.36",
+        "X-Request-ID": "6abc56cd-8e53-4de6-8d76-71707c465c45",
+        "X-Requested-With": "XMLHttpRequest",
+        "sec-ch-ua": "\"Google Chrome\";v=\"147\", \"Not.A/Brand\";v=\"8\", \"Chromium\";v=\"147\"",
+        "sec-ch-ua-mobile": "?0",
+        "sec-ch-ua-platform": "\"Windows\""
+      },
+      "postData": ""
+    },
+    {
+      "url": "https://portal.1c.ru/front-api/public/page-data",
+      "method": "GET",
+      "headers": {
+        "Allow-Switch-Subscriber": "false",
+        "Cache-Control": "no-cache,no-store,must-revalidate,max-age=-1,private",
+        "Content-Type": "application/json",
+        "Expires": "-1",
+        "Referer": "https://portal.1c.ru/",
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/147.0.0.0 Safari/537.36",
+        "X-Request-ID": "55255e00-d520-4d97-a947-c3c4a473f1bb",
+        "X-Requested-With": "XMLHttpRequest",
+        "sec-ch-ua": "\"Google Chrome\";v=\"147\", \"Not.A/Brand\";v=\"8\", \"Chromium\";v=\"147\"",
+        "sec-ch-ua-mobile": "?0",
+        "sec-ch-ua-platform": "\"Windows\""
+      },
+      "postData": ""
+    },
+    {
+      "url": "https://login.1c.ru/login?service=https%3A%2F%2Fportal.1c.ru%2Fpublic%2Fsecurity_check&_1777528082564=",
+      "method": "GET",
+      "headers": {
+        "Referer": "https://portal.1c.ru/",
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/147.0.0.0 Safari/537.36",
+        "sec-ch-ua": "\"Google Chrome\";v=\"147\", \"Not.A/Brand\";v=\"8\", \"Chromium\";v=\"147\"",
+        "sec-ch-ua-mobile": "?0",
+        "sec-ch-ua-platform": "\"Windows\""
+      },
+      "postData": ""
+    },
+    {
+      "url": "https://portal.1c.ru/front-api/public/auth-data",
+      "method": "GET",
+      "headers": {
+        "Allow-Switch-Subscriber": "false",
+        "Cache-Control": "no-cache,no-store,must-revalidate,max-age=-1,private",
+        "Content-Type": "application/json",
+        "Expires": "-1",
+        "Referer": "https://portal.1c.ru/",
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/147.0.0.0 Safari/537.36",
+        "X-Request-ID": "b02f2f8d-6c15-4abc-9f7b-d3400846aac2",
+        "X-Requested-With": "XMLHttpRequest",
+        "sec-ch-ua": "\"Google Chrome\";v=\"147\", \"Not.A/Brand\";v=\"8\", \"Chromium\";v=\"147\"",
+        "sec-ch-ua-mobile": "?0",
+        "sec-ch-ua-platform": "\"Windows\""
+      },
+      "postData": ""
+    },
+    {
+      "url": "https://portal.1c.ru/front-api/application/main",
+      "method": "GET",
+      "headers": {
+        "Allow-Switch-Subscriber": "false",
+        "Cache-Control": "no-cache,no-store,must-revalidate,max-age=-1,private",
+        "Content-Type": "application/json",
+        "Expires": "-1",
+        "Referer": "https://portal.1c.ru/",
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/147.0.0.0 Safari/537.36",
+        "X-Request-ID": "75827731-3d3c-4bdf-a536-a8ea562e6c70",
+        "X-Requested-With": "XMLHttpRequest",
+        "sec-ch-ua": "\"Google Chrome\";v=\"147\", \"Not.A/Brand\";v=\"8\", \"Chromium\";v=\"147\"",
+        "sec-ch-ua-mobile": "?0",
+        "sec-ch-ua-platform": "\"Windows\""
+      },
+      "postData": ""
+    }
+  ],
+  "buttons_found": 1,
+  "links_found": 49,
+  "auth_links_found": 1
+}

@@ -18,8 +18,13 @@ except ImportError:
 class Support(BaseAgent):
     """Агент внутренней поддержки для сотрудников компании."""
 
+    role = AgentRole.SUPPORT
+    display_name = "Специалист поддержки"
+    description = "Помогает пользователям с техническими вопросами и проблемами"
+    tools = []
+
     def __init__(self):
-        super().__init__(AgentRole.SUPPORT.value)
+        super().__init__()
         # Системный промпт загружается из core.roles.py
         self.system_prompt = get_system_prompt(AgentRole.SUPPORT)
 
@@ -37,10 +42,10 @@ class Support(BaseAgent):
         if query is None:
             query = ""
         # Используем переданный контекст (уже извлечённый оркестратором)
-        
+
         # Системный промпт не должен быть None
         system_prompt = self.system_prompt if self.system_prompt is not None else ""
-        
+
         # Формируем полный промпт
         full_prompt = f"""{system_prompt}
 
@@ -51,10 +56,10 @@ class Support(BaseAgent):
 
 Ответ (вежливый, полезный, на русском языке):
 """
-        
+
         try:
             response = generate(full_prompt)  # model=None по умолчанию
-            
+
             if response is None:
                 return {
                     "success": False,
@@ -62,7 +67,7 @@ class Support(BaseAgent):
                     "agent": self.agent_name,
                     "context_used": bool(context)
                 }
-            
+
             if isinstance(response, dict) and "error" in response:
                 return {
                     "success": False,
@@ -70,16 +75,16 @@ class Support(BaseAgent):
                     "agent": self.agent_name,
                     "context_used": bool(context)
                 }
-            
+
             result_text = str(response) if response is not None else ""
-            
+
             return {
                 "success": True,
                 "result": result_text,
                 "agent": self.agent_name,
                 "context_used": bool(context)
             }
-            
+
         except Exception as e:
             return {
                 "success": False,
@@ -88,34 +93,3 @@ class Support(BaseAgent):
                 "context_used": bool(context),
                 "error": str(e)
             }
-    
-    def _retrieve_context(self, query: str, limit: int = 5) -> str:
-        try:
-            from memory import memory
-            results = memory.search(query=query, limit=limit * 2)
-            if not results:
-                return ""
-            # Группировка по файлам
-            grouped = {}
-            for r in results:
-                path = r.get("path", "unknown")
-                grouped.setdefault(path, []).append(r)
-            context_parts = []
-            for path, chunks in list(grouped.items())[:limit]:
-                context_parts.append(f"\n📁 Файл: {path}")
-                for i, chunk in enumerate(chunks[:3], 1):
-                    text = chunk.get("text", "")
-                    score = chunk.get("score", 0)
-                    if len(text) > 500:
-                        text = text[:500] + "..."
-                    context_parts.append(f"  [{i}] Сходство: {score:.2f}")
-                    context_parts.append(f"     {text}")
-                    context_parts.append("")
-            context = "\n".join(context_parts)
-            if context:
-                context = "📚 РЕЛЕВАНТНЫЙ КОНТЕКСТ ИЗ ПАМЯТИ:\n" + context
-                context += "\n\n💡 ИНСТРУКЦИЯ: Используй эту информацию для ответа. Если находишь релевантные фрагменты, цитируй их и указывай из какого файла они взяты."
-            return context
-        except Exception as e:
-            self.logger.error(f"Ошибка при извлечении контекста: {e}")
-            return ""

@@ -15,9 +15,10 @@ load_dotenv()
 logger = logging.getLogger("zora.connector.1c.rest")
 
 # Конфигурация из переменных окружения
-ONEC_API_URL = os.getenv("ONEC_API_URL", "http://localhost:8080/1c/ws/odata/standard.odata/")
-ONEC_API_USER = os.getenv("ONEC_API_USER", "ZORA")
-ONEC_API_PASSWORD = os.getenv("ONEC_API_PASSWORD", "Globus")
+# Параметры задаются только в .env: ONEC_ODATA_URL, ONEC_ODATA_USER, ONEC_ODATA_PASSWORD
+ONEC_API_URL = os.getenv("ONEC_ODATA_URL") or os.getenv("ONEC_API_URL", "")
+ONEC_API_USER = os.getenv("ONEC_ODATA_USER") or os.getenv("ONEC_API_USER", "")
+ONEC_API_PASSWORD = os.getenv("ONEC_ODATA_PASSWORD") or os.getenv("ONEC_API_PASSWORD", "")
 
 
 class OneCRestClient:
@@ -101,7 +102,8 @@ class OneCRestClient:
             return []
     
     def query_entity(self, entity_name: str, filters: Optional[Dict] = None, 
-                    top: Optional[int] = None, skip: Optional[int] = None) -> List[Dict[str, Any]]:
+                    top: Optional[int] = None, skip: Optional[int] = None,
+                    raw_filter: Optional[str] = None) -> List[Dict[str, Any]]:
         """
         Выполнение запроса к сущности 1С.
         
@@ -110,6 +112,7 @@ class OneCRestClient:
             filters: Словарь фильтров {поле: значение}
             top: Количество записей для возврата
             skip: Количество записей для пропуска
+            raw_filter: Произвольный OData $filter (строка), например "Modified gt datetime'2024-01-01T00:00:00'"
             
         Returns:
             Список записей сущности
@@ -119,7 +122,9 @@ class OneCRestClient:
             
             # Добавляем параметры запроса
             params = {}
-            if filters:
+            if raw_filter:
+                params['$filter'] = raw_filter
+            elif filters:
                 # Простая реализация фильтров - можно расширить для сложных условий
                 filter_parts = []
                 for key, value in filters.items():

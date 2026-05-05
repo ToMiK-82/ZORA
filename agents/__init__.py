@@ -7,7 +7,6 @@ from agents.base import BaseAgent
 from agents.economist import Economist
 from agents.purchaser import Purchaser
 from agents.accountant import Accountant
-from agents.sales_manager import SalesManager
 from agents.support import Support
 from agents.smm import Smm
 from agents.website import Website
@@ -20,7 +19,6 @@ agents = {
     'economist': Economist(),
     'purchaser': Purchaser(),
     'accountant': Accountant(),
-    'sales_manager': SalesManager(),
     'support': Support(),
     'smm': Smm(),
     'website': Website(),
@@ -33,7 +31,6 @@ __all__ = [
     "Economist",
     "Purchaser",
     "Accountant",
-    "SalesManager",
     "Support",
     "Smm",
     "Website",

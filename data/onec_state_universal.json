@@ -1,0 +1,29 @@
+{
+  "entities": {
+    "AccumulationRegister_ПартииНезавершенногоПроизводства": {
+      "last_run": "2026-05-05T00:22:01.897058",
+      "count": 0,
+      "last_modified": null,
+      "has_modified_field": false
+    },
+    "AccumulationRegister_ПартииНезавершенногоПроизводства_RecordType": {
+      "last_run": "2026-05-05T00:22:02.000539",
+      "count": 0,
+      "last_modified": null,
+      "has_modified_field": false
+    },
+    "AccumulationRegister_ИмущественныеВычетыНДФЛ": {
+      "last_run": "2026-05-05T00:22:02.128722",
+      "count": 0,
+      "last_modified": null,
+      "has_modified_field": false
+    },
+    "AccumulationRegister_ИмущественныеВычетыНДФЛ_RecordType": {
+      "last_run": "2026-05-05T00:22:02.256771",
+      "count": 0,
+      "last_modified": null,
+      "has_modified_field": false
+    }
+  },
+  "last_full_run": null
+}

@@ -1,0 +1,779 @@
+<!DOCTYPE HTML>
+<html lang="ru" class="sidebar_level0 no-touchscreen js-disabled">
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=Windows-1251">
+		<title id="w_title" class="w">Темы :: Новости</title>		<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+		<meta name="theme-color" content="#ffdf16">
+		<link rel="preconnect" href="https://mc.yandex.ru">
+		<link rel="preconnect" href="https://counter.yadro.ru">
+		<base id="w_base" class="l" data-nonce="" href="/db/news/" target="_top">		
+		<link id="w_canonical" rel="canonical" class="l" href="https://its.1c.ru/db/news">		<script type="text/javascript">
+			(function(){
+				var n = navigator, d = document, de = d.documentElement, dc = de.className.replace(/(^|\s+)js-disabled(\s+|$)/, ' '), rxos = /(^|\s+)(android|ios)(\s+|$)/;
+				if(window.TouchEvent && 'standalone' in n || window.matchMedia && matchMedia('(any-pointer: coarse)').matches){
+					dc = dc.replace(/(^|\s+)no-touchscreen(\s+|$)/, ' touchscreen ');
+					if(window.TouchEvent && 'standalone' in n){
+						dc = dc.replace(rxos, ' ios ');
+						d.addEventListener('touchstart', (function(){return function(){}})());
+					}
+					else if(n.userAgentData && n.userAgentData.platform === 'Android'
+					|| (!n.userAgentData || !n.userAgentData.platform && n.vendor === 'Google Inc.') && n.userAgent.match(/\bAndroid\b/))
+						dc = dc.replace(rxos, ' android ');
+					else
+						dc = dc.replace(rxos, ' ');
+				}else
+					dc = dc.replace(rxos, ' ').replace(/(^|\s+)touchscreen(\s+|$)/, ' no-touchscreen ');
+				de.className = dc;
+			})();
+		</script>
+		<script type="text/javascript">
+window.deferred=[];window.errors=[];;
+(function(){var attrs=decodeURIComponent(location.hash.replace('#', '').replace(/:/g, '/')).replace(/%$/, '%25');if(!attrs.match(/^(?:content|bookmark)\//))return;else if(window.TouchEvent && 'standalone' in navigator || document.documentElement.className.match(/\bandroid\b/)){document.write('<style>body,html::before,html::after{display:none!important}</style>');var load = function(){location.replace(location.pathname+'/'+attrs.replace(/^content\/(-?\d+)\/1\b/, 'content/$1/hdoc'));};if(window.TouchEvent && 'standalone' in navigator || !window.requestAnimationFrame || document.visibilityState === 'hidden'){load();}else{requestAnimationFrame(load);}return;}if(attrs.match(/^content\/[^\/]+\/[^\/]+\/[^\/]+/))return;var url=location.protocol+'//'+location.hostname+location.pathname+'/'+attrs;url+=(attrs.indexOf('?')!==-1?'&':'?')+'bus&event[name]=mode';if(!window.preloadedXHR)window.preloadedXHR={};var request=new XMLHttpRequest;request.open('GET', url, true);if(document.referrer)request.setRequestHeader('X-Referer', document.referrer);if(navigator.userAgent.match(/Chrome\b/))request.setRequestHeader('X-Attachment-Accept', 1);request.send();preloadedXHR[url]=request;})();
+deferred.push(function(){App.User.init(false, 'BITRIX_SM_LOGIN', 'SUBSCRIBE_PERIOD', 'PARTWEB_LOGIN', 'FRESH_LOGIN', 'BITRIX_SM_UIDH', '/user/auth/ping.json', 1380);});
+</script>		<script type="text/javascript">
+			window.TEMPLATE_NEW = true;
+			window.MOBILE_ENABLED = true;
+		</script>
+		<script type="text/javascript">
+			(function(){
+				if(window.CSS && CSS.supports && CSS.supports('--name: value') && !CSS.supports('height: 100dvh'))
+				{
+					var setCssInnerHeight = function(){
+						var des = document.documentElement.style;
+						var prop = '--window-inner-height';
+						var value = Math.min(window.innerHeight, document.documentElement.clientHeight) + 'px';
+						if(des.getPropertyValue(prop) !== value)
+							des.setProperty(prop, value);
+					};
+					window.addEventListener('resize', setCssInnerHeight, false);
+					setCssInnerHeight.call(window);
+				}
+			})();
+		</script>
+		<style>
+		@font-face {
+			font-family: 'Roboto';
+			src: url('/font/roboto/Roboto-Regular.woff2') format('woff2'),
+				 url('/font/roboto/Roboto-Regular.woff') format('woff');
+			font-weight: normal;
+			font-style: normal;
+			font-display: block;
+		}
+		@font-face {
+			font-family: 'Roboto';
+			src: url('/font/roboto/Roboto-Bold.woff2') format('woff2'),
+				 url('/font/roboto/Roboto-Bold.woff') format('woff');
+			font-weight: bold;
+			font-style: normal;
+			font-display: block;
+		}
+		@font-face {
+			font-family: 'FuturaMediumC';
+			src: url('/font/futura/FuturaMediumC.woff2') format('woff2'),
+				 url('/font/futura/FuturaMediumC.woff') format('woff');
+			font-weight: 500;
+			font-style: normal;
+			font-display: block;
+		}
+		@font-face {
+			font-family: 'FuturaDemiC';
+			src: url('/font/futura/FuturaDemiC.woff2') format('woff2'),
+				 url('/font/futura/FuturaDemiC.woff') format('woff');
+			font-weight: normal;
+			font-style: normal;
+			font-display: block;
+		}
+		@font-face {
+			font-family: 'FuturaBookC';
+			src: url('/font/futura/FuturaBookC.woff2') format('woff2'),
+				 url('/font/futura/FuturaBookC.woff') format('woff');
+			font-weight: normal;
+			font-style: normal;
+			font-display: block;
+		}
+		@font-face {
+			font-family: 'FuturaLightC';
+			src: url('/font/futura/FuturaLightC.woff2') format('woff2'),
+				 url('/font/futura/FuturaLightC.woff') format('woff');
+			font-weight: 300;
+			font-style: normal;
+			font-display: block;
+		}
+		</style>
+												<link rel="stylesheet" type="text/css" href="/common/page/css/1774508508/core__new.css_?_=1774508508"><link rel="stylesheet" type="text/css" href="/common/page/css/1775583318/its__new.css_?_=1775583318"><link rel="stylesheet" type="text/css" href="/css/mobile.css?_=1758294439">							<script type="text/javascript" onload="this.loaded=true" defer src="/common/page/js/1777372739/core__new.js_?_=1777372739"></script><script type="text/javascript" onload="this.loaded=true" defer src="/common/page/js/1776018381/its__new.js_?_=1776018381"></script>						<style>
+				html
+		{contain:strict}
+		html::-webkit-scrollbar,
+		body::-webkit-scrollbar
+		{display:none}
+				</style>
+		<link id="favicon_static" type="image/x-icon" rel="icon" href="/favicon.ico">
+				<link rel="apple-touch-icon" sizes="120x120" href="/img_new/logo_its_apple_touch_120.png?_=1621642314">
+		<link rel="apple-touch-icon" sizes="152x152" href="/img_new/logo_its_apple_touch_152.png?_=1621642321">
+		<link rel="apple-touch-icon" sizes="180x180" href="/img_new/logo_its_apple_touch_180.png?_=1621642327">
+		<meta name="robots" content="noarchive">
+		<link rel="search" type="application/opensearchdescription+xml" title="1С:ИТС" href="/search/opensearch.xml">
+	</head>
+	<body class="ru lang_ru its main main_main tabbed unauthorized" data-app="its" data-module="main" data-action="main">
+		<div id="main_container" class="sidebar-fixed sidebar-no-initial" data-viewport-shift-media-max-width-portrait="478px" data-viewport-shift-media-max-width-landscape="991px" data-viewport-shift-snap-padding="5px" data-viewport-shift-scrollbar-width="10px" data-viewport-shift-scrollbar-border-width="3px" data-viewport-shift-translate-x="0px" data-viewport-shift-absolute-max-shift="265">
+<!-- noindex -->
+		<div id="header">
+			<div id="w_siteselect" class="w" style="display:none"></div>			<div class="top-personal">
+				<div id="w_user_login" class="w unauthorized null"><iframe id="auth_check" name="auth_check" style="display:none" src="https://login.1c.ru/login?service=https%3A%2F%2Fits.1c.ru%2Flogin%2F%3Faction%3Daftercheck%26provider%3Dlogin&amp;gateway=true" class="nojs"></iframe>
+<div id="personal_info">
+	<a id="login" class="nojs" href="/user/auth?backurl=%2Fdb%2Fnews" target="_top" rel="nofollow" onclick="this.href=this.href.replace(/\?backurl=.*$/,'?backurl='+encodeURIComponent(location.href.replace(/^https?:\/\/[^\/]+/, '')))">Вход</a>
+</div>
+<div class="avatar">
+	<a class="nojs" href="/user/auth?backurl=%2Fdb%2Fnews" target="_top" rel="nofollow" onclick="this.href=this.href.replace(/\?backurl=.*$/,'?backurl='+encodeURIComponent(location.href.replace(/^https?:\/\/[^\/]+/, '')))" aria-label="Вход">&nbsp;</a>
+</div>
+</div>			</div>
+			<div id="top_menu">
+				<div id="top_menu_burger_space">
+					<div id="top_menu_burger" onClick="setTimeout(function(){var d=document,de=d.documentElement,db=d.body,mc=d.getElementById('main_container'),rx=/\bshow-menu\b/,hc=db.className.match(rx);if(!d.getElementById('w_sidebar_menu')||window.styleDeferred&&styleDeferred.usingShell&&!styleDeferred.inactive){alert(window.styleDeferred.error?'Произошла ошибка. Пожалуйста, перезагрузите страницу.':'Пожалуйста, подождите...');return}if(hc){de.className=de.className.replace(rx, '');db.className=db.className.replace(rx, '')}else{de.className+=' show-menu';db.className+=' show-menu'}if(window.SSP&&window.App){!hc&&App.Sidebar.load(false,false,function(){});!hc&&App.Viewport.hasShift()&&db.addEventListener('transitionend',App.Viewport.resetShift,false);if(App.sidebarCarousel.getPosition()){App.sidebarCarousel.adjust();!hc&&App.sidebarCarousel.moveTo(0);}}}, 0)"></div>
+				</div>
+				<div class="top_menu1">
+					<div class="top_menu_item"><a target="_top" href="/db/aboutitsnew">Об 1С:ИТС</a></div>
+					<div class="top_menu_item"><a target="_top" href="/test-drive">Тест-драйв</a></div>
+					<div class="top_menu_item"><a target="_top" href="/zakaz?order[comment]=Заявка на заключение договора ИТС">Заказать ИТС</a></div>
+										<div class="top_menu_item"><a target="_top" href="/docs/question/">Задать вопрос</a></div>
+										<div class="top_menu_item"><a target="_top" href="/docs/update1c/">Обновить ПО</a></div>
+										<div class="top_menu_item"><a target="_top" href="/personal/qos">Оценить 1С</a></div>
+															<div class="top_menu_item"><a target="_blank" rel="noopener" href="https://torg.1c.ru/equipment/onlayn-kassy/?utm_source=its&utm_medium=tmenu">Купить кассу</a></div>
+									</div>
+				<div class="top_menu2">
+										<div class="top_menu_item"><a target="_top" href="/db/itsrev">Тематические подборки</a></div>
+															<div class="top_menu_item"><a target="_top" href="/calendar">Календарь бухгалтера</a></div>
+															<div class="top_menu_item"><a target="_top" href="/docs/calc_help/">Калькуляторы</a></div>
+					<div class="top_menu_item"><a target="_top" href="/kbk">Подбор КБК</a></div>
+															<div class="top_menu_item last_search_link"><a target="_top" href="/db/morphmerged/search">Последние результаты поиска</a></div>
+																				<div class="top_menu_item"><a target="_top" href="/news/subscription">Подписаться на рассылку</a></div>
+																								</div>
+			</div>
+			<script type="text/javascript">
+				document.getElementById('top_menu').style.setProperty('--menu-item-count', document.getElementsByClassName('top_menu_item').length);
+			</script>
+		</div>
+		<!-- /noindex -->			<script type="text/javascript">
+				if(window.performance
+				&& (performance.getEntriesByName || performance.getEntriesByType)
+				&& window.PerformancePaintTiming
+				&& window.requestAnimationFrame)
+					(function(){
+						var disableFaultyPaintReporting = function(){
+							if(performance.faultyPaintReportingDisabled)
+								return;
+							else if(document.visibilityState === 'hidden' && !performance.getEntriesByType('paint').length)
+								performance.faultyPaintReportingDisabled = document.prerendering ? 'prerender' : 'hidden';
+							else if(!('standalone' in navigator) && (!window.styleDeferred || !styleDeferred.waitingPaint))
+								requestAnimationFrame(function(){
+									requestAnimationFrame(function(){
+										setTimeout(function(){
+											if(performance.faultyPaintReportingDisabled || performance.getEntriesByType('paint').length)
+												return;
+											performance.faultyPaintReportingDisabled = 'timeout';
+										}, 500);
+									});
+								});
+						};
+						if(window.styleDeferred && !styleDeferred.inactive && !styleDeferred.usingShell){
+							styleDeferred.push(disableFaultyPaintReporting);
+							var splashPreload = document.getElementById('css_shell_splash_preload');
+							if(splashPreload)
+								splashPreload.onload = disableFaultyPaintReporting;
+						}
+						else
+							disableFaultyPaintReporting();
+					})();
+			</script>
+<script type="text/javascript">
+			deferred.push(function(){
+				App.navChainCarousel = new App.Carousel('navchain_inner', 'w_navchain', 'navchain_left', 'navchain_right', null, {
+					bypixel:false,
+					absolute:true,
+					step:1,
+					wrap:false
+				});
+				var navChain = SSP.DOM.byId('w_navchain');
+				SSP.DOM.listen(navChain, 'click', App.Handler.navChainClick);
+				if(SSP.Browser.hasTouchScreen)
+					SSP.DOM.listen(navChain, 'touchstart', App.Handler.navChainTouchStart);
+							});
+		</script><div id="navchain"><div class="navchain_carousel__navigation left disabled" id="navchain_left"></div><div id="navchain_inner">
+		<ol id="w_navchain" class="blank w" itemtype="http://schema.org/BreadcrumbList" itemscope><!--noindex-->
+<li itemprop="itemListElement" itemscope itemtype="http://schema.org/ListItem" class="inline-block">
+<a class="inline-block" href="/" id="navchain_level_1" target="_top" itemprop="item">Главная</a>
+<meta itemprop="name" content="Главная" />
+<meta itemprop="position" content="1" />
+</li>
+<!--/noindex-->
+<li class="inline-block">
+<h1 class="inline-block" id="navchain_level_2"><noscript id="navchain_autofocus_noscript"><input class="autofocus_noscript" type="text" tabindex="-1" autofocus></noscript>Новости</h1>
+</li>
+<script type="text/javascript">
+	deferred.push(function(){
+		if(App.navChainCarousel)
+		{
+			App.navChainCarousel.adjust();
+						App.navChainCarousel.moveTo(1, App.Carousel.MOVETO_ALIGN_LEFT, true);
+		}
+	});
+	(function(){
+		var nans = document.getElementById('navchain_autofocus_noscript');
+		if(nans)
+			nans.parentNode.removeChild(nans);
+		var ribbon = document.getElementById('w_navchain');
+		ribbon.style.visibility = 'hidden';
+		var enableButton = function(id){
+			var button = document.getElementById(id);
+			if(button){
+				button.className = button.className.replace(/\bdisabled\b/g, ' ');
+				return true;
+			}
+		};
+		var removePseudo = function(){
+			document.documentElement.className = document.documentElement.className.replace(/(^|\s+)pseudo-navchain-chevron-(left|right)\b[^\s]*/g, ' ');
+			if(window.styleDeferred && !styleDeferred.inactive && styleDeferred.appendShell)
+				styleDeferred.appendShell('body::before{display:none}');
+		};
+		var adjustCarousel = function(isEager){
+			var style = ribbon.style;
+			if(style.display !== 'block')
+				style.display = 'block'
+			try{
+				var aperture = document.getElementById('navchain_inner');
+				var apertureRect = aperture.getBoundingClientRect();
+				var apertureSize = Math.round(apertureRect.right) - Math.round(apertureRect.left);
+				var ribbonSize = ribbon.scrollWidth;
+				if(ribbonSize > apertureSize){
+					var moveTo = ribbon.children[1];
+					var moveToRect = moveTo.getBoundingClientRect();
+					var ribbonPosition = Math.round(apertureRect.left) - Math.round(moveToRect.left);
+					var supportsTransform = window.CSS && CSS.supports && CSS.supports('transform: translate(0px, 0px)');
+					var existingMatch = supportsTransform ? style.transform.match(/^translate\((-?\d+[\.\d]*)px\b/) : style.left.match(/^(-?\d+[\.\d]*)px$/);
+					var existingPosition = existingMatch ? parseInt(existingMatch[1], 10) : 0;
+					if(existingPosition)
+						ribbonPosition += existingPosition;
+					if(ribbonPosition > 0)
+						ribbonPosition = 0;
+					else{
+						if(isEager && !document.getElementById('navchain_left'))
+							setTimeout(function(){
+								enableButton('navchain_left') || setTimeout(function(){enableButton('navchain_left')}, 0);
+							}, 0);
+						else
+							enableButton('navchain_left');
+					}
+					if(ribbonPosition < apertureSize - ribbonSize)
+						ribbonPosition = apertureSize - ribbonSize;
+					else{
+						if(isEager && !document.getElementById('navchain_right'))
+							setTimeout(function(){
+								enableButton('navchain_right') || setTimeout(function(){enableButton('navchain_right')}, 0);
+							}, 0);
+						else
+							enableButton('navchain_right');
+					}
+					if(window.requestAnimationFrame)
+						requestAnimationFrame(function(){
+							requestAnimationFrame(function(){
+								requestAnimationFrame(removePseudo);
+							});
+						});
+					else
+						setTimeout(removePseudo, 0);
+					if(ribbonPosition){
+						if(supportsTransform)
+							style.transform = 'translate(' + ribbonPosition + 'px, 0px)';
+						else
+							style.left = ribbonPosition + 'px';
+						if(window.App&&App.navChainCarousel)
+							App.navChainCarousel.syncPosition(ribbonPosition);
+					}
+				}
+			}catch(e){
+				console.log(e);
+			}
+			style.visibility = 'visible';
+			if(isEager && window.styleDeferred && !styleDeferred.inactive && styleDeferred.appendShell)
+				styleDeferred.appendShell('html::before{display:none}');
+		};
+		if(window.styleDeferred){
+			if(styleDeferred.waitingPaint)
+				;
+			else if(styleDeferred.inactive
+			|| styleDeferred.usingShell && ('standalone' in navigator || !document.documentElement.className.match(/(^|\s+)pseudo-navchain-chevron-right(\s+|$)/)))
+				adjustCarousel(true);
+			else
+				styleDeferred.push(adjustCarousel);
+			if(styleDeferred.waitingPaint || window.TouchEvent && 'standalone' in navigator){
+				var fonts = document.fonts;
+				if(fonts && (!fonts.check || !fonts.ready))
+					fonts = void 0;
+				var bodyFont = 'normal 400 1px Roboto';
+				var adjustCarouselWithFonts = function(){
+					if(fonts && 'standalone' in navigator){
+						if(fonts.check(bodyFont))
+							adjustCarousel();
+						else
+							fonts.ready.then(function(){
+								adjustCarousel();
+							});
+					}else
+						setTimeout(adjustCarousel, 0);
+				};
+				if(styleDeferred.waitingPaint)
+					var waitingPaintInterval = setInterval(function(){
+						if(styleDeferred.inactive
+						|| !styleDeferred.waitingPaint
+						|| window.PerformancePaintTiming && performance.getEntriesByType('paint').length && (!('standalone' in navigator) || fonts && fonts.check(bodyFont))){
+							clearInterval(waitingPaintInterval);
+							if(window.requestAnimationFrame)
+								requestAnimationFrame(function(){
+									requestAnimationFrame(adjustCarouselWithFonts);
+								});
+							else
+								setTimeout(adjustCarouselWithFonts, 0);
+							ribbon.className += ' not-waiting-paint';
+						}
+					}, 16);
+				else
+					setTimeout(adjustCarouselWithFonts, 0);
+			}
+		}
+		else
+			adjustCarousel(true);
+	})();
+</script>
+</ol>		</div><div class="navchain_carousel__navigation right disabled" id="navchain_right"></div></div>						<script type="text/javascript">
+				deferred.push(function(){try{SSP.Scroll.mimicByClass('mimic_scroll');}catch(e){}});
+							deferred.push(function(){if(!SSP.Browser.Android && !SSP.Browser.IOS && document.activeElement == document.body || document.activeElement == document.documentElement)SSP.DOM.requestAnimationFrame(function(){SSP.DOM.focus(SSP.DOM.byId('w_content'));});});
+						</script>
+<div id="w_content" class="l"><div id="l_classifier" class="l news" style="display:none"><div id="l_nav" class="l" style="display:"><div id="w_metadata_classifier_tabs" class="w" src="/db/metadata/news/cl_tabs/13_" style="display:"><ul class="tab tab2">
+<li class="png active"><span class="inline-block"><a class="inline-block" href="/db/news/browse/13" target="_top">Темы</a></span></li><li class="png"><span class="inline-block"><a class="inline-block" href="/db/news/browse/1" target="_top">Дата</a></span></li></ul></div><div id="l_nav_inner" class="l metadata-spacer native_scroll tabbed"><div id="w_metadata_navtree" class="w mimic_scroll" src="/db/metadata/news/nav_tree/13/-1_"><ul class="nav tree top" id="cl_news_13"><li class="expanded active" id="nav_-1"><a href="/db/news/browse/13/-1">Темы</a><ul class="nav tree"><li class="folder leaf" id="nav_5"><a href="/db/news/browse/13/-1/5">Справочники</a></li><li class="folder leaf" id="nav_6"><a href="/db/news/browse/13/-1/6">Релизы</a></li><li class="folder leaf" id="nav_7"><a href="/db/news/browse/13/-1/7">Законодательство</a></li><li class="folder leaf" id="nav_8"><a href="/db/news/browse/13/-1/8">Консультации</a></li><li class="folder leaf" id="nav_9"><a href="/db/news/browse/13/-1/9">Консультации</a></li><li class="folder leaf" id="nav_25"><a href="/db/news/browse/13/-1/25">Консультации по программе</a></li><li class="folder leaf" id="nav_10"><a href="/db/news/browse/13/-1/10">1С:Лекторий</a></li></ul></li></ul><script type="text/javascript">deferred.push(function(){try{SSP.Scroll.mimicByClass('mimic_scroll');}catch(e){/*debugger;*/}})</script></div></div></div><div id="l_classlist_controls" class="l" style="display:none"><div id="w_extended_search_button_nav" class="l" style="display:none"><a id="w_extended_search_href_nav" title="Расширенный поиск" class="inline-block l" target="_top" href="javascript:">&nbsp;</a></div></div><div id="l_classlist_outer" class="l native_scroll"><div id="l_classlist" class="l mimic_scroll"><div id="w_metadata_navlist" class="w nofreezelayout" src="/db/metadata/news/nav_list/13/-1_"><ul class="nav list">
+<li id="nav_f5" class="folder"><a href="/db/news/browse/13/-1/5">Справочники</a></li><li id="nav_f6" class="folder"><a href="/db/news/browse/13/-1/6">Релизы</a></li><li id="nav_f7" class="folder"><a href="/db/news/browse/13/-1/7">Законодательство</a></li><li id="nav_f8" class="folder"><a href="/db/news/browse/13/-1/8">Консультации</a></li><li id="nav_f9" class="folder"><a href="/db/news/browse/13/-1/9">Консультации</a></li><li id="nav_f25" class="folder"><a href="/db/news/browse/13/-1/25">Консультации по программе</a></li><li id="nav_f10" class="folder"><a href="/db/news/browse/13/-1/10">1С:Лекторий</a></li></ul>
+<script type="text/javascript">
+	deferred.push(function(){
+		App.Viewport.attachToScroller('l_classlist_outer', 'l_classlist', true);
+		App.Viewport.resetShift(true);
+		App.Its.Handler.navListReload();
+	});
+</script></div></div></div></div><div id="l_content" class="l" style="display:none"></div><div id="l_search" class="l" style="display:none"></div><div id="l_extended_search" class="l" style="display:none"></div><div id="w_metadata_section" class="w"><div id="database_menu_section" data-section="" style="display:none"></div>
+<script type="text/javascript">
+	deferred.push(function(){
+				SSP.DOM.addClass(SSP.DOM.byId('main_container'), 'sidebar-no-initial');
+			});
+</script></div><script type="text/javascript">
+	deferred.push(function()
+	{
+		App.Search.chatbotJs = 'https://portalchat.1c.ai/chatbot/widget/widget.js';
+		App.Search.chatbotCss = 'https://portalchat.1c.ai/chatbot/widget/style.css';
+
+		SSP.Bus.init(
+			'/db/',
+			['browse', 'content', 'bookmark', 'search', 'extsearch'],
+			App.Its.Router,
+			{"w_metadata_navtree":{"5":{"listen":[{"event":"click","callback":"SSP.Tree.handleClick"}],"trigger":[]},"3":{"unselect":[null],"merge":["\/db\/metadata\/news\/nav_tree\/13\/-1_",{"UL":true,"LI":true},true],"select":["nav_-1"]}},"w_metadata_navlist":{"5":{"listen":[{"event":"click","callback":"App.Its.Handler.navListClick"}],"trigger":[]},"3":{"reload":["\/db\/metadata\/news\/nav_list\/13\/-1_"]}},"w_title":{"3":{"reload":[null]}},"w_navchain":{"3":{"reload":[null]}},"w_searchlink":{"3":{"reload":[null]}},"w_search":{"3":{"reload":[null]}},"w_main_tabclassifier":{"3":{"reload":[null]}},"w_main_tabsearch":{"3":{"reload":[null]}},"w_metadata_classifier_tabs":{"3":{"reload":["\/db\/metadata\/news\/cl_tabs\/13_"]}},"w_metadata_section":{"3":{"reload":[null]}}},
+			'/img/loading-tpt.gif',
+			false,
+			false,
+			["l_doc_frame_inner","search_filter_toggle"]		);
+		
+		
+		App.Its.Router.selectedTab = App.Its.Router.getRememberedTab();
+		
+		App.Its.Handler.listenBasket(false);
+	});
+</script>
+<script type="text/javascript">
+	deferred.push(function()
+	{
+		var match = App.Its.Router.match(App.Its.Router.toInternal(window.location.toString()));
+		if(!match || !match.context.mode)
+			SSP.Widget('l_classifier').show();
+	});
+</script>
+<noscript><style>#l_classifier{display:block!important}</style></noscript>
+<script>
+	deferred.push(function()
+	{
+		SSP.DOM.triggerReflow();
+		setTimeout(function()
+		{
+			var match = App.Its.Router.match(App.Its.Router.toInternal(window.location.toString()));
+			if(match)
+			{
+				var content = SSP.Widget('l_content');
+				var classifier = SSP.Widget('l_classifier');
+				var search = SSP.Widget('l_search');
+				var extsearch = SSP.Widget('l_extended_search');
+				
+				if(content.node && content.getStyle('display') !== 'none'
+				|| classifier.node && classifier.getStyle('display') !== 'none'
+				|| search.node && search.getStyle('display') !== 'none'
+				|| extsearch.node && extsearch.getStyle('display') !== 'none')
+					;
+				else
+				{
+					if(match.context.mode === 'content' || match.context.mode === 'bookmark')
+						content.show();
+					else if(match.context.mode === 'browse')
+						classifier.show();
+					/*else if(match.context.mode === 'search')
+						search.show();*/
+					else if(match.context.mode === 'extsearch')
+						extsearch.show();
+				}
+			}
+			try
+			{
+				SSP.Scroll.mimicByClass('mimic_scroll');
+			}
+			catch(e)
+			{
+				//debugger;
+			}
+			if(!SSP.Browser.hasTouchScreen)
+				SSP.DOM.triggerReflow();
+		}, 1000);
+	});
+</script>
+<noscript><style>
+li.collapsed > ul
+{display:block!important}
+#w_search_history div.collapsed div,
+#w_search_history div.collapsed ul
+{display:block!important}
+ul.tree li.collapsed
+{background-image:none !important}
+#w_metadata_toc li.collapsed,
+#w_search_history div.collapsed,
+#w_search_history li.collapsed
+{background-image:url('/img_new/r_minus.png') !important}
+#w_metadata_toc a:active::before,
+#w_metadata_navtree a:active::before,
+#w_metadata_toc a:focus::before,
+#w_metadata_navtree a:focus::before
+{position:absolute;top:0;bottom:0;right:0;width:100vw;display:block;content:'';z-index:-2}
+#w_metadata_toc a:active,
+#w_metadata_toc a:active::before,
+#w_metadata_navtree a:active,
+#w_metadata_navtree a:active::before,
+#w_metadata_toc a:focus,
+#w_metadata_toc a:focus::before,
+#w_metadata_navtree a:focus,
+#w_metadata_navtree a:focus::before
+{background-color:#dedede}
+#l_toc_inner,
+#l_nav_inner
+{overflow:auto;padding-right:0}
+</style></noscript>
+</div><!--noindex--><ul id="l_tabs" class="tab tab1 l"><li id="w_main_tabclassifier" class="w png active" style="display:"><span class="inline-block"><a href="/db/news/browse/13/-1" class="inline-block" target="_top">Содержание</a></span></li><li id="w_main_tabdocument" class="w png null" style="display:none"></li><li id="w_main_tabsearch" class="w png null" style="display:none"><span class="inline-block"><a href="/db/news/search" class="inline-block" target="_top" rel="nofollow">Результаты поиска</a></span><script type="text/javascript">
+deferred.push(function()
+{
+	if(SSP.Bus.cookie('SEARCH'))
+		document.getElementById('w_main_tabsearch').style.display = '';
+});
+</script></li><li id="w_main_tabextendedsearch" class="w png null" style="display:none"></li></ul><style>#l_tabs {display:none!important}</style><!--/noindex-->			<!--noindex-->
+			<div id="footer">
+				<div id="copyright">
+										&copy; Фирма «1С». Все права защищены									</div>
+			</div>
+			<!--/noindex-->
+						<!--noindex-->
+						<script type="text/javascript">
+				deferred.push(function(){
+					App.sidebarCarousel = new App.Carousel('sidebar_container', 'sidebar', 'sidebar_up_button', 'sidebar_down_button', null, {
+						vertical:true,
+						bypixel:true,
+						absolute:true,
+						step:38,
+						wrap:false
+					});
+				});
+			</script>
+			<div id="sidebar_container" data-nosnippet>
+						<script type="text/javascript">
+				(function(){
+					if(window.styleDeferred && styleDeferred.usingShell && !styleDeferred.inactive){
+						var sidebarContainerStyle = document.getElementById('sidebar_container').style;
+						sidebarContainerStyle.display = 'none';
+						var show = function(){
+							sidebarContainerStyle.removeProperty('display');
+						};
+						styleDeferred.unshift(function(){
+							if(window.SSP)
+								show();
+							else
+								setTimeout(show, 0);
+						});
+					}
+				})();
+			</script>
+							<div id="sidebar_close_button" onclick="var d=document,de=d.documentElement,db=d.body,rx=/\bshow-menu\b/,hc=db.className.match(rx);de.className=de.className.replace(rx, '');db.className=db.className.replace(rx, '');if(window.SSP&&window.App&&App.sidebarCarousel.getPosition()){App.sidebarCarousel.adjust()}"></div>
+				<div id="sidebar_up_button" class="sidebar_updown_button disabled"></div>
+				<div id="sidebar" class="sidebar_level0">
+					<div class="sidebar-main_container">
+						<div id="logo">
+							<a href="/" target="_top" title="Информационная система 1С:ИТС" class="logo_its"></a>
+							<a href="/" target="_top" title="Информационная система 1С:ИТС" class="hide_on_small">
+								<span class="about_its">
+									Информационная система 1С:ИТС								</span>
+							</a>
+						</div>
+						<div id="w_sidebar_search" class="w"><div id="search" class="logo search" onclick="!navigator.maxTouchPoints&&(!window.TouchEvent||!('standalone' in navigator))&&document.getElementById('sidebar_search_input').focus();">
+	<form id="sidebar_search_form" name="sidebar_search_form" method="GET" action="/db/news/search/all" autocomplete="off" target="_top">
+		<input id="sidebar_search_input" type="text" name="query" value="" spellcheck="false" autocapitalize="off" onclick="if(window.msCrypto || window.msWriteProfilerMark || window.TouchEvent && 'standalone' in navigator){document.getElementById('search').className=document.getElementById('search').className.replace(/(\b\hover\b|$)/g, ' hover ')}" data-autocomplete-notrim data-autocomplete-autosubmit data-autocomplete-cache data-autocomplete-suggest="sidebar_search_input_suggest" aria-label="Ввести поисковый запрос" placeholder="Поиск по сайту">
+		<input id="sidebar_search_reset" type="reset" onclick="if(!document.getElementById('sidebar_search_input').value){this.blur();document.documentElement.focus();if(window.msCrypto || window.msWriteProfilerMark || window.TouchEvent && 'standalone' in navigator){document.getElementById('search').className=document.getElementById('search').className.replace(/(\b\hover\b|$)/g, ' ')}}" value="" title="Очистить/Закрыть" aria-label="" class="logo close-submenu" tabindex="0">
+		<input type="submit" style="display:none">
+		<div class="autocomplete-suggests" style="display:none"><ul id="sidebar_search_input_suggest" class="clean" style="display:none"></ul></div>
+	</form>
+</div>
+<script type="text/javascript">
+	deferred.push(function(){
+		App.Search.chatbotJs = 'https://portalchat.1c.ai/chatbot/widget/widget.js';
+		App.Search.chatbotCss = 'https://portalchat.1c.ai/chatbot/widget/style.css';
+		setTimeout(
+			function(){
+				App.Search.init(false, 'sidebar_search_form', 'sidebar_search_input', true);
+				var autocomplete = '/search/autocomplete.json?site=ru&query={query}';
+				if(!SSP.Browser.hasKeyboard)
+					autocomplete = autocomplete.replace('?', '?noSwitch&');
+				SSP.Form.initAutocomplete('sidebar_search_input', autocomplete);
+			},
+			0
+		);
+	});
+</script></div>						<div id="w_sidebar_menu" class="w nofreezelayout">
+<div id="sidebar_main_menu" class="section strong">
+<a class="logo i1c further" target="_top" href="/section/i1c" data-autoclick-delay="1000" id="menu_element_i1c"><span>Инструкции по учету в программах 1С</span></a><a class="logo dev further" target="_top" href="/section/dev" data-autoclick-delay="1000" id="menu_element_dev"><span>Инструкции по разработке на 1С</span></a><a class="logo law further" target="_top" href="/section/law" data-autoclick-delay="1000" id="menu_element_law"><span>Консультации по законодательству</span></a><a class="logo books further" target="_top" href="/section/books" data-autoclick-delay="1000" id="menu_element_books"><span>Книги и периодика</span></a><a class="logo info further" target="_top" href="/section/info" data-autoclick-delay="1000" id="menu_element_info"><span>Справочная информация</span></a><a class="logo garant further" target="_top" href="/section/garant" data-autoclick-delay="1000" id="menu_element_garant"><span>База нормативных документов</span></a></div>
+<hr>
+<div id="sidebar_extra_menu" class="section">
+<a class="logo news" target="_top" href="/news"><span>Новости</span></a><a class="logo lector" target="_top" href="/lector"><span>1С:Лекторий</span></a><a class="logo action further" target="_top" href="/section/action" data-autoclick-delay="1000" id="menu_element_action"><span>Акции и конкурсы</span></a><a class="logo edu" target="_top" href="/db/sprinfo"><span>Курсы и экзамены 1С</span></a><a class="logo review" target="_top" href="/feedback"><span>Отзывы об ИТС</span></a><a class="logo aibot" target="_blank" href="https://portalchat.1c.ai" rel="noopener"><span>1С:Напарник ИТС</span></a><a class="logo bestpartner" target="_top" href="/partner/best"><span>Партнер года 2025</span></a></div>
+
+<div id="w_sidebar_section">
+	<div class="sidebar_shadow_left"></div>
+	<div id="sidebar_open_section" class="sidebar_shadow"></div>
+	<div id="sidebar_section_header" title=""></div>
+	<div id="sidebar_back_section" class="logo back-submenu"></div>
+	<div id="sidebar_close_section" class="logo close-submenu"></div>
+	<div class="sidebar-spacer l native_scroll">
+				<div id="sidebar_list">
+		</div>
+			</div>
+
+	<div id="w_sidebar_subsection">
+		<div class="sidebar_shadow"></div>
+		<div id="sidebar_subsection_header" title=""></div>
+		<div id="sidebar_back_subsection" class="logo back-submenu"></div>
+		<div id="sidebar_close_subsection" class="logo close-submenu"></div>
+		<div class="sidebar-spacer l native_scroll">
+						<div id="sidebar_sublist">
+			</div>
+					</div>
+	</div>
+
+</div>
+
+<script type="text/javascript">
+deferred.push(function()
+{
+	var deviceType = App.getCssDeviceType();
+	App.Sidebar.init('sidebar', 'w_sidebar_section', 'w_sidebar_subsection', 'database_menu_section', SSP.Browser.hasTouchScreen, undefined);
+	
+	});
+</script>
+
+</div>						<script type="text/javascript">
+							deferred.push(function(){SSP.DOM.listenAutoclick(SSP.DOM.byId('w_sidebar_menu'));});
+						</script>
+						<hr>
+						<div class="social_icons" id="sidebar_social_icons">
+										<a target="_top" href="javascript:" id="share_vk" class="share logo vk" title="Поделиться во Вконтакте">Вконтакте</a>
+									</div>
+						<hr id="top_menu_links_copy_hr">
+						<div id="top_menu_links_copy" class="section"></div>
+												<div class="sidebar-footer"></div>
+					</div>
+				</div>
+				<div id="sidebar_down_button" class="sidebar_updown_button disabled"></div>
+			</div>
+						<!--/noindex-->
+									<div id="cookie_consent_panel">
+				Мы используем файлы cookie.<br>
+				Продолжая находиться на сайте, вы соглашаетесь с этим<br>
+				на условиях, указанных по <a target="_top" href="/docs/policy/cookie">ссылке</a>.<br>
+				<div class="cookie_button_container">
+					<button id="cookie_consent" class="btn btn-default">Принимаю</button>
+				</div>
+			</div>
+			<script type="text/javascript">deferred.push(function(){App.CookieConsent.showPanel('cookie_consent_panel', 'cookie_consent', 'COOKIE_CONSENT');});</script>
+					</div>
+		<!--noindex-->
+		<script type="text/javascript">
+			(function(){
+				var links = document.getElementById('top_menu').getElementsByTagName('A');
+				var topMenuLinksCopy = document.getElementById('top_menu_links_copy');
+				for(var i = 0; i < links.length; i++){
+					var copy = document.createElement('A');
+					copy.href = links[i].href;
+					copy.target = links[i].target;
+					copy.rel = links[i].rel;
+					copy.className = links[i].parentNode.className.replace(/(^|\s)top_menu_item(\s|$)/, ' ');
+					var span = document.createElement('SPAN');
+					span.innerHTML = links[i].innerHTML;
+					copy.appendChild(span);
+					topMenuLinksCopy.appendChild(copy);
+				}
+			})();
+		</script>
+		<div id="w_popup" class="w box-shadow"><div id="popup_inner">
+	<div id="popup_controls">
+		<span id="popup_title"></span><a id="popup_close" href="javascript:"></a>
+	</div>
+	<div id="popup" tabindex="-1" class="l loading"></div>
+</div>
+<script type="text/javascript">
+	deferred.push(function(){
+		setTimeout(App.Popup.init, 0);
+	});
+</script></div>		<script type="text/javascript">
+			deferred.push(function(){
+				SSP.DOM.listen(SSP.DOM.byId('sidebar_social_icons'), 'click', App.Share.shareClick);
+			});
+		</script>
+		<script type="text/javascript">
+			deferred.push(function(){App.Stat.init('', '', '38953945', '', 'GA_PARAMS', 'USER_TYPE', {"net_cm":{"scope":"page","value":"broadband"},"net_rm":"navigate","net_aso":{"scope":"page","value":"Agronet LLC"},"net_asn":{"scope":"page","value":"AS50949"},"css_init":{"scope":"request","value":null},"user_segment":":UNAUTH:"}, false, false, false);});
+			</script>
+			<noscript>
+			<div><img src="https://mc.yandex.ru/watch/38953945" style="position:absolute; left:-9999px;" alt=""></div>
+		</noscript>
+				<noscript>
+					<div><img src="https://counter.yadro.ru/hit?r;uhttps%3A//its.1c.ru/db/news;h%u0422%u0435%u043C%u044B%20%3A%3A%20%u041D%u043E%u0432%u043E%u0441%u0442%u0438;0.27484005795551" style="position:absolute; left:-9999px;" alt=""></div>
+		</noscript>
+			<script type="text/javascript">
+			if('Notification' in window)
+				deferred.push(function(){
+					var initWebPush = function(){
+						SSP.DOM.requestIdleCallback(function(){
+							if(!document.cookie.match('WEBPUSH=0'))
+								SSP.DOM.requestIdleCallback(function(){
+									if('permissions' in navigator)
+										navigator.permissions.query({name: 'notifications'}).then(function(result){
+											result.state === 'granted' && SSP.DOM.requestIdleCallback(App.WebPush.init);
+										});
+									else if(Notification.permission === 'granted')
+										SSP.DOM.requestIdleCallback(App.WebPush.init);
+								});
+						});
+					};
+						initWebPush();
+				});
+		</script>
+		<noscript><style>
+			.noscript{display:inherit!important}
+			.script{display:none!important}
+			.w.loading > *,.l.loading > *{visibility:inherit}
+			.w.loading,.l.loading{cursor:inherit;background:inherit;background-position:inherit}
+			.l.loading{margin:inherit;padding:inherit}
+			#other_sites_link {display:none}
+			#contact {margin-top:12px}
+		</style></noscript>
+		<script type="text/javascript">
+			deferred.push(function(){App.Handler.initBodyCopy('Фирма «1С»')});
+		</script>
+		<script type="text/javascript">
+			(function(){
+				var resetScroll = function(){
+					var that = this;
+					that.scrollTop = 0;
+					setTimeout(function(){that.scrollTop = 0;}, 0);
+				};
+				var resetScrollers = [document.getElementById('main_container'), document.body, document.documentElement];
+				for(var i = 0; i < resetScrollers.length; i++)
+				{
+					resetScrollers[i].scrollTop = 0;
+					resetScrollers[i].addEventListener('scroll', resetScroll, false);
+				}
+				setTimeout(function(){
+					for(var i = 0; i < resetScrollers.length; i++)
+						resetScrollers[i].scrollTop = 0;
+				}, 0);
+			})();
+		</script>
+		<script type="text/javascript">
+			(function(){
+				if(!('serviceWorker' in navigator))
+					return;
+				
+				var initWebApp = function(){
+					try{navigator.serviceWorker.register('/sw.js').catch(function(){});}catch(e){}
+					
+					if(navigator.userAgentData && navigator.userAgentData.mobile
+					|| !navigator.userAgentData && (window.TouchEvent || !('standalone' in navigator)))
+						(function(){
+							var setManifest = function(){
+								var link = document.createElement('LINK');
+								link.rel = 'manifest';
+								link.href = '/manifest.json';
+								document.head.appendChild(link);
+							};
+							if('standalone' in navigator && window.styleDeferred && !styleDeferred.inactive)
+								styleDeferred.push(setManifest);
+							else
+								setManifest();
+						})();
+				};
+				
+				if(!window.styleDeferred || styleDeferred.usingShell)
+					initWebApp();
+				else
+					deferred.push(initWebApp);
+			})();
+		</script>
+		<script type="text/javascript">
+			(function(){
+				var testLink = document.createElement('LINK');
+				var probablySupportsPrefetch = !testLink.relList || !testLink.relList.supports || testLink.relList.supports('prefetch');
+				var prefetchUrl = function(url){
+					if(!probablySupportsPrefetch && window.fetch)
+						fetch(url);
+					else{
+						var link = document.createElement('LINK');
+						link.rel = 'prefetch';
+						link.href = url;
+						document.head.appendChild(link);
+					}
+				};
+				deferred.unshift(function(){
+					var urls = ["\/common\/page\/css\/1774508509\/main__new.css_?_=1774508509","\/common\/page\/js\/1774508509\/main__new.js_?_=1774508509","\/common\/page\/css\/1774508509\/user__new.css_?_=1774508509","\/common\/page\/css\/1774508509\/document__new.css_?_=1774508509","\/font\/futura\/FuturaDemiC.woff2","\/font\/roboto\/Roboto-Light.woff2","\/font\/roboto\/Roboto-Bold.woff2","\/font\/roboto\/Roboto-Italic.woff2","\/font\/roboto\/Roboto-Black.woff2","\/font\/futura\/FuturaLightC.woff2"];
+					for(var i = 0; i < urls.length; i++)
+						prefetchUrl(urls[i]);
+				});
+				if(!window.styleDeferred){
+					var urls = ["\/font\/roboto\/Roboto-Light.woff2","\/font\/roboto\/Roboto-Bold.woff2"];
+					for(var i = 0; i < urls.length; i++)
+						prefetchUrl(urls[i]);
+				}
+			})();
+		</script>
+		<script type="text/javascript">
+			deferred.push(function(){
+				var nc = navigator.connection, dp = document.prerendering;
+				if(SSP.Browser.Android
+				|| SSP.Browser.IOS
+				|| (nc && nc.effectiveType ? nc.effectiveType !== '4g' : SSP.DOM.hasClass(document.body, 'cellular')))
+					SSP.DOM.listen(document, 'visibilitychange', function(event){
+						if(document.visibilityState === 'hidden')
+							return;
+						if(dp){
+							dp = false;
+							return;
+						}
+						SSP.Bus.request('/ping');
+					});
+			});
+		</script>
+		<script id="end_of_body"></script>
+		<!--/noindex-->
+	</body>
+</html>

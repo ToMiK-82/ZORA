@@ -1,0 +1,312 @@
+<!DOCTYPE html><html>
+<head>
+    <title>Личные данные</title>
+    <meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/><meta name="MobileOptimized" content="320"/><meta name="HandheldFriendly" content="true"/><meta name="ctx" /><link rel="stylesheet" type="text/css" href="/resources/jqueryui/css/jquery-ui-1.10.3.custom.min.css" media="all"><link rel="stylesheet" type="text/css" href="/resources/css/normalize.css"><link rel="stylesheet" type="text/css" href="/resources/css/modal.window.css"><link rel="stylesheet" type="text/css" href="/resources/bootstrap/css/bootstrap.min.css?v=1776692084043"><link rel="stylesheet" type="text/css" href="/resources/bootstrap/css/bootstrap-theme.1c.css?v=1776692084043"><link rel="stylesheet" type="text/css" href="/resources/qtip/jquery.qtip.min.css" media="all"/><link rel="stylesheet" type="text/css" href="/resources/font-awesome-4.7.0/css/font-awesome.min.css" media="all"><!--[if IE 7]>
+    <link rel="stylesheet" type="text/css" href="/resources/font-awesome/css/font-awesome-ie7.min.css" media="all">
+
+    <![endif]--><link rel="stylesheet" type="text/css" href="/resources/css/icon-buttons.css"><link rel="stylesheet" type="text/css" href="/resources/css/style.css?v=1776692084043"><link rel="stylesheet" type="text/css" href="/resources/css/responsive-custom.css?v=1776692084043" media="all"><link rel="stylesheet" type="text/css" href="/resources/qtip/qtip-theme.1c.css?v=1776692084043"><link rel="stylesheet" type="text/css" href="/resources/login-services/login-services.css?v=1776692084043"><link rel="icon" href="/resources/favicon/favicon_ru.ico" type="image/x-icon"/><script src="/resources/js/respond.min.js"></script>
+    <script src="/resources/js/polyfill.min.js"></script>
+    <script type="text/javascript" src="/resources/js/jquery-1.11.3.min.js"></script>
+    <script type="text/javascript" src="/resources/js/jquery-migrate-1.2.1.min.js"></script>
+    <script type="text/javascript" src="/resources/js/jquery.cookie.js"></script>
+    <script type="text/javascript" src="/resources/js/jquery.maskedinput.min.js"></script>
+    <script type="text/javascript" src="/resources/jqueryui/js/jquery-ui-1.10.3.custom.min.js"></script>
+    <script type="text/javascript" src="/resources/jqueryui/js/ui.datepicker-ru.js"></script>
+    <script type="text/javascript" src="/resources/bootstrap/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="/resources/js/cas.js?v=1776692084043"></script>
+    <script type="text/javascript" src="/resources/js/browser.js"></script>
+    <script type="text/javascript" src="/resources/js/modalWindow.js"></script>
+    <script type="text/javascript" src="/resources/js/i18n/i18next-1.9.0.min.js"></script>
+    <script type="text/javascript" src="/resources/qtip/jquery.qtip.min.js"></script>
+    <script type="text/javascript" src="/resources/noty/jquery.noty.js"></script>
+    <script type="text/javascript" src="/resources/noty/layouts/topRight.js"></script>
+    <script type="text/javascript" src="/resources/noty/themes/default.js"></script>
+    <script type="text/javascript" src="/resources/inputmask/jquery.inputmask.js"></script>
+    <script type="text/javascript" src="/resources/inputmask/jquery.inputmask.extensions.js"></script>
+    <script type="text/javascript" src="/resources/inputmask/jquery.inputmask.date.extensions.js"></script>
+    <script type="text/javascript" src="/resources/js/common.js?v=1776692084043"></script>
+    <script type="text/javascript" src="/resources/login-services/login-services.js?v=1776692084043"></script>
+    <!-- HTML5 shim, for IE6-8 support of HTML5 elements --><!--[if lt IE 9]>
+    <script src="/resources/js/html5shiv.js"></script>
+    <![endif]--><script>
+        window.JSON ||
+        document.write('<script src="/resources/js/json3.min.js"><\/scr' + 'ipt>');
+    </script>
+    <script type="text/javascript">
+        init.initHeadOptions.baseUrl = "\/";
+        init.initHeadOptions.baseRestUrl = "\/rest\/public";
+        init.loadBoundleWithFallback("ru-RU");
+        var DEVICES_WIDTH_BREAKPOINT = 992;
+        $(document).ready(function () {
+            if ($(window).width() < DEVICES_WIDTH_BREAKPOINT) {
+                $('[data-toggle="tooltip"]').qtip({
+                    content: {
+                        button: true
+                    },
+                    position: {
+                        my: 'center',
+                        at: 'center',
+                        effect: false,
+                        target: $(window)
+                    },
+                    show: {
+                        ready: false,
+                        solo: true,
+                        modal: true,
+                        event: 'click'
+                    },
+                    hide: {
+                        event: 'unfocus'
+                    },
+                    style: {
+                        classes: 'qtip-1c'
+                    }
+                });
+            } else {
+                $('[data-toggle="tooltip"]').tooltip();
+            }
+        });
+    </script>
+</head>
+
+<body>
+    <table class="page">
+        <tbody>
+        <tr>
+            <td class="containerLayout">
+                <div class="container">
+                    <div class="row">
+                        <div class="col-xs-12">
+                            <div class="loginPage">
+    <div class="logo">
+    <a href="/user/services">
+        <img src="/resources/image/logo.png"/></a>
+</div>
+<div class="serviceInfo">
+    <div id="serviceTitle"
+         class="serviceTitle service-title-ru">
+        Портал 1C:ИТС
+    </div>
+    </div>
+<div id="login-form-panel"
+     class="well formSignin well-1c">
+
+    <form method="post" id="loginForm" action="/login">
+        <input type="hidden"
+               name="inviteCode"
+               value=""/><input type="hidden"
+               name="inviteType"
+               value=""/><div class="loginHelpContainer">
+            <img class="loginHelp" data-toggle="tooltip" data-placement="top" data-html="true"
+              src="/resources/image/icons/help_icon_2.png"
+              title="&lt;div&gt;Если вы являетесь сотрудником организации - официального партнера «1С», то доступ в интернет-поддержку возможен по логину/паролю, который вы используете для доступа в раздел технической поддержки партнеров. Логин следует вводить с указанием кода региона, например, 12345-67. После авторизации вы сможете настроить доступ другим сотрудникам вашей организации к сервисам интернет-поддержки.&lt;/div&gt;"/></div>
+
+        <fieldset>
+            <div class="form-group">
+                <label for="username">Логин</label>
+                <a tabindex="8"
+                   class="restrictedModeMarkerForAction pull-right"
+                   href="/registration">Нет логина?</a>
+
+                <div class="controls">
+                    <input class="required span12 form-control"
+                           id="username"
+                           tabindex="1"
+                           type="text"
+                           maxlength="999"
+                           accesskey="л"
+                           autocomplete="on" name="username" value="ToMiK"/></div>
+            </div>
+
+            <div class="form-group form-group-password">
+                <label for="password">Пароль</label>
+                <a href="/remind_request" tabindex="7"
+                   class="restrictedModeMarkerForAction pull-right">Забыли пароль?</a>
+
+                <div class="controls">
+                    <input class="required span12 form-control"
+                           type="password"
+                           id="password"
+                           tabindex="2"
+                           accesskey="п"
+                           autocomplete="off" name="password" value=""/></div>
+            </div>
+
+            <div class="form-group form-group-remember-me">
+                <div class="controls anotherComputerRemindPasswordContainer">
+                    <label class="publicComputerCheckbox">
+                        <input type="checkbox" name="anotherComputer" tabindex="5"
+                               onchange="jQuery('[name=rememberMe]').prop('checked', !jQuery(this).prop('checked'))"/>Чужой компьютер</label>
+                    <input type="checkbox" name="rememberMe" id="rememberMe" checked="checked" style="display: none"/></div>
+            </div>
+
+            <div class="form-group text-error centerMessage">
+        typeMismatch on rememberMe<br></div>
+<div id="emptyUsernameOrPasswordMessage" style="display: none" class="form-group text-error centerMessage">
+                Неверный логин или пароль<br>
+            </div>
+
+            <div class="form-group">
+                <input type="hidden" name="execution" value="832a3aba-7a3b-48d1-8271-177eaeb60776_ZXlKaGJHY2lPaUpJVXpVeE1pSjkuU0RNeksyVnBMMWtyZVhoaU1sQkVNMFExWmtkR2VWRm5NalZpWjFsd1VXWkZWbFZsYUhsQ2FIRkpOWEJGSzJWMFVrSlROMEZ4TlRSSlZXNXZTR050U0VodmNUUlJZMWgyV2xob1UweEdhVXRaVGpkVlMydG1TV2xCVVU0MU5XTnpkVTlpWjFBd1FVVlhSVzUwWlVsa1NteENXVXg0UkVnNFNXaFpTVkpSTlhSSGVEY3dNelJMVmtGemFXa3lhV2czU0ZRMksybGhhMmRPVlVKM1REWnBTbUUxYWpVekwxWm5NV1Z4UlV4SGJrSjRWakZGVjNkRWJtWlVURVUwVVVjdldWSXhPSFZ1UkhZMVUwWTRZVFkxY0VSMlZsQTJXbGM0UkdnemNrbENiREJKVERGTFNVZHFjM1lyZURCV2VXTXpRMnRhTW1WV01qQkdhMVpGZDBwR1J5OXhVMFJ4U0RWTlFuRkliV3RXTWpKaFJVWkpRbXh6ZDBwRWVtY3dObmN5YlZOeFpHaFRkRXgzTjBGd05WbHNZU3Q2V1VKTFdVaHFOalpUU1M5YVUyOVRTMUZXZUROSlpESTRjbEZ1ZDBKMGN6TllVamRRYzBwRFVqVnBUM2MxU0dsSFpHcHRXa3RpVjBZeVpYaGhNRkp4WlZaSk1WWjZkbGx4TTJSMldXeElhbGRuTkhGdVJGaFliemQwWkRWRGVGUlZUSGR2TVVaRkszaHFaMHR6TnpSVU5HVnFlbE56VW1KNE4zSlVTR2xxY3pGaGNrTmxSVk5JZERBM2QwaGhUVkJyVFhaQ2NrNUpaRGQzY25semN6VjNia2xCWVZKT05ISlJaMjVPYjNkMlZrYzRVVEZQZFVKNGEybHJNR1JEZFdaYWJ6bEVTall6UzFwaFNrcFJhRmhGTUV0UFExVklia1pVZVRGTE5taHZTMHhUVUUxNmRGSjZVVEp5WkZnM05VNTVVbVJxWWxodk1YaDNhR3B0WlVaRFUxWlNOREpSYlZobVZUQldNV2Q0Tnk5NE5GYzNORTVVSzJJdldYSkliV28xVVdSU1oyRnhiR3hyZERWSFRuaG1lRzlQWVVwSGIxcFRVRWN5YkRkT2RFNWhMMVJIVTJzMFpuRnRiM296VEcxSWJreERVRlU1YWpWdk5GbG5WMVpWUmpaaVdFUTBZbXhPVVVoMGQzcHhXV3R0T1VVNVEwTllLekZwZEVGMGRtOVFZekJ4SzJGbWRUZFljMnAzV214TFNIQkJRWFF5TlZVNVpIWXdORVF2VERCTFRFVTBSVGxGWlU5d1ZqUlBibkZRZG5SUE1UTm1jV052U0RGUk1XeG9jMDFwZVdKbU9XeE1iRzl4UW05cWF6SnZhMUJuTUdwVVR5OUtWVGwzTWtVeFNIWTRhR2hKY21ZeFFrOTNkVkl6WWxkSGVXcExkalpOYW5OcmEwSXZUM2hMVldOelpGRmxOM2w0TjJGQ1oyNW1VV2h3Y0dOUU5VSnRhMmQyWTJoYU4xaHRRVkJ1YjBwaFVUSjViek5PWWxCMVVHcGhiWGsyWkdVeVYyc3JibGhYTWtScmJ6VXZabEY0YkVKdFZXaE5ZVGN3UkdoS2NVSklMM05WTkVNM01sSlFWa3RVZDJSRllUaDRVRkZYUXl0VGEzQkliek4xYldKcmFVVk1UV1ZGV1RoR1VGVkxXbXRpTmxNMmJtcHZVVWQ0Vm1FeVZHRm1ORUpvU1ZadlozWkdhelEzVDJKRGFsRk5jRmQzZUVOUVkwSk1aaTlaZUd0UFEzUlhTblJVZDFCd2JHRlZVRlZhYW1aWVpEbFlOMEVyU1VwWE1VTTFNRWRRY2k5cmVYWXhja3B0Tm5CMGNXNXFNVlJVVDJ0dFNWWkpOMmRPU2s1RGJXNVZWMUJYY0ZFMmNFRnZUbEZaZUdWd2N5dElTSGh1VmtKelJucHhaelZvUmpsNFFrbEhaRzAyYkc5aUsyNW9RbkptYzFSTVMxQlZNakUxTkZaNWRYcFFiVmx4Vkd4NFRVRm1NVTl2VDJOTWJuQm9UMVUzTjNad1ZHNHZkM0JrY3pVM1ZFczVabGxpY3l0eE5FbzJhWEZ1VFhoSVpWcHJXbmxrWVRCYVYzQmFTMDFvWkc1R05WYzRNRUZxWTI1S1VFRnlNVEp1Ylc1U1JEZFFja2xWUm05MmJFY3pRblJYTms0d056SlVOMlJVZWpac2NHSjRaRWxsYmxsMVNtOXNXSGhNY1hOQlZrMHJZWE14TTBrdk5taFJiVFpOSzJoSmNtaEhaVk5uY2xKRFFXOURWWHB3WlZacFJVd3laM0ZvUTJ0UE1uWXZVVWxRWVZSVFRrUldiMGRoUTNwYVVtMTJibGxZTkZZclIwWXlabGhqVmxacFRYVk1XVFF4U0RoMk5rTk9XSGN4TTBaQ1NHRjZTbkpVWjFOb1RGaEpOWFJMVW1WeGRHdFliM0ZxTW10UVltVmtUVGQ1V1RaRFFsUmFOU3QxU0hodVRFNUxVakpCZW5sNGQxa3JhMkpZTDBVM2N6SmllRkE0UzAxaVNFcFhPSHBIVTBWWEwxZHdNMWszUkdrMllWaFRiRGRaVjJ0alIwOVdXVWw0ZDBSSVUzZDJkR3N4ZFRJMFNGVktSVkZQVkdOSlZEYzBTbTgyTDFsRU5UaEJkbmw2TlU1T2EzQjVOMFY0YlZCeVV6bE1SblIyTVVKWGNFZGhhVEY1VkU1dmVUaHJPVmQzSzBwcWJYcDBablJoTlZwUFFrMU9SMVU1WWpsWFUxbGFNVXhTYkRSdVIxcGlNaXQxYVdkVU5FOXhNbmxUYjFKMGRYZFZWWElyUmpKRlFVcExUM0I1UjI1V1JVY3llVlppVDA4MGMwSkdaR0pzTTJGVFp6VnlZakJpVldvMVduSnlOMVZ2T0U5d1IybHVlbGxQV1VoRE5WWlZia0V6ZDNodVdYQm9kazgxU25WMGMzZHlNakZGVDFsalEyUlZhbWxUVDJkbVQxSXJaM2cxTVdSeWRFWXliV0ZNZEd0TE1ucEtVM2N3ZVZZNGFVcFVkbTF2Y1hONmJVaGFVVzlMUkdsRlVGaG1Xa0poY0U1RGQyUkhSalV6U3pkM1pHMUVNbWg2T1ZZM1JsaERkbHBIYkZscWN6ZzVNV0owYzJ4bU5XOUxZMXAxU0ZGUll6aEJkMm9yWmpJMGIwMXdNVlZ3YkdSM1RHSmxNRmhHUWxONE9EZFViM0IyZFhCWWQzbG5SazF0Um5sS1dtMHhVamhGZG5oVFdFdFFRVlZ2UVRkMloweHVOeTlhYkhnNWR6UmpZa0lyUzB0V1lYSkVjWGhCZEd4RlRVWm9hRkpwYzJsSmEwaHlXVUZUZEZwTGMyNURVWGhSYVdoVldVMWxkRWhoWmtKa1QxWkpPSFYyUW1VNWNsbDZaSGxQVGtsaU5IWlZVRTFwU2pSRFRVOWtha1pVYW1KdGMyaExORU5MTm13MmNuUjZSbGRMVkVJM1lXeGlOMWxMUzIxMFdHNWFXRmt5TmtGQ2RUQk9WbFZRU25Wak0xSlViakZsY2s5V1FsTkxiRUZGTUUweEsxTXlOM1o2ZVhFd2FVWmpNbkkzV1VSb2VWcFZNRFF6VmpGUFdIaElVa0Z1TlV0TWEzWnVUVm92VEhaaU16TXdUVzgxY2pBM01rRm1ObUZpUTFaU1dWTnFTVTFhUW1zeGVtRlpjbkpCU0ZSalVpdG5VR1YzZWs4NVNVeFdVSEJRY0RscmVEUmtlRVpPVEcxVVpVRm1jbWRzY2xSVmVtMU5TMWRrY210VWFFaElSeXMwYlRReWFWWkVRVVIwYURFMVdqTlZSVEZKVURkRVNEZGhaRVZHZEZGblRFODVSRzR4VVU4d1FUZEdNVzlaZFRCTGFFdGpVWGhXTms1RVNWY3djRzQwVDI5NGF6WlNPVzVUVXpkVFdtaHpjR0Z2TVVsUmFYcDJUVk5uVm1aRVExRTJVbFY1VjBWalZVMXJVRFEwWVdFdlNVZE9SalZVY3pCT1UxZzVRMlowYVZCSk5USnpOM2xyTjBrdk56bDBVRlpET1dWbVdsUTRkRTl5UkcxMlUyWnJPWEk1ZFd4cU1YWlNhbTU1Vm5oQ1FVVktTbVpXYWl0UFkybDFZV1I1Tkd0MlRXOW9aRGxwVkZwak1pOVBkRmhwYWpCeE1FOVFUVWs1VW1ZemVFRlJZMk16VEZVM2VXWlVURWRXVmtGcWEwWllNWGhQWkRoTlpHMXRNbWRqTm5ZMVRWSTFlVWhQWTFBMWFIQm1lVWhZZG5Gd1FXUjZRbEo2YUdJMWNWcEdZbGxqWWpGNmJsQkNjakZCWTB0dlFYVjZZak54VmpWQlFUQlRNRkpvZEdneFVGbFpOV0ZTVmpjelMybHVNbFZRU1hOeGJWSktkM1JwTUdjclVVRkZaMVpYUzFoUWNubHlSRGRpV21kVGNuaE1OWEpEY0dkcVQyWnFhbUpuUzB4cVRGTkVVa2Q2TUVwWFJXcE1kVnAzUjNkdmRXTjRNM2QyZEc1eVlYQlVRMnBJYlVOWWQyazJPWEZrUVhkM00zbGlXSGd4TW1aV09YcFVSbEZZY1VNMlJreE9aMHBSYXpkVGFqWlJkR3gzU2xCUGFqbHljVll4T1VocGNHdHdLM0p1Y0c5V1VYQlFPRGxWVGpaQ2VrNDJRemN2TjJwalNIVmxMMjU1WWxoMmJsTmxVRlpLTVRkTVIwMHpVV2R6ZFZkNlRsZHNRVU1yV1ZsbWJTOUxXVlZrUkhCMlVVcHNiRkpNT0VKMFpVdG1jM2RvVVhSQlZuUkRiblF4VkZvelFtbHRiWEp6ZG5GSlpqZFpUbkZrVUU1c0x6SmllWGhCZVRkT1JGQmxVelZvT0cxdVpUSXlXRzA0YjA5Nk1IQnBOR3gyTW05dVVIUjZSMVV6T1M5TlJYSnNiMUJWWjA4MlVscEpVM05rSzJFNGIxSm9Telo0Y0hWNWNFTkhTWGx3Vm1ObU1HMXpUbk5ZVWpKd2FXUTRNelpzYWxGdlkzRnJlRkJsWTJSdlUzVnBOMmhFWjNSa1J6UlRSMFZxYnpaT1VYUnNaMmM1U2poMmJtbHJZVkZXUW1ac09FSnRjR3RETkdsUVdXZFVMMEp5Y0VKWVNVVkhXazAwWXl0VVNtTXpTemxuYWxOcWFtaE9kakZPV0VWSkwzQnNOVWswVUdGVlozTnpaWEZXVmpsNFNYaDRkSFpUTTB0SE5tNVJRVXByWmxOblV6UkxaSHB5U0hWTGN6UXhNR3MxVVVsdFUyaDZOVWMxVVN0SGNVZ3dUVWxhYkZOMGNYQnhlbmhhYTNad1dIVXJlbW81ZUd0RE5ETTNWRGROUkZaaU9HVXpWbTVLZVhOck5YQjBXRVU0Y1ZscGIwRkVObkJuVjJ4YVVVOUNVbU5MWWxwc0sxbFFWbUZVWW1veFZtTmlSREE1YTA5b1prYzBlRzVUZG1wMVQxUkhRbGh0YlVrdlprazNSbWxJWkM5TlpGVTVkRXB1YWpSdlUyUjNaVGh6YkRaTE9UWlJjakJRUm1VMVMyOXZNVm8yVFU1d05TOXZiRFpWYzJoaVFraFZWRU5IYmtkdE5qQlVTMDkyZVd3ek1WTnNWV0ZCTWtGMmRVUTNPV05DYUhCSmVsRldkMDh6TTNwek5rRjBaRm8wUkVWVlRHSnpkbXgxT1V4eVlrSndUMGR5YTNaR1RVdHZPWEpvVVVwTGIwRlpOa0ptVmtKS2FrWXhiMGh5TVZwVWVEQTBlbkZET1dGamN5OWxWRWRhTVZneVNFVkZRMUJEZDBaVmQxVmtRMVp0VVZkbGNIcHZiSGx4T1RSaGJHTlhkbFZUWVhWbk1IUklZMHBNYkdKM1RsaFVia2R5TXpoa1JYbDVaM05uTkdaYWNIbHFNelpHWkVSbFZVdFVaMnRtUVROM1JWcHNWbmhKVlU4MGFua3hVMFZQTjA4M1JrOXdRVVEwWlZSSlJHMWlRVlF2Y3pGT1RqUTFXRmRFT1hWQmRWWm9SWGRYTDJjeFVGZDNSRU5yUWtZNVZYRjFSWGxSVEhwNlprOXhOMmN2UkZOV01FeFpNbEZLV1RaUVozaEJWRXBKWkhCM2REaFRXRTE0UkZwM1MyWkhkV1JILjJDc3k0WTEtdnNodFREZkMtMkJtNkJyQkpvaWFfdEI4LU52SW94MTFGVkJCWi14TFJ5NWwtYU5FZTNHNXZLeXNxYkR3RkNDV2pMQTdDSG1EREMxOUZn"/><input type="hidden" name="_eventId" value="submit"/><input type="hidden" name="geolocation"/><input id="loginButton"
+                       class="btn-big btn submitBtn btn-big-1c"
+                       name="submit"
+                       accesskey="l"
+                       value="Войти"
+                       tabindex="6"
+                       type="submit"/></div>
+
+        </fieldset>
+    </form>
+
+    <div id="selected-fresh-panel"
+         class="row login-services hide">
+
+        <div class="loginHelpContainer login-services__helper">
+            <img class="loginHelp" data-toggle="tooltip" data-placement="top" data-html="true"
+                 src="/resources/image/icons/help_icon_2.png"
+                 title="Вы можете использовать для входа логин и пароль от сервиса &#39;1С:Предприятие 8 через Интернет&#39;, в котором вы зарегистрированы. После выбора сервиса будет открыта дополнительная форма для ввода логина и пароля."/></div>
+
+        <div class="login-services-container">
+            <div class="fresh-providers-container-title">Облако:</div>
+            <div class="dropdown login-services__services">
+                <div class="dropdown-toggle form-control" id="default-fresh-provider-block">
+                    <div id="default-fresh-provider-link"
+                       class="selected-fresh-link">
+                    </div>
+                    <div id="show-fresh-providers">
+                        <span class="caret"></span>
+                    </div>
+                </div>
+            </div>
+            <a id="login-via-selected-fresh-provider"
+               tabindex="9"
+               class="btn btn-big submitBtn btn-big-1c">
+                <i class="glyphicon glyphicon-cloud btn-big-glyphicon"></i>
+                Войти через облако</a>
+        </div>
+
+    </div>
+
+<div id="list-providers" align="center">
+            <a href="/public/auth/redirect/CustomVkClient"
+               class="btn-social-icon"
+               title="Vk">
+                <span class="external-account-icon external-account-icon-vk"></span>
+            </a>
+            <a href="/public/auth/redirect/MailruClient"
+               class="btn-social-icon"
+               title="Mail.ru">
+                <span class="external-account-icon external-account-icon-mailru"></span>
+            </a>
+            <a href="/public/auth/redirect/YandexClient"
+               class="btn-social-icon"
+               title="Yandex">
+                <span class="external-account-icon external-account-icon-yandex"></span>
+            </a>
+            <a href="/public/auth/redirect/EvotorClient"
+               class="btn-social-icon"
+               title="Evotor">
+                <span class="external-account-icon external-account-icon-evotor"></span>
+            </a>
+        </div>
+    <div class="terms-of-service-container">
+        Авторизуясь, я соглашаюсь с условиями <a href="https://login.1c.ru/resources/terms-of-service.pdf">Пользовательского соглашения</a>
+    </div>
+
+</div>
+
+<div id="fresh-list-panel"
+         class="well formSignin">
+
+        <div class="loginHelpContainer login-services__helper">
+            <img class="loginHelp" data-toggle="tooltip" data-placement="top" data-html="true"
+                 src="/resources/image/icons/help_icon_2.png"
+                 title="Вы можете использовать для входа логин и пароль от сервиса &#39;1С:Предприятие 8 через Интернет&#39;, в котором вы зарегистрированы. После выбора сервиса будет открыта дополнительная форма для ввода логина и пароля."/></div>
+
+        <div class="fresh-providers-container-title">Выбрать облако:</div>
+
+        <form id="provider-search-form">
+            <fieldset>
+                <div class="form-group">
+                    <input id="provider-search-input"
+                           type="text"
+                           tabindex="1"
+                           placeholder="Найти по названию"
+                           class="span12 form-control"
+                           autocomplete="on"/></div>
+            </fieldset>
+        </form>
+
+        <div class="form-group">
+            <div id="fresh-providers-container">
+                <ul id="fresh-providers-list">
+                </ul>
+            </div>
+        </div>
+
+        <div style="display: none">
+            <form action="?client_name=FreshOpenIdClient&amp;needs_client_redirection=true"
+                  id="fresh-form"
+                  method="POST" href="/public/auth/redirect/FreshOpenIdClient">
+                <input id="fresh-provider-input" type="text" name="openIdUser"/><input type="submit" value="Authenticate with OpenId"/></form>
+        </div>
+
+        <div class="form-group">
+            <a id="login-via-fresh-provider"
+               tabindex="100"
+               class="btn btn-big submitBtn btn-big-1c">
+                <i class="glyphicon glyphicon-cloud btn-big-glyphicon"></i>
+                Войти через облако</a>
+        </div>
+
+        <div class="form-group">
+            <a id="cancel-fresh-providers" tabindex="101" class="cancelBtn">Отмена</a>
+        </div>
+
+    </div>
+
+<script type="text/javascript">
+    $(function () {
+        $('#loginButton').unbind('click').click(function (e) {
+            var $username = $('#username');
+            var $password = $('#password');
+            var $errors = $('.text-error');
+            if ($username.val().length == 0 || $password.val().length == 0) {
+                $errors.hide();
+                $('#emptyUsernameOrPasswordMessage').show();
+                e.preventDefault();
+                e.stopPropagation();
+            }
+        });
+    });
+</script>
+
+</div>
+
+</div>
+                    </div>
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <td class="footerLayout">
+                <footer class="footer">
+        <div class="innerFooter">
+            <div class="footerInfo">
+                <div class="footer-column"></div>
+                <div class="footer-column">
+                    <a href="http://1c.ru">&copy; 1С-Софт, 2026. Все права защищены</a>
+                    </div>
+                <div class="footer-column footer-column-right">
+                    <a href="https://its.1c.ru/sd/form/webIts" target="_blank">Задать вопрос </a>
+                    <i class="fa fa-fw fa-envelope-o"></i>
+                </div>
+            </div>
+        </div>
+    </footer>
+</td>
+        </tr>
+        </tbody>
+    </table>
+</body>
+</html>

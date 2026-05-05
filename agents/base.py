@@ -5,7 +5,8 @@
 
 import logging
 from abc import ABC, abstractmethod
-from typing import Dict, Any, List
+from typing import Dict, Any, List, Optional
+from core.roles import AgentRole, get_system_prompt
 
 try:
     from memory import memory
@@ -15,26 +16,25 @@ except ImportError:
     memory = None
 
 from connectors.llm_client_distributed import llm_client
-from core.roles import get_system_prompt
 import asyncio
 from datetime import datetime, time
 
 
 class BaseBackgroundAgent(ABC):
     """Базовый класс для агентов, работающих в фоне."""
-    
+
     def __init__(self, name: str):
         self.name = name
         self.logger = logging.getLogger(f"zora.agent.{name}")
         self._running = False
         self._current_task = None
         self._last_activity = None
-    
+
     @abstractmethod
     async def execute(self):
         """Основная логика агента (вызывается планировщиком или циклом)."""
         pass
-    
+
     async def monitoring_loop(self, check_interval: int = 60):
         """
         Бесконечный цикл с проверкой рабочего времени.
@@ -42,7 +42,7 @@ class BaseBackgroundAgent(ABC):
         """
         self._running = True
         self.logger.info(f"🔄 Цикл мониторинга {self.name} запущен")
-        
+
         while self._running:
             if self._is_working_time():
                 try:
@@ -55,24 +55,24 @@ class BaseBackgroundAgent(ABC):
                     self._current_task = None
             else:
                 self._current_task = f"Ожидание рабочего времени (сейчас {datetime.now().time()})"
-            
+
             await asyncio.sleep(check_interval)
-        
+
         self.logger.info(f"⏹️ Цикл мониторинга {self.name} остановлен")
-    
+
     def _is_working_time(self) -> bool:
         """
         Проверяет, находится ли текущее время в рабочем интервале.
         Должен быть переопределён в дочерних классах.
         """
         return True
-    
+
     def stop(self):
         """Останавливает цикл мониторинга."""
         self._running = False
         self._current_task = "Остановлен"
         self.logger.info(f"🛑 Получена команда остановки для {self.name}")
-    
+
     def get_status(self) -> dict:
         """Возвращает текущий статус агента для API."""
         return {
@@ -84,17 +84,55 @@ class BaseBackgroundAgent(ABC):
 
 
 class BaseAgent(ABC):
-    """Абстрактный базовый класс для всех агентов."""
+    """
+    Абстрактный базовый класс для всех агентов.
 
-    def __init__(self, agent_name: str):
+    Атрибуты класса (переопределяются в наследниках):
+        role: AgentRole — роль агента (обязательно)
+        display_name: str — человекочитаемое имя
+        description: str — краткое описание
+        tools: List[str] — список имён инструментов
+    """
+
+    # Атрибуты класса — переопределяются в наследниках
+    role: Optional[AgentRole] = None
+    display_name: str = ""
+    description: str = ""
+    tools: List[str] = []
+
+    def __init__(self, agent_name: Optional[str] = None):
         """
         Инициализация агента.
 
         Args:
-            agent_name: Имя агента (например, "economist", "monitor")
+            agent_name: Имя агента. Если None, берётся из self.role.value
         """
+        if agent_name is None:
+            if self.role is not None:
+                agent_name = self.role.value
+            else:
+                agent_name = "unknown"
+
         self.agent_name = agent_name
         self.logger = logging.getLogger(f"zora.agent.{agent_name}")
+        self._status = "idle"  # idle, running, error
+        self._current_task = None
+        self._last_activity = None
+
+    @classmethod
+    def get_info(cls) -> Dict[str, Any]:
+        """
+        Возвращает метаинформацию об агенте.
+
+        Returns:
+            Словарь с role, display_name, description, tools
+        """
+        return {
+            "role": cls.role.value if cls.role else None,
+            "display_name": cls.display_name,
+            "description": cls.description,
+            "tools": cls.tools
+        }
 
     def _retrieve_context(self, query: str, limit: int = 5) -> str:
         """
@@ -110,18 +148,18 @@ class BaseAgent(ABC):
         if not MEMORY_AVAILABLE or memory is None:
             self.logger.warning("Память недоступна, контекст не извлечён")
             return ""
-        
+
         try:
             results = memory.search(query=query, limit=limit * 2)
             if not results:
                 return ""
-            
+
             # Группировка по файлам
             grouped = {}
             for r in results:
                 path = r.get("path", "unknown")
                 grouped.setdefault(path, []).append(r)
-            
+
             context_parts = []
             for path, chunks in list(grouped.items())[:limit]:
                 context_parts.append(f"\n📁 Файл: {path}")
@@ -133,12 +171,12 @@ class BaseAgent(ABC):
                     context_parts.append(f"  [{i}] Сходство: {score:.2f}")
                     context_parts.append(f"     {text}")
                     context_parts.append("")
-            
+
             context = "\n".join(context_parts)
             if context:
                 context = "📚 РЕЛЕВАНТНЫЙ КОНТЕКСТ ИЗ ПАМЯТИ:\n" + context
                 context += "\n\n💡 ИНСТРУКЦИЯ: Используй эту информацию для ответа. Если находишь релевантные фрагменты, цитируй их и указывай из какого файла они взяты."
-            
+
             return context
         except Exception as e:
             self.logger.error(f"Ошибка при извлечении контекста: {e}")
@@ -159,7 +197,7 @@ class BaseAgent(ABC):
         if not MEMORY_AVAILABLE or memory is None:
             self.logger.warning("Память недоступна, результат не сохранён")
             return ""
-            
+
         if metadata is None:
             metadata = {}
 
@@ -238,6 +276,14 @@ class BaseAgent(ABC):
         """
         pass
 
+    def get_status(self) -> dict:
+        """Возвращает текущий статус агента для API."""
+        return {
+            "status": self._status,
+            "current_task": self._current_task,
+            "last_activity": self._last_activity.isoformat() if self._last_activity else None
+        }
+
     def process(self, state: Dict[str, Any]) -> Dict[str, Any]:
         """
         Основной метод обработки запроса агентом.
@@ -250,6 +296,11 @@ class BaseAgent(ABC):
         """
         query = state.get("query", "")
         self.logger.info(f"Агент {self.agent_name} обрабатывает запрос: {query}")
+
+        # Обновляем статус
+        self._status = "running"
+        self._current_task = f"Обработка: {query[:80]}"
+        self._last_activity = datetime.now()
 
         # Используем контекст из состояния, если он уже извлечён оркестратором
         context = state.get("context")
@@ -265,11 +316,17 @@ class BaseAgent(ABC):
             result = self._process_specific(query, context)
         except Exception as e:
             self.logger.error(f"Ошибка в специфической обработке: {e}")
+            self._status = "error"
             result = {
                 "success": False,
                 "error": str(e),
                 "result": f"Агент {self.agent_name} столкнулся с ошибкой при обработке."
             }
+
+        # Возвращаем статус в idle после завершения
+        self._status = "idle"
+        self._current_task = None
+        self._last_activity = datetime.now()
 
         # Обновляем состояние
         state.update(result)

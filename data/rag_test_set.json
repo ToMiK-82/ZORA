@@ -1,0 +1,82 @@
+[
+    {
+        "query": "Как подключиться к 1С через REST API?",
+        "relevant_chunk_ids": ["onec_rest_connect", "onec_api_auth"]
+    },
+    {
+        "query": "Какие методы есть у Ozon API для работы с заказами?",
+        "relevant_chunk_ids": ["ozon_orders_list", "ozon_order_get", "ozon_order_update"]
+    },
+    {
+        "query": "Как настроить WebSocket для Telegram бота?",
+        "relevant_chunk_ids": ["telegram_websocket_setup", "telegram_bot_config"]
+    },
+    {
+        "query": "Формат отчёта по продажам за месяц",
+        "relevant_chunk_ids": ["sales_report_monthly", "report_format_sales"]
+    },
+    {
+        "query": "Как добавить нового клиента в систему?",
+        "relevant_chunk_ids": ["client_add_new", "client_registration_flow"]
+    },
+    {
+        "query": "Какие есть методы для работы с Wildberries API?",
+        "relevant_chunk_ids": ["wb_api_products", "wb_api_orders", "wb_api_prices"]
+    },
+    {
+        "query": "Как создать отчёт по остаткам товаров?",
+        "relevant_chunk_ids": ["stock_report_create", "inventory_balance_report"]
+    },
+    {
+        "query": "Настройка планировщика задач в ZORA",
+        "relevant_chunk_ids": ["scheduler_setup", "cron_job_config"]
+    },
+    {
+        "query": "Как работает оркестратор агентов?",
+        "relevant_chunk_ids": ["orchestrator_flow", "agent_routing"]
+    },
+    {
+        "query": "Какие модели поддерживаются в Ollama?",
+        "relevant_chunk_ids": ["ollama_models_list", "ollama_model_pull"]
+    },
+    {
+        "query": "Как выполнить поиск по векторной памяти?",
+        "relevant_chunk_ids": ["qdrant_search", "vector_search_query"]
+    },
+    {
+        "query": "Формат логов системы ZORA",
+        "relevant_chunk_ids": ["log_format_zora", "log_levels_config"]
+    },
+    {
+        "query": "Как запустить индексацию файлов проекта?",
+        "relevant_chunk_ids": ["indexer_run", "file_indexing_process"]
+    },
+    {
+        "query": "Какие инструменты доступны разработчику?",
+        "relevant_chunk_ids": ["dev_tools_list", "developer_assistant_tools"]
+    },
+    {
+        "query": "Как настроить мониторинг GPU?",
+        "relevant_chunk_ids": ["gpu_monitor_setup", "nvidia_smi_config"]
+    },
+    {
+        "query": "Как работает система уроков (lesson_saver)?",
+        "relevant_chunk_ids": ["lesson_saver_flow", "lesson_search"]
+    },
+    {
+        "query": "Какие эндпоинты есть у FastAPI приложения?",
+        "relevant_chunk_ids": ["fastapi_routes", "api_endpoints_list"]
+    },
+    {
+        "query": "Как создать нового агента в системе?",
+        "relevant_chunk_ids": ["agent_creation_guide", "agent_registry_add"]
+    },
+    {
+        "query": "Настройка подключения к PostgreSQL",
+        "relevant_chunk_ids": ["postgres_connection", "db_config_params"]
+    },
+    {
+        "query": "Как работает система версионирования памяти?",
+        "relevant_chunk_ids": ["memory_versioning", "versioning_db_schema"]
+    }
+]

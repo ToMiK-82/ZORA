@@ -10,38 +10,45 @@ from typing import List, Dict
 
 logger = logging.getLogger(__name__)
 
-# Параметры подключения из .env
-DB_HOST = os.getenv("POSTGRES_HOST", "localhost")
-DB_PORT = os.getenv("POSTGRES_PORT", "5432")
-DB_NAME = os.getenv("POSTGRES_DB", "zora")
-DB_USER = os.getenv("POSTGRES_USER", "postgres")
-DB_PASSWORD = os.getenv("POSTGRES_PASSWORD", "postgres")
-
 _pool = None
 DB_AVAILABLE = False  # Флаг доступности БД
+
+
+def _get_db_config():
+    """Ленивая загрузка параметров подключения из .env.
+    Вызывается каждый раз при подключении, чтобы учесть возможную позднюю загрузку .env.
+    """
+    return {
+        "host": os.getenv("POSTGRES_HOST", "localhost"),
+        "port": os.getenv("POSTGRES_PORT", "5432"),
+        "database": os.getenv("POSTGRES_DB", "zora"),
+        "user": os.getenv("POSTGRES_USER", "postgres"),
+        "password": os.getenv("POSTGRES_PASSWORD", "postgres"),
+    }
 
 
 async def get_pool():
     """Возвращает пул соединений с PostgreSQL."""
     global _pool, DB_AVAILABLE
     if _pool is None:
+        cfg = _get_db_config()
         try:
             _pool = await asyncpg.create_pool(
-                host=DB_HOST,
-                port=int(DB_PORT),
-                database=DB_NAME,
-                user=DB_USER,
-                password=DB_PASSWORD,
+                host=cfg["host"],
+                port=int(cfg["port"]),
+                database=cfg["database"],
+                user=cfg["user"],
+                password=cfg["password"],
                 min_size=1,
                 max_size=10,
                 command_timeout=5  # Быстрый таймаут, чтобы не ждать долго
             )
             DB_AVAILABLE = True
-            logger.info(f"✅ Подключение к PostgreSQL: {DB_HOST}:{DB_PORT}/{DB_NAME}")
+            logger.info(f"✅ Подключение к PostgreSQL: {cfg['host']}:{cfg['port']}/{cfg['database']}")
         except Exception as e:
             DB_AVAILABLE = False
             _pool = None
-            logger.warning(f"⚠️ PostgreSQL недоступен ({DB_HOST}:{DB_PORT}): {e}")
+            logger.warning(f"⚠️ PostgreSQL недоступен ({cfg['host']}:{cfg['port']}): {e}")
             logger.warning("⚠️ История чатов будет работать без сохранения (in-memory режим)")
     return _pool
 

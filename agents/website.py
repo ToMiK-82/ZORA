@@ -18,8 +18,13 @@ except ImportError:
 class Website(BaseAgent):
     """Агент для управления сайтом."""
 
+    role = AgentRole.WEBSITE
+    display_name = "Специалист по веб-сайту"
+    description = "Управляет контентом сайта, анализирует метрики, работает с SEO"
+    tools = []
+
     def __init__(self):
-        super().__init__(AgentRole.WEBSITE.value)
+        super().__init__()
         # Получаем системный промпт из централизованного модуля
         self.system_prompt = get_system_prompt(AgentRole.WEBSITE)
 
@@ -37,7 +42,7 @@ class Website(BaseAgent):
         if query is None:
             query = ""
         # Используем переданный контекст (уже извлечённый оркестратором)
-        
+
         # Формируем полный промпт с системным промптом, контекстом и запросом
         full_prompt = f"""{self.system_prompt}
 
@@ -50,11 +55,11 @@ class Website(BaseAgent):
 Если в контексте есть данные, используй их для анализа.
 Если данных недостаточно, укажи, какие дополнительные данные нужны.
 """
-        
+
         try:
             # Вызываем LLM через распределённую систему
             response = generate(full_prompt)  # model=None по умолчанию
-            
+
             # Если ответ содержит ошибку, возвращаем сообщение об ошибке
             if isinstance(response, dict) and "error" in response:
                 return {
@@ -63,13 +68,13 @@ class Website(BaseAgent):
                     "agent": self.agent_name,
                     "context_used": bool(context)
                 }
-            
+
             # Преобразуем ответ в строку, если это необходимо
             if isinstance(response, dict):
                 result_text = response.get("text", str(response))
             else:
                 result_text = str(response)
-            
+
             return {
                 "success": True,
                 "result": result_text,
@@ -77,7 +82,7 @@ class Website(BaseAgent):
                 "context_used": bool(context),
                 "system_prompt_used": True
             }
-            
+
         except Exception as e:
             # В случае ошибки возвращаем сообщение с информацией об ошибке
             return {
@@ -87,34 +92,3 @@ class Website(BaseAgent):
                 "context_used": bool(context),
                 "error": str(e)
             }
-    
-    def _retrieve_context(self, query: str, limit: int = 5) -> str:
-        try:
-            from memory import memory
-            results = memory.search(query=query, limit=limit * 2)
-            if not results:
-                return ""
-            # Группировка по файлам
-            grouped = {}
-            for r in results:
-                path = r.get("path", "unknown")
-                grouped.setdefault(path, []).append(r)
-            context_parts = []
-            for path, chunks in list(grouped.items())[:limit]:
-                context_parts.append(f"\n📁 Файл: {path}")
-                for i, chunk in enumerate(chunks[:3], 1):
-                    text = chunk.get("text", "")
-                    score = chunk.get("score", 0)
-                    if len(text) > 500:
-                        text = text[:500] + "..."
-                    context_parts.append(f"  [{i}] Сходство: {score:.2f}")
-                    context_parts.append(f"     {text}")
-                    context_parts.append("")
-            context = "\n".join(context_parts)
-            if context:
-                context = "📚 РЕЛЕВАНТНЫЙ КОНТЕКСТ ИЗ ПАМЯТИ:\n" + context
-                context += "\n\n💡 ИНСТРУКЦИЯ: Используй эту информацию для ответа. Если находишь релевантные фрагменты, цитируй их и указывай из какого файла они взяты."
-            return context
-        except Exception as e:
-            self.logger.error(f"Ошибка при извлечении контекста: {e}")
-            return ""
