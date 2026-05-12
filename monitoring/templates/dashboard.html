@@ -180,6 +180,36 @@
             </div>
         </div>
 
+        <!-- Парсинг (прогресс) -->
+        <div class="section-title">Парсинг данных</div>
+        <div class="card">
+            <div class="card-header"><i class="fas fa-spider"></i><h3>Прогресс парсинга</h3><span class="status-dot" id="parsing-dot"></span></div>
+            <div style="display:flex;gap:16px;flex-wrap:wrap;align-items:center;">
+                <div class="rag-metric">
+                    <div class="rag-metric-value" id="parsing-status">—</div>
+                    <div class="rag-metric-label">Статус</div>
+                </div>
+                <div class="rag-metric">
+                    <div class="rag-metric-value" id="parsing-operation" style="font-size:0.9rem;">—</div>
+                    <div class="rag-metric-label">Операция</div>
+                </div>
+                <div class="rag-metric">
+                    <div class="rag-metric-value" id="parsing-step">—</div>
+                    <div class="rag-metric-label">Шаг / Всего</div>
+                </div>
+                <div class="rag-metric">
+                    <div class="rag-metric-value" id="parsing-indexed">—</div>
+                    <div class="rag-metric-label">Проиндексировано</div>
+                </div>
+                <div class="rag-metric">
+                    <div class="rag-metric-value" id="parsing-subject" style="font-size:0.8rem;">—</div>
+                    <div class="rag-metric-label">Текущий объект</div>
+                </div>
+            </div>
+            <div class="progress-bar" style="margin-top:8px;"><div class="progress-fill" id="parsing-progress" style="width:0%"></div></div>
+            <div id="parsing-result" class="result-box"></div>
+        </div>
+
         <!-- RAG Quality -->
         <div class="section-title">RAG Quality</div>
         <div class="card">
@@ -365,7 +395,7 @@ async function loadData() {
         var cpu = sys.cpu_percent || 0;
         document.getElementById('cpu-load').textContent = cpu.toFixed(1) + '%';
         document.getElementById('cpu-model').textContent = sys.cpu_name || '—';
-        document.getElementById('cpu-cores').textContent = (sys.cpu_count || '?') + ' / ' + (sys.cpu_count_logical || '?');
+        document.getElementById('cpu-cores').textContent = (sys.cpu_count_physical || sys.cpu_count || '?') + ' / ' + (sys.cpu_count_logical || '?');
         document.getElementById('cpu-freq').textContent = sys.cpu_freq_current ? sys.cpu_freq_current.toFixed(1) + ' GHz' : '—';
         document.getElementById('cpu-temp').textContent = sys.cpu_temp ? sys.cpu_temp + '°C' : '—';
         document.getElementById('cpu-progress').style.width = cpu + '%';
@@ -446,6 +476,19 @@ async function loadData() {
                 document.getElementById('rag-eval-btn').disabled = false;
                 document.getElementById('rag-eval-btn').innerHTML = '<i class="fas fa-play"></i> Запустить оценку';
             }
+        } else {
+            // Если метрик нет, показываем количество векторов из памяти
+            document.getElementById('rag-hit-rate').textContent = '—';
+            document.getElementById('rag-mrr').textContent = '—';
+            document.getElementById('rag-date').textContent = 'нет данных';
+            // Пытаемся получить количество векторов из статуса памяти
+            try {
+                var ms = await fetch(API + '/api/memory/stats');
+                var msd = await ms.json();
+                if (msd.success && msd.stats) {
+                    document.getElementById('rag-vectors').textContent = msd.stats.vectors_count || msd.stats.total_vectors || '—';
+                }
+            } catch(e) {}
         }
 
         // RAG dataset stats
@@ -468,6 +511,25 @@ async function loadData() {
             }
         }
 
+        // Parsing status
+        try {
+            var pr = await fetch(API + '/api/parsing/status');
+            var pd = await pr.json();
+            if (pd.success && pd.data) {
+                var progress = pd.data.progress || {};
+                var lastResult = pd.data.last_result || {};
+                var pct = progress.percent || 0;
+                document.getElementById('parsing-status').textContent = progress.is_running ? '🔄 Выполняется' : '⏸ Ожидание';
+                document.getElementById('parsing-operation').textContent = progress.operation || '—';
+                document.getElementById('parsing-step').textContent = (progress.current_step || 0) + ' / ' + (progress.total_steps || 0);
+                document.getElementById('parsing-indexed').textContent = progress.indexed_count || 0;
+                document.getElementById('parsing-subject').textContent = progress.current_subject || '—';
+                document.getElementById('parsing-progress').style.width = pct + '%';
+                document.getElementById('parsing-dot').className = 'status-dot' + (progress.is_running ? '' : ' warning');
+            }
+        } catch (e) {
+            console.error('Ошибка загрузки парсинга:', e);
+        }
 
         // Agents
         var ar = await fetch(API + '/api/agents');

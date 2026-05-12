@@ -542,9 +542,9 @@ class AgentInspector:
             Результат операции.
         """
         try:
-            from tools.rag_dataset_generator import generate_dataset
+            from tools.rag_dataset_generator import generate_dataset, MAX_CHUNKS
             return generate_dataset(
-                max_chunks=max_chunks,
+                max_chunks=max_chunks if max_chunks is not None else MAX_CHUNKS,
                 incremental=incremental,
                 chunk_types=chunk_types
             )
@@ -569,9 +569,9 @@ class AgentInspector:
             Словарь с результатом запуска.
         """
         try:
-            from tools.rag_dataset_generator import run_generation_async
+            from tools.rag_dataset_generator import run_generation_async, MAX_CHUNKS
             return run_generation_async(
-                max_chunks=max_chunks,
+                max_chunks=max_chunks if max_chunks is not None else MAX_CHUNKS,
                 incremental=incremental,
                 chunk_types=chunk_types
             )

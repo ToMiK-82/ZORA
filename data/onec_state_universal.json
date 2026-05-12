@@ -1,25 +1,127 @@
 {
   "entities": {
     "AccumulationRegister_ПартииНезавершенногоПроизводства": {
-      "last_run": "2026-05-05T00:22:01.897058",
+      "last_run": "2026-05-08T22:08:07.456395",
       "count": 0,
       "last_modified": null,
       "has_modified_field": false
     },
     "AccumulationRegister_ПартииНезавершенногоПроизводства_RecordType": {
-      "last_run": "2026-05-05T00:22:02.000539",
+      "last_run": "2026-05-08T22:08:07.583824",
       "count": 0,
       "last_modified": null,
       "has_modified_field": false
     },
     "AccumulationRegister_ИмущественныеВычетыНДФЛ": {
-      "last_run": "2026-05-05T00:22:02.128722",
+      "last_run": "2026-05-08T22:08:07.711467",
       "count": 0,
       "last_modified": null,
       "has_modified_field": false
     },
     "AccumulationRegister_ИмущественныеВычетыНДФЛ_RecordType": {
-      "last_run": "2026-05-05T00:22:02.256771",
+      "last_run": "2026-05-08T22:08:07.854294",
+      "count": 0,
+      "last_modified": null,
+      "has_modified_field": false
+    },
+    "InformationRegister_РабочиеМестаУдержаний": {
+      "last_run": "2026-05-09T21:15:12.028247",
+      "count": 2,
+      "last_modified": null,
+      "has_modified_field": false
+    },
+    "InformationRegister_РабочиеМестаУдержаний_RecordType": {
+      "last_run": "2026-05-09T21:15:16.533543",
+      "count": 2,
+      "last_modified": null,
+      "has_modified_field": false
+    },
+    "InformationRegister_ПараметрыАмортизацииОСУУ": {
+      "last_run": "2026-05-09T21:16:06.273611",
+      "count": 23,
+      "last_modified": null,
+      "has_modified_field": false
+    },
+    "InformationRegister_ПараметрыАмортизацииОСУУ_RecordType": {
+      "last_run": "2026-05-09T21:17:11.982858",
+      "count": 29,
+      "last_modified": null,
+      "has_modified_field": false
+    },
+    "InformationRegister_ПервоначальныеСведенияНМА": {
+      "last_run": "2026-05-09T21:17:14.322533",
+      "count": 1,
+      "last_modified": null,
+      "has_modified_field": false
+    },
+    "InformationRegister_ПервоначальныеСведенияНМА_RecordType": {
+      "last_run": "2026-05-09T21:17:16.836007",
+      "count": 1,
+      "last_modified": null,
+      "has_modified_field": false
+    },
+    "InformationRegister_СогласияНаОбработкуПерсональныхДанных": {
+      "last_run": "2026-05-09T21:21:40.794602",
+      "count": 122,
+      "last_modified": null,
+      "has_modified_field": false
+    },
+    "InformationRegister_СогласияНаОбработкуПерсональныхДанных_RecordType": {
+      "last_run": "2026-05-09T21:26:10.978316",
+      "count": 122,
+      "last_modified": null,
+      "has_modified_field": false
+    },
+    "InformationRegister_ГрафикНачисленияПроцентовПоАренде": {
+      "last_run": "2026-05-09T21:26:22.136092",
+      "count": 5,
+      "last_modified": null,
+      "has_modified_field": false
+    },
+    "InformationRegister_ГрафикНачисленияПроцентовПоАренде_RecordType": {
+      "last_run": "2026-05-09T21:41:21.316195",
+      "count": 409,
+      "last_modified": null,
+      "has_modified_field": false
+    },
+    "InformationRegister_УсловияУдержанияПоИсполнительномуДокументу": {
+      "last_run": "2026-05-09T21:41:28.688656",
+      "count": 3,
+      "last_modified": null,
+      "has_modified_field": false
+    },
+    "InformationRegister_УсловияУдержанияПоИсполнительномуДокументу_RecordType": {
+      "last_run": "2026-05-09T21:41:35.619358",
+      "count": 3,
+      "last_modified": null,
+      "has_modified_field": false
+    },
+    "InformationRegister_РасчетРезервовПоСомнительнымДолгам": {
+      "last_run": "2026-05-09T21:41:36.236171",
+      "count": 0,
+      "last_modified": null,
+      "has_modified_field": false
+    },
+    "InformationRegister_РасчетРезервовПоСомнительнымДолгам_RecordType": {
+      "last_run": "2026-05-09T21:41:39.723363",
+      "count": 0,
+      "last_modified": null,
+      "has_modified_field": false
+    },
+    "InformationRegister_ЗаявленияОВеденииТрудовыхКнижекПереданные": {
+      "last_run": "2026-05-09T21:43:46.514014",
+      "count": 59,
+      "last_modified": null,
+      "has_modified_field": false
+    },
+    "InformationRegister_ЗаявленияОВеденииТрудовыхКнижекПереданные_RecordType": {
+      "last_run": "2026-05-09T21:46:43.689801",
+      "count": 79,
+      "last_modified": null,
+      "has_modified_field": false
+    },
+    "InformationRegister_СтоимостьТоваров": {
+      "last_run": "2026-05-09T21:55:46.244726",
       "count": 0,
       "last_modified": null,
       "has_modified_field": false

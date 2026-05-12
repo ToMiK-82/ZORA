@@ -8,6 +8,7 @@ import os
 import sys
 import asyncio
 import json
+import threading
 from datetime import datetime
 from fastapi import FastAPI, Request, HTTPException, UploadFile, File, Form
 from fastapi.responses import HTMLResponse, JSONResponse, StreamingResponse
@@ -69,7 +70,6 @@ async def favicon():
     favicon_path = os.path.join(os.path.dirname(__file__), "..", "static", "favicon.ico")
     if os.path.exists(favicon_path):
         return FileResponse(favicon_path)
-    # Если favicon не найден, возвращаем 404
     raise HTTPException(status_code=404, detail="Favicon not found")
 
 # Глобальная переменная для выбора провайдера LLM
@@ -145,9 +145,7 @@ async def root_redirect():
 
 @app.post("/ask")
 async def ask(request: Request):
-    """
-    API endpoint для отправки запроса с поддержкой истории диалога.
-    """
+    """API endpoint для отправки запроса с поддержкой истории диалога."""
     data = await request.json()
     query = data.get("query", "").strip()
     history = data.get("history", [])  # список {role, content}
@@ -268,10 +266,45 @@ async def api_health():
         
         # CPU
         cpu_percent = psutil.cpu_percent(interval=0.5)
-        cpu_count = psutil.cpu_count()
+        cpu_count_physical = psutil.cpu_count(logical=False) or psutil.cpu_count()
         cpu_count_logical = psutil.cpu_count(logical=True)
+        cpu_count = cpu_count_logical  # для обратной совместимости
         cpu_freq = psutil.cpu_freq()
         cpu_freq_current = cpu_freq.current / 1000 if cpu_freq else 0
+        
+        # Получаем имя CPU (читаемое)
+        cpu_name = "—"
+        try:
+            import cpuinfo
+            cpu_info_data = cpuinfo.get_cpu_info()
+            cpu_name = cpu_info_data.get('brand_raw', '—')
+        except ImportError:
+            try:
+                import subprocess
+                result = subprocess.run(
+                    ['wmic', 'cpu', 'get', 'name'],
+                    capture_output=True, text=True, timeout=5
+                )
+                if result.returncode == 0:
+                    lines = result.stdout.strip().split('\n')
+                    if len(lines) >= 2:
+                        cpu_name = lines[1].strip()
+            except:
+                import platform
+                cpu_name = platform.processor() or "—"
+        except:
+            import platform
+            cpu_name = platform.processor() or "—"
+        
+        # Получаем температуру CPU
+        cpu_temp = ""
+        try:
+            from monitoring.system_monitor import get_cpu_temperature
+            cpu_temp_val = get_cpu_temperature()
+            if cpu_temp_val is not None:
+                cpu_temp = f"{cpu_temp_val:.0f}"
+        except:
+            pass
         
         # RAM
         mem = psutil.virtual_memory()
@@ -285,7 +318,7 @@ async def api_health():
         disk_total = disk.total / (1024**3)
         disk_used = disk.used / (1024**3)
         
-        # GPU
+        # GPU — сначала nvidia-smi, затем fallback на gpu_monitor
         gpu_percent = 0
         gpu_memory_used = 0
         gpu_memory_total = 0
@@ -305,7 +338,18 @@ async def api_health():
                     gpu_name = parts[3].strip()
                     gpu_temp = parts[4].strip()
         except:
-            pass
+            # Fallback на gpu_monitor
+            try:
+                from monitoring.gpu_monitor import get_gpu_info
+                gpu_info = get_gpu_info()
+                if gpu_info.get('gpu_available'):
+                    gpu_percent = gpu_info.get('gpu_percent', 0)
+                    gpu_memory_used = gpu_info.get('gpu_memory_used', 0) / 1024
+                    gpu_memory_total = gpu_info.get('gpu_memory_total', 0) / 1024
+                    gpu_name = gpu_info.get('gpu_name', '')
+                    gpu_temp = str(gpu_info.get('gpu_temperature', ''))
+            except:
+                pass
         
         # Health score
         health_score = 100
@@ -324,10 +368,11 @@ async def api_health():
             "system": {
                 "cpu_percent": cpu_percent,
                 "cpu_count": cpu_count,
+                "cpu_count_physical": cpu_count_physical,
                 "cpu_count_logical": cpu_count_logical,
                 "cpu_freq_current": cpu_freq_current,
-                "cpu_name": gpu_name or "—",
-                "cpu_temp": "",
+                "cpu_name": cpu_name,
+                "cpu_temp": cpu_temp,
                 "gpu_percent": gpu_percent,
                 "gpu_name": gpu_name,
                 "gpu_memory_used": gpu_memory_used,
@@ -504,11 +549,15 @@ async def save_file(request: Request):
         result = write_file(path, content)
         # фоновая индексация
         try:
-            from memory.indexer import index_file
+            from agents.parser_agent import ParserAgent
             async def _index_in_background():
                 try:
-                    chunks_count = index_file(path)
-                    logger.info(f"Файл проиндексирован: {path} ({chunks_count} чанков)")
+                    agent = ParserAgent()
+                    result = agent.index_single_file(path)
+                    if result.get("success"):
+                        logger.info(f"Файл проиндексирован: {path}")
+                    else:
+                        logger.warning(f"Не удалось проиндексировать файл {path}: {result.get('message', '')}")
                 except Exception as e:
                     logger.error(f"Ошибка индексации файла {path}: {e}")
             asyncio.create_task(_index_in_background())
@@ -600,8 +649,10 @@ async def upload_file(file: UploadFile = File(...)):
             shutil.copyfileobj(file.file, buffer)
         original_name = file.filename
         try:
-            from memory.indexer import index_file
-            chunks_count = index_file(file_path, metadata={"original_name": original_name})
+            from agents.parser_agent import ParserAgent
+            agent = ParserAgent()
+            result = agent.index_single_file(file_path)
+            chunks_count = result.get("data", {}).get("chunks", 0)
         except Exception as e:
             logger.warning(f"Индексация не выполнена: {e}")
             chunks_count = 0
@@ -623,21 +674,15 @@ async def train_assistant(request: Request):
         if not os.path.exists(full_path):
             raise HTTPException(status_code=404, detail=f"Путь не существует: {path}")
         import threading
-        import subprocess
-        import sys
         def run_indexing():
             try:
-                script_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "scripts", "index_project.py")
-                cmd = [sys.executable, script_path, "--path", full_path]
-                if recursive:
-                    cmd.append("--recursive")
-                if clean:
-                    cmd.append("--clean")
-                result = subprocess.run(cmd, capture_output=True, text=True, timeout=3600)
-                if result.returncode == 0:
+                from agents.parser_agent import ParserAgent
+                agent = ParserAgent()
+                result = agent.index_files(full_path, recursive=recursive, clean=clean)
+                if result.get("success"):
                     logger.info(f"Индексация завершена: {path}")
                 else:
-                    logger.error(f"Ошибка индексации: {result.stderr}")
+                    logger.error(f"Ошибка индексации: {result.get('message', '')}")
             except Exception as e:
                 logger.error(f"Ошибка в процессе индексации: {e}")
         thread = threading.Thread(target=run_indexing, daemon=True)
@@ -681,9 +726,7 @@ async def set_provider(request: Request):
 @app.post("/ask_stream")
 
 async def ask_stream(request: Request):
-    """
-    API endpoint для потоковой отправки запроса (Server-Sent Events).
-    """
+    """API endpoint для потоковой отправки запроса (Server-Sent Events)."""
     data = await request.json()
     query = data.get("query", "").strip()
     interface = data.get("interface", "dev")
@@ -696,8 +739,6 @@ async def ask_stream(request: Request):
 
     async def event_generator():
         try:
-            # Имитация потоковой передачи - разбиваем ответ на части
-            # В реальности нужно интегрировать с LLM, поддерживающим стриминг
             result = await asyncio.wait_for(
                 asyncio.to_thread(_orchestrator.process, query, interface),
                 timeout=180.0
@@ -742,86 +783,63 @@ async def ask_stream(request: Request):
 # Эндпоинты для переиндексации и управления памятью
 @app.post("/api/reindex")
 async def reindex(mode: str = "incremental", path: str = None, clean_old: bool = False):
-    """
-    Запускает переиндексацию памяти.
-    
-    Параметры:
-    - mode: "full" (полная очистка и индексация), "incremental" (инкрементальная, по умолчанию)
-    - path: путь для индексации (если None, используется текущая директория проекта)
-    - clean_old: очищать старые версии (только для mode="full")
-    """
+    """Запускает переиндексацию памяти через ParserAgent."""
     try:
-        import subprocess
-        import sys
         import os
-        
-        # Определяем путь для индексации
         if path is None:
             project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
             index_path = project_root
         else:
             index_path = path
         
-        # Формируем команду для индексатора
-        cmd = [sys.executable, "memory/indexer.py", "--path", index_path, "--recursive"]
+        logger.info(f"Запуск переиндексации: mode={mode}, path={index_path}")
+        
+        from agents.parser_agent import ParserAgent
+        agent = ParserAgent()
         
         if mode == "full":
-            cmd.append("--clean")
             if clean_old and MEMORY_AVAILABLE and _memory:
                 try:
                     _memory.clear()
                     logger.info("Память очищена перед полной переиндексацией")
                 except Exception as e:
                     logger.error(f"Ошибка очистки памяти: {e}")
+            result = agent.index_files(index_path, recursive=True, clean=True)
+        else:
+            result = agent.index_files(index_path, recursive=True, clean=False)
         
-        # Запускаем индексацию в фоне
-        logger.info(f"Запуск переиндексации: mode={mode}, path={index_path}")
-        process = subprocess.Popen(
-            cmd,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-            text=True,
-            cwd=os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-        )
-        
-        # Не ждём завершения, возвращаем ответ сразу
-        return {
-            "success": True,
-            "message": f"Переиндексация запущена (mode={mode}, path={index_path})",
-            "pid": process.pid
-        }
-        
+        if result.get("success"):
+            return {
+                "success": True,
+                "message": f"Переиндексация завершена (mode={mode}, path={index_path})",
+                "stats": result.get("data", {})
+            }
+        else:
+            return {
+                "success": False,
+                "error": result.get("message", "Неизвестная ошибка")
+            }
     except Exception as e:
         logger.error(f"Ошибка запуска переиндексации: {e}")
         return {"success": False, "error": str(e)}
 
 @app.get("/api/memory/stats")
 async def get_memory_stats():
-    """Возвращает статистику по памяти."""
+    """Возвращает количество векторов в Qdrant."""
     try:
         if not MEMORY_AVAILABLE or not _memory:
-            return {"success": False, "error": "Память недоступна"}
+            return {"success": False, "vector_count": None, "error": "Память недоступна"}
         
-        # Получаем базовую статистику
-        stats = {
-            "available": True,
-            "provider": "Qdrant",
-            "collection": "zora_memory"
-        }
-        
-        # Пытаемся получить более детальную статистику
+        # Получаем реальное количество точек
         try:
-            # Здесь можно добавить вызов методов памяти для получения статистики
-            # Например: stats["total_vectors"] = _memory.get_vector_count()
-            stats["message"] = "Память доступна, детальная статистика требует реализации"
+            collection_info = _memory.client.get_collection(_memory.collection_name)
+            return {"success": True, "vector_count": collection_info.points_count}
         except Exception as e:
-            stats["message"] = f"Базовая статистика: {str(e)}"
-        
-        return {"success": True, "stats": stats}
-        
+            logger.warning(f"Не удалось получить количество векторов: {e}")
+            return {"success": False, "vector_count": None, "error": str(e)}
     except Exception as e:
         logger.error(f"Ошибка получения статистики памяти: {e}")
-        return {"success": False, "error": str(e)}
+        return {"success": False, "vector_count": None, "error": str(e)}
 
 @app.post("/api/memory/cleanup")
 async def cleanup_memory(days: int = 30):
@@ -829,16 +847,11 @@ async def cleanup_memory(days: int = 30):
     try:
         if not MEMORY_AVAILABLE or not _memory:
             return {"success": False, "error": "Память недоступна"}
-        
-        # Здесь можно добавить логику очистки старых записей
-        # Например: cleaned_count = _memory.cleanup_old_entries(days)
-        
         return {
             "success": True,
             "message": f"Очистка памяти (старше {days} дней) требует реализации",
             "note": "Функция очистки старых версий будет реализована в системе версионирования"
         }
-        
     except Exception as e:
         logger.error(f"Ошибка очистки памяти: {e}")
         return {"success": False, "error": str(e)}
@@ -888,8 +901,6 @@ async def confirm_action(request: Request):
         from agents.developer_assistant import DeveloperAssistant
         assistant = DeveloperAssistant()
         
-        # Добавляем хэш плана в confirmed_plans, чтобы при повторном вызове
-        # (через оркестратор) план выполнился без повторного запроса подтверждения
         import json as _json
         plan_hash = _json.dumps(plan, sort_keys=True)
         assistant.confirmed_plans.add(plan_hash)
@@ -903,10 +914,7 @@ async def confirm_action(request: Request):
 
 @app.post("/api/feedback")
 async def handle_feedback(request: Request):
-    """
-    Обрабатывает обратную связь от пользователя.
-    Сохраняет полезные диалоги в память для использования в RAG.
-    """
+    """Обрабатывает обратную связь от пользователя."""
     try:
         data = await request.json()
         rating = data.get("rating", "").lower()
@@ -916,16 +924,12 @@ async def handle_feedback(request: Request):
         
         logger.info(f"Получена обратная связь: rating={rating}, agent={agent}")
         
-        # Сохраняем только полезные ответы
         if rating in ["useful", "good", "positive", "👍", "like"]:
             if not MEMORY_AVAILABLE or not _memory:
                 return {"success": False, "error": "Память недоступна для сохранения"}
             
             if query and assistant_response:
-                # Формируем текст для сохранения
                 text = f"Вопрос: {query}\nОтвет: {assistant_response}"
-                
-                # Сохраняем в память
                 try:
                     _memory.store(
                         text=text,
@@ -938,7 +942,6 @@ async def handle_feedback(request: Request):
                         }
                     )
                     logger.info(f"Сохранен полезный диалог в память: {len(text)} символов")
-                    
                     return {
                         "success": True,
                         "message": "Полезный диалог сохранен в память",
@@ -950,14 +953,12 @@ async def handle_feedback(request: Request):
             else:
                 return {"success": False, "error": "Отсутствует запрос или ответ"}
         else:
-            # Для негативной или нейтральной обратной связи просто логируем
             logger.info(f"Обратная связь не сохранена (рейтинг: {rating})")
             return {
                 "success": True,
                 "message": "Обратная связь получена",
                 "saved": False
             }
-            
     except Exception as e:
         logger.error(f"Ошибка обработки обратной связи: {e}")
         return {"success": False, "error": str(e)}
@@ -1420,8 +1421,6 @@ async def api_git_status():
         logger.error(f"Ошибка получения Git статуса: {e}")
         return {"success": False, "error": str(e)}
 
-# (Страница управления агентами удалена — функционал перенесён в /dashboard)
-
 # ======================================================================
 # Эндпоинт для получения статуса конкретного агента
 # ======================================================================
@@ -1443,7 +1442,6 @@ async def get_agent_status(agent_name: str):
             "last_activity": None
         }
         
-        # Если оркестратор доступен, пытаемся получить реальный статус
         if ORCHESTRATOR_AVAILABLE and _orchestrator is not None:
             try:
                 status = _orchestrator.get_agent_status(agent_name)
@@ -1454,7 +1452,6 @@ async def get_agent_status(agent_name: str):
                         "last_activity": status.get("last_activity"),
                     })
                 else:
-                    # Создаём агента, чтобы он появился в оркестраторе
                     _orchestrator._get_or_create_agent(agent_name)
             except Exception as e:
                 logger.warning(f"Не удалось получить статус агента {agent_name}: {e}")
@@ -1506,10 +1503,7 @@ async def reload_agents():
         from core.agent_registry import discover_agents, AGENT_REGISTRY
         from core.orchestrator import ZoraOrchestrator
         
-        # Переоткрываем реестр
         discover_agents()
-        
-        # Создаём новый оркестратор
         _orchestrator = ZoraOrchestrator()
         ORCHESTRATOR_AVAILABLE = True
         
@@ -1547,13 +1541,35 @@ async def widget_orders():
         logger.error(f"Ошибка получения статистики заказов: {e}")
         return {"success": False, "error": str(e), "data": {}}
 
+@app.get("/api/parsing/status")
+async def parsing_status():
+    """Статус парсинга с прогрессом (использует синглтон парсера)."""
+    try:
+        agent = _get_parser_agent()
+        progress = agent.get_progress()
+        last_result = agent.get_last_parsing_result()
+        return {
+            "success": True,
+            "data": {
+                "progress": progress,
+                "last_result": last_result
+            }
+        }
+    except Exception as e:
+        logger.error(f"Ошибка получения статуса парсинга: {e}")
+        return {"success": False, "error": str(e), "data": {}}
+
 @app.get("/api/widgets/parsing")
 async def widget_parsing():
-    """Статус парсинга (парсер)."""
+    """Статус парсинга (парсер) — для дашборда (использует синглтон парсера)."""
     try:
-        from agents.parser_agent import ParserAgent
-        agent = ParserAgent()
-        data = agent.get_last_parsing_result()
+        agent = _get_parser_agent()
+        progress = agent.get_progress()
+        last_result = agent.get_last_parsing_result()
+        data = {
+            "progress": progress,
+            "last_result": last_result
+        }
         return {"success": True, "data": data}
     except Exception as e:
         logger.error(f"Ошибка получения статуса парсинга: {e}")
@@ -1595,18 +1611,38 @@ async def widget_purchases():
         logger.error(f"Ошибка получения статистики закупок: {e}")
         return {"success": False, "error": str(e), "data": {}}
 
+# Глобальный синглтон парсера для сохранения состояния прогресса между вызовами
+_parser_agent_instance = None
+_parser_agent_lock = threading.Lock()
+
+def _get_parser_agent():
+    """Возвращает синглтон ParserAgent."""
+    global _parser_agent_instance
+    if _parser_agent_instance is None:
+        with _parser_agent_lock:
+            if _parser_agent_instance is None:
+                from agents.parser_agent import ParserAgent
+                _parser_agent_instance = ParserAgent()
+    return _parser_agent_instance
+
 # ======================================================================
 # ДОБАВЛЕННЫЕ ЭНДПОИНТЫ УПРАВЛЕНИЯ ФОНОВЫМИ АГЕНТАМИ И ЛОГАМИ
 # ======================================================================
 
 @app.post("/api/agent/parser/start")
 async def start_parser_background():
-    """Запускает фоновый планировщик парсера."""
+    """Запускает парсер: запускает планировщик (если не запущен) и выполняет все задачи немедленно."""
     try:
-        from agents.parser_agent import ParserAgent
-        agent = ParserAgent()
+        agent = _get_parser_agent()
         agent.start_background_scheduler()
-        return {"success": True, "message": "Фоновый парсер запущен"}
+        def _run_tasks():
+            try:
+                agent.run_all_once()
+            except Exception as e:
+                logger.error(f"Ошибка в run_all_once: {e}")
+        thread = threading.Thread(target=_run_tasks, daemon=True)
+        thread.start()
+        return {"success": True, "message": "Парсер запущен", "status": "running"}
     except Exception as e:
         logger.error(f"Ошибка запуска парсера: {e}")
         return {"success": False, "error": str(e)}
@@ -1615,8 +1651,7 @@ async def start_parser_background():
 async def stop_parser_background():
     """Останавливает фоновый планировщик парсера."""
     try:
-        from agents.parser_agent import ParserAgent
-        agent = ParserAgent()
+        agent = _get_parser_agent()
         agent.stop_background_scheduler()
         return {"success": True, "message": "Фоновый парсер остановлен"}
     except Exception as e:
@@ -1646,7 +1681,6 @@ async def run_parser_task(task_name: str):
 async def start_operator_1c():
     """Запускает фонового оператора 1С (заглушка)."""
     try:
-        # реальная реализация может быть добавлена позже, пока заглушка
         return {"success": True, "message": "Оператор 1С запущен (заглушка)"}
     except Exception as e:
         return {"success": False, "error": str(e)}
@@ -1658,10 +1692,7 @@ async def stop_operator_1c():
 
 @app.get("/api/agent/{role}/logs")
 async def get_agent_logs(role: str, limit: int = 50):
-    """
-    Возвращает последние логи агента.
-    Для парсера читает data/parsing_log.json, для остальных — logs/zora.log.
-    """
+    """Возвращает последние логи агента."""
     try:
         if role in ("parser", "parser_agent"):
             log_path = "data/parsing_log.json"

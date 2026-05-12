@@ -414,6 +414,7 @@
                 <div class="chat-title">💬 ЧАТ С ZORA</div>
                 <div class="chat-header-actions">
                     <button onclick="toggleTheme()" id="themeToggleBtn" title="Тема">🌙</button>
+                    <button onclick="clearChat()" title="Очистить чат">🗑</button>
                     <button onclick="exportChat()" title="Экспорт">📄</button>
                 </div>
             </div>
@@ -657,7 +658,18 @@ async function deleteCurrentChat() {
     } catch(e) { console.error(e); }
 }
 
+async function clearChat() {
+    if (!currentChatId) return;
+    if (!confirm('Очистить все сообщения в этом чате?')) return;
+    try {
+        await fetch(`/api/chats/${currentChatId}/messages`, { method:'DELETE' });
+        document.getElementById('messagesArea').innerHTML = '';
+        if (chats[currentChatId]) chats[currentChatId].messages = [];
+    } catch(e) { console.error(e); }
+}
+
 function addMessageToDOM(text, isUser, msgId, agent) {
+
     const area = document.getElementById('messagesArea');
     const d = document.createElement('div');
     d.className = 'message ' + (isUser ? 'user-message' : 'assistant-message');

@@ -6,12 +6,14 @@ logger = logging.getLogger(__name__)
 
 
 def _index_file_in_background(filepath: str):
-    """Запускает индексацию файла в фоновом потоке."""
+    """Запускает индексацию файла в фоновом потоке через ParserAgent."""
     try:
-        from memory.indexer import index_file
-        chunks_count = index_file(filepath)
-        if chunks_count > 0:
-            logger.info(f"Файл проиндексирован в фоне: {filepath} ({chunks_count} чанков)")
+        from agents.parser_agent import ParserAgent
+        from memory import memory as _mem
+        hash_db = ParserAgent.FileHashDB()
+        chunk_count = ParserAgent.index_file(filepath, _mem, clean=False, hash_db=hash_db, incremental=True, force=False)
+        if chunk_count > 0:
+            logger.info(f"Файл проиндексирован в фоне: {filepath} ({chunk_count} чанков)")
         else:
             logger.warning(f"Не удалось проиндексировать файл: {filepath}")
     except ImportError as e:

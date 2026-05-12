@@ -1,1 +1,56 @@
-[]
+[
+  {
+    "timestamp": "2026-05-07T12:04:40.657353",
+    "type": "its",
+    "success": false,
+    "message": "ИТС: обработано 0 статей, проиндексировано 0 чанков"
+  },
+  {
+    "timestamp": "2026-05-07T12:04:40.660354",
+    "type": "supplier",
+    "success": false,
+    "message": "Нет источников для парсинга. Добавьте сайты через команду."
+  },
+  {
+    "timestamp": "2026-05-07T12:05:33.291684",
+    "type": "ukorona",
+    "success": true,
+    "message": "Ukorona: обработано 10 страниц, проиндексировано 10 записей"
+  },
+  {
+    "timestamp": "2026-05-08T17:46:06.541801",
+    "type": "1c",
+    "success": false,
+    "message": "Ошибка: ParserAgent.update_progress() got an unexpected keyword argument 'total_steps'"
+  },
+  {
+    "timestamp": "2026-05-08T17:46:06.826675",
+    "type": "its",
+    "success": false,
+    "message": "Ошибка: run() got an unexpected keyword argument 'sections'"
+  },
+  {
+    "timestamp": "2026-05-08T17:51:06.509806",
+    "type": "ukorona",
+    "success": true,
+    "message": "Ukorona: обработано 10 страниц, проиндексировано 118 записей"
+  },
+  {
+    "timestamp": "2026-05-08T17:51:06.509806",
+    "type": "supplier",
+    "success": false,
+    "message": "Нет источников для парсинга. Добавьте сайты через команду."
+  },
+  {
+    "timestamp": "2026-05-08T22:42:52.356616",
+    "type": "1c",
+    "success": false,
+    "message": "1С (инкрементальный): обработано 0 записей, проиндексировано 0, сущностей: 4534"
+  },
+  {
+    "timestamp": "2026-05-08T22:42:56.922660",
+    "type": "its",
+    "success": false,
+    "message": "ИТС: обработано 0 статей, проиндексировано 0 чанков"
+  }
+]

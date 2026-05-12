@@ -37,6 +37,22 @@ class AgentState(TypedDict):
     history: Annotated[List[Dict], replace_value]   # история диалога
 
 
+# Сопоставление ролей агентов и типов чанков для фильтрации поиска
+INTENT_TYPE_MAP = {
+    "developer": ["code", "document", "config"],
+    "parser": ["documentation", "product", "balance", "order", "news", "promotion"],
+    "economist": ["balance", "catalog", "document", "accumulation_register", "balance_analytics"],
+    "accountant": ["document", "catalog", "balance", "information_register", "accumulation_register"],
+    "logistician": ["balance", "accumulation_register", "balance_analytics", "catalog"],
+    "procurement_manager": ["product", "catalog", "order", "sale"],
+    "sales_consultant": ["product", "catalog", "sale", "order"],
+    "support": ["documentation", "product", "news", "promotion"],
+    "smm": ["news", "promotion", "documentation"],
+    "website": ["web", "documentation"],
+    "default": ["catalog", "document", "documentation", "product", "balance"]
+}
+
+
 class ZoraOrchestrator:
     """Оркестратор для управления агентами ZORA.
     Динамически строит граф на основе реестра агентов."""
@@ -54,7 +70,6 @@ class ZoraOrchestrator:
             agent_class = get_agent_class(role_value)
             if agent_class:
                 self.agents[role_value] = agent_class()
-                # Сообщение о создании узла графа уже выводится в _build_graph
         return self.agents.get(role_value)
 
     def get_agent_status(self, role: str) -> dict:
@@ -66,16 +81,12 @@ class ZoraOrchestrator:
 
     def _build_graph(self):
         """Строит граф LangGraph динамически на основе реестра агентов."""
-        # Сканируем реестр
         registry = discover_agents()
         workflow = StateGraph(AgentState)
 
-        # Добавляем узел-роутер
         workflow.add_node("router", self._route_to_agent)
 
-        # Динамически добавляем узлы для каждого агента из реестра
         for role_value, agent_class in registry.items():
-            # Создаём замыкание для захвата role_value
             def make_agent_node(role: str):
                 def agent_node(state: dict) -> dict:
                     return self._call_agent(state, role)
@@ -86,7 +97,6 @@ class ZoraOrchestrator:
 
         workflow.set_entry_point("router")
 
-        # Строим conditional edges от роутера ко всем агентам
         agent_map = {role_value: role_value for role_value in registry.keys()}
         workflow.add_conditional_edges(
             "router",
@@ -94,7 +104,6 @@ class ZoraOrchestrator:
             agent_map
         )
 
-        # Все агенты ведут к END
         for role_value in registry.keys():
             workflow.add_edge(role_value, END)
 
@@ -107,12 +116,10 @@ class ZoraOrchestrator:
         if cache_key in self.intent_cache:
             return self.intent_cache[cache_key]
 
-        # Для интерфейса "dev" все запросы направляем агенту developer (Ria)
         if interface == "dev":
             self.intent_cache[cache_key] = "developer"
             return "developer"
 
-        # Для интерфейса "user" используем обычную логику
         else:
             query_lower = query.lower()
 
@@ -257,38 +264,52 @@ class ZoraOrchestrator:
         query = state.get("query", "")
         interface = state.get("interface", "user")
 
+        # Определяем agent_type (без изменений)
         if interface == "dev":
             dev_greetings = ['привет', 'здравствуй', 'добрый день', 'кто ты', 'как тебя зовут',
                              'представься', 'что ты умеешь', 'расскажи о себе']
             if any(greet in query.lower() for greet in dev_greetings):
                 state["agent_type"] = "developer"
+                agent_type = "developer"
+            else:
+                agent_type = "developer"
+                state["agent_type"] = agent_type
         elif interface == "user":
             user_greetings = ['привет', 'здравствуй', 'добрый день', 'кто ты', 'как тебя зовут',
                               'представься', 'что ты умеешь', 'расскажи о себе']
             if any(greet in query.lower() for greet in user_greetings):
                 state["agent_type"] = "support"
-                return state
-
-        try:
-            agent_type = self._classify_intent(query, interface)
-            # Проверяем, существует ли роль в реестре
-            if agent_type not in AGENT_REGISTRY:
-                agent_type = self._legacy_route(query, interface)
-                # Если и legacy не нашёл, fallback на support
-                if agent_type not in AGENT_REGISTRY:
-                    agent_type = "support"
-            state["agent_type"] = agent_type
-        except Exception as e:
-            agent_type = self._legacy_route(query, interface)
-            if agent_type not in AGENT_REGISTRY:
                 agent_type = "support"
+            else:
+                try:
+                    agent_type = self._classify_intent(query, interface)
+                    if agent_type not in AGENT_REGISTRY:
+                        agent_type = self._legacy_route(query, interface)
+                        if agent_type not in AGENT_REGISTRY:
+                            agent_type = "support"
+                except Exception as e:
+                    agent_type = self._legacy_route(query, interface)
+                    if agent_type not in AGENT_REGISTRY:
+                        agent_type = "support"
+                state["agent_type"] = agent_type
+        else:
+            agent_type = "support"
             state["agent_type"] = agent_type
 
-        # Поиск контекста в памяти
+        # --- НОВОЕ: фильтрация по типам чанков ---
+        # Определяем, какие типы чанков нужны этому агенту
+        if interface == "dev":
+            agent_types = INTENT_TYPE_MAP.get("developer", ["code", "document", "config"])
+        else:
+            agent_types = INTENT_TYPE_MAP.get(agent_type, INTENT_TYPE_MAP["default"])
+        # ---------------------------------------
+
+        # Поиск контекста в памяти с фильтрацией
         try:
             logging.info(f"Запрос перед поиском: {repr(query)}")
-            context_results = memory.search(query, limit=15, threshold=0.3)
-            logging.info(f"Поиск контекста для запроса '{query}' вернул {len(context_results)} результатов")
+            # Передаём список типов в search
+            context_results = memory.search(query, limit=15, threshold=0.3, types=agent_types)
+            logging.info(f"Поиск контекста для запроса '{query}' вернул {len(context_results)} результатов (фильтр по типам: {agent_types})")
 
             results_with_path = [r for r in context_results if r.get("path")]
             if len(results_with_path) < 5:
@@ -296,7 +317,7 @@ class ZoraOrchestrator:
                 if keywords:
                     logging.info(f"Извлечённые ключевые слова: {keywords}")
                     extended_query = " ".join(keywords[:5])
-                    extra_results = memory.search(extended_query, limit=10, threshold=0.3)
+                    extra_results = memory.search(extended_query, limit=10, threshold=0.3, types=agent_types)
                     seen_texts = {r.get("text", "") for r in context_results}
                     for r in extra_results:
                         if r.get("path"):
@@ -346,7 +367,6 @@ class ZoraOrchestrator:
             result = agent.process(state)
             state["result"] = result.get("result", "")
 
-            # Передаём дополнительные поля (для developer_assistant)
             if "mode" in result:
                 state["mode"] = result["mode"]
             if "pending_plan" in result:
@@ -414,100 +434,5 @@ class ZoraOrchestrator:
                 "result": "Произошла ошибка при обработке запроса.",
                 "reasoning": [f"Ошибка: {str(e)}"]
             }
-
-    def schedule_background_tasks(self):
-        import asyncio
-        from datetime import datetime
-
-        async def _run_daily_checks():
-            while True:
-                try:
-                    now = datetime.now()
-                    if now.hour == 9 and now.minute == 0:
-                        logging.info(">>> Запуск ежедневных проверок агентов...")
-                        # Запускаем фоновые задачи парсера
-                        parser_agent = self._get_or_create_agent("parser")
-                        if parser_agent and hasattr(parser_agent, 'run_scheduled_tasks'):
-                            try:
-                                results = parser_agent.run_scheduled_tasks()
-                                logging.info(f"✅ Фоновые задачи парсера выполнены: {len(results)} задач")
-                            except Exception as e:
-                                logging.error(f"Ошибка фоновых задач парсера: {e}")
-                        logging.info("✅ Ежедневные проверки завершены")
-                    if now.hour == 3 and now.minute == 0:
-                        logging.info(">>> Запуск анализа обратной связи...")
-                        try:
-                            from memory.feedback_analyzer import analyze_and_suggest
-                            suggestions = analyze_and_suggest()
-                            if suggestions:
-                                logging.info(f"✅ Анализ обратной связи завершен. Сгенерировано предложений для {len(suggestions)} агентов")
-                        except Exception as e:
-                            logging.error(f"Ошибка анализа обратной связи: {e}")
-
-                        logging.info("🔍 Запуск планового анализа кода агентов...")
-                        try:
-                            state = {
-                                "query": "Проанализируй всех агентов в папке agents/, найди ошибки, неиспользуемые импорты, нарушения стиля. Предложи исправления. Если ошибки критичны и исправления очевидны, внеси их самостоятельно.",
-                                "interface": "dev",
-                                "history": []
-                            }
-                            dev_agent = self._get_or_create_agent("developer")
-                            if dev_agent:
-                                result = dev_agent.process(state)
-                                logging.info(f"Результат ночного анализа: {result.get('result', '')[:500]}")
-                        except Exception as e:
-                            logging.error(f"Ошибка ночного анализа кода: {e}")
-
-                    if now.hour % 6 == 0 and now.minute == 0:
-                        logging.info("▶ Запуск анализа уроков для самообучения...")
-                        try:
-                            from memory.lesson_saver import analyze_lessons_for_improvements
-                            report = analyze_lessons_for_improvements()
-                            if "Предложения по улучшению" in report:
-                                logging.info("📊 Найдены предложения по улучшению системы")
-                        except Exception as e:
-                            logging.error(f"Ошибка анализа уроков: {e}")
-                    if now.hour % 12 == 0 and now.minute == 0:
-                        logging.info("▶ Запуск фоновой индексации проекта...")
-                        try:
-                            from memory.indexer import index_directory
-                            import os
-                            project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-                            results = index_directory(project_root)
-                            logging.info(f"✅ Индексация завершена: {results['indexed_files']} файлов, {results['total_chunks']} чанков")
-                        except Exception as e:
-                            logging.error(f"Ошибка индексации: {e}")
-                    await asyncio.sleep(60)
-                except Exception as e:
-                    logging.error(f"Ошибка в фоновой задаче: {e}")
-                    await asyncio.sleep(60)
-
-        try:
-            loop = asyncio.get_event_loop()
-            if loop.is_running():
-                asyncio.create_task(_run_daily_checks())
-            else:
-                loop.run_until_complete(_run_daily_checks())
-        except Exception as e:
-            logging.error(f"Не удалось запустить фоновые задачи: {e}")
-
-        try:
-            from memory.lesson_saver import schedule_lesson_analysis
-            schedule_lesson_analysis(interval_hours=24)
-            logging.info("✅ Анализ уроков запланирован")
-        except Exception as e:
-            logging.warning(f"Не удалось запланировать анализ уроков: {e}")
-
-        try:
-            from memory.indexer import schedule_background_indexing
-            import os
-            project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-            schedule_background_indexing(project_root, interval_hours=12)
-            logging.info("✅ Фоновая индексация запланирована")
-        except Exception as e:
-            logging.warning(f"Не удалось запланировать фоновую индексацию: {e}")
-
-        logging.info("✅ Все фоновые задачи запланированы")
-
 
 orchestrator = ZoraOrchestrator()

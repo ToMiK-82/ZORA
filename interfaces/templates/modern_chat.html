@@ -713,6 +713,7 @@
                         <span id="deepseek-status" class="status-icon" title="DeepSeek">🟢</span>
                         <span id="vram-indicator" class="vram-indicator" title="VRAM usage">💾 0%</span>
                         <button onclick="exportChat()" class="export-icon" title="Экспорт диалога">📄</button>
+                        <button onclick="clearChat()" class="export-icon" title="Очистить чат (Ctrl+K)">🗑️</button>
                         <span id="connection-status" class="connection-dot" title="Подключено">●</span>
                     </div>
                 </div>
@@ -1673,6 +1674,14 @@
             }
         }
 
+        // ========== Очистка чата ==========
+        function clearChat() {
+            if (confirm('Очистить текущий чат?')) {
+                document.getElementById('messagesArea').innerHTML = '';
+                addSystemMessage('💬 Чат очищен');
+            }
+        }
+
         // ========== Экспорт диалога ==========
         async function exportChat() {
             const messages = [];
@@ -1778,6 +1787,7 @@
         
         window.searchHistory = searchHistory;
         window.exportChat = exportChat;
+        window.clearChat = clearChat;
         window.updateStatus = updateStatus;
 
         window.refreshFileTree = refreshFileTree;

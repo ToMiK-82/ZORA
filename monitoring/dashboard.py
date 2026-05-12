@@ -190,13 +190,14 @@ class Dashboard:
         
         @self.app.post("/api/index_project")
         async def index_project():
-            """Индексирует весь проект в векторную память."""
+            """Индексирует весь проект в векторную память через ParserAgent."""
             try:
-                from memory.indexer import index_project_files
-                result = index_project_files()
+                from agents.parser_agent import ParserAgent
+                agent = ParserAgent()
+                result = agent.index_project()
                 return {
                     "success": True,
-                    "message": f"Проиндексировано {result['indexed_files']} файлов, добавлено {result['added_chunks']} чанков"
+                    "message": f"Проиндексировано {result.get('indexed_files', 0)} файлов, добавлено {result.get('total_chunks', 0)} чанков"
                 }
             except Exception as e:
                 logging.error(f"Ошибка индексации проекта: {e}")
@@ -350,9 +351,10 @@ class Dashboard:
         
         @self.app.post("/api/reindex")
         async def reindex():
-            """Запускает полную переиндексацию проекта."""
+            """Запускает полную переиндексацию проекта через ParserAgent."""
             try:
-                from memory.indexer import index_project_files
+                from agents.parser_agent import ParserAgent
+                agent = ParserAgent()
                 # Очищаем коллекцию Qdrant
                 try:
                     from memory.qdrant_memory import ZoraMemory
@@ -363,10 +365,10 @@ class Dashboard:
                     logging.warning(f"Не удалось очистить коллекцию Qdrant: {e}")
                 
                 # Запускаем индексацию
-                result = index_project_files()
+                result = agent.index_project()
                 return {
                     "success": True,
-                    "message": f"Переиндексация завершена. Проиндексировано {result['indexed_files']} файлов, добавлено {result['added_chunks']} чанков"
+                    "message": f"Переиндексация завершена. Проиндексировано {result.get('indexed_files', 0)} файлов, добавлено {result.get('total_chunks', 0)} чанков"
                 }
             except Exception as e:
                 logging.error(f"Ошибка переиндексации: {e}")

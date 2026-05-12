@@ -22,7 +22,6 @@ except ImportError as e:
 try:
     from connectors.embedding_client import embedding_client
 except ImportError:
-    # Fallback для обратной совместимости
     def generate_embedding(text, model=None):
         return [0.0] * 768
     embedding_client = None
@@ -34,11 +33,10 @@ class ZoraMemory:
                  optimizers_config: Optional[Dict] = None):
         if not QDRANT_AVAILABLE:
             raise ImportError("Установите qdrant-client")
-        
-        # Используем переменные окружения или значения по умолчанию
+
         host = host or os.getenv("QDRANT_HOST", "localhost")
         port = port or int(os.getenv("QDRANT_PORT", "6333"))
-        
+
         self.client = QdrantClient(host=host, port=port, timeout=30)
         self.collection_name = collection_name
         self.embedding_model = embedding_model
@@ -47,22 +45,19 @@ class ZoraMemory:
         self._ensure_collection()
 
     def _default_optimizers_config(self) -> Dict:
-        """Возвращает настройки оптимизатора по умолчанию."""
         config = {
-            "indexing_threshold": 20000,          # начать индексацию HNSW после 20k точек
-            "flush_interval_sec": 5,              # сброс на диск каждые 5 сек
-            "max_optimization_threads": 2,        # ограничить потоки оптимизации
-            "memmap_threshold": 50000,            # использовать memmap после 50k точек
-            "max_segment_size": 100000,           # максимальный размер сегмента (количество точек)
-            "default_segment_number": 10,         # количество сегментов по умолчанию
+            "indexing_threshold": 20000,
+            "flush_interval_sec": 5,
+            "max_optimization_threads": 2,
+            "memmap_threshold": 50000,
+            "max_segment_size": 100000,
+            "default_segment_number": 10,
         }
-        # Переопределение из переменных окружения
         env_config = self._load_optimizers_from_env()
         config.update(env_config)
         return config
 
     def _load_optimizers_from_env(self) -> Dict:
-        """Загружает настройки оптимизатора из переменных окружения."""
         config = {}
         for key in ["indexing_threshold", "flush_interval_sec", "max_optimization_threads",
                     "memmap_threshold", "max_segment_size", "default_segment_number"]:
@@ -78,7 +73,6 @@ class ZoraMemory:
         try:
             self.client.get_collection(self.collection_name)
         except Exception:
-            # Преобразуем конфигурацию в OptimizersConfigDiff
             optimizers_diff = models.OptimizersConfigDiff(**self.optimizers_config)
             self.client.create_collection(
                 collection_name=self.collection_name,
@@ -91,12 +85,7 @@ class ZoraMemory:
             logging.info(f"Коллекция {self.collection_name} создана с оптимизатором: {self.optimizers_config}")
 
     def _embed_text(self, text: str) -> List[float]:
-        """
-        Генерирует эмбеддинг для текста.
-        Текст должен быть заранее подготовлен чанкером — обрезка не выполняется.
-        """
         try:
-            # Пытаемся импортировать embedding_client, если он не доступен
             global embedding_client
             if embedding_client is None:
                 try:
@@ -110,10 +99,7 @@ class ZoraMemory:
             if embedding_client:
                 logging.debug(f"Генерация эмбеддинга для текста: {text[:50]}...")
                 emb = embedding_client.generate_embedding(text)
-                # Проверяем размерность эмбеддинга
                 if emb and len(emb) == self.embedding_size:
-                    logging.debug(f"Эмбеддинг сгенерирован, размер: {len(emb)}")
-                    # Проверим, не нулевой ли эмбеддинг
                     if all(v == 0.0 for v in emb[:10]):
                         logging.warning("Эмбеддинг состоит из нулей!")
                     return emb
@@ -125,7 +111,6 @@ class ZoraMemory:
             logging.error(f"Ошибка эмбеддинга: {e}")
             import traceback
             logging.error(traceback.format_exc())
-        # Возвращаем нулевой вектор в случае ошибки
         return [0.0] * self.embedding_size
 
     def store(self, text: str, metadata: Optional[Dict] = None,
@@ -137,21 +122,15 @@ class ZoraMemory:
         if timestamp:
             metadata["timestamp"] = timestamp
         point_id = str(uuid4())
-        
-        # Генерируем эмбеддинг
+
         vector = self._embed_text(text)
         logging.info(f"store: text='{text[:50]}...', vector_size={len(vector)}, first_5={vector[:5]}")
-        
-        # Проверяем, не нулевой ли вектор
+
         if all(v == 0.0 for v in vector[:10]):
             logging.warning("store: Вектор состоит из нулей!")
-        
-        # Преобразуем вектор в правильный формат для Qdrant
-        # Qdrant ожидает список чисел с плавающей точкой
+
         try:
-            # Убедимся, что все значения - float
             vector_float = [float(v) for v in vector]
-            
             self.client.upsert(
                 collection_name=self.collection_name,
                 points=[
@@ -165,7 +144,6 @@ class ZoraMemory:
             logging.info(f"store: Точка сохранена с ID: {point_id}")
         except Exception as e:
             logging.error(f"store: Ошибка сохранения точки: {e}")
-            # Попробуем альтернативный метод
             try:
                 import numpy as np
                 vector_np = np.array(vector, dtype=np.float32)
@@ -183,14 +161,10 @@ class ZoraMemory:
             except Exception as e2:
                 logging.error(f"store: Ошибка сохранения через numpy: {e2}")
                 raise
-        
+
         return point_id
 
     def delete_by_filter(self, filter_dict: Dict[str, Any]):
-        """
-        Удаляет все точки, у которых в payload есть поля, совпадающие с filter_dict.
-        Пример: memory.delete_by_filter({"path": "D:/file.py"})
-        """
         try:
             filter_condition = models.Filter(
                 must=[models.FieldCondition(key=k, match=models.MatchValue(value=v)) for k, v in filter_dict.items()]
@@ -205,39 +179,19 @@ class ZoraMemory:
 
     def search(self, query: str, limit: int = 5, agent: Optional[str] = None,
                threshold: float = 0.7, types: Optional[List[str]] = None) -> List[Dict[str, Any]]:
-        """Поиск в памяти с фильтрацией по типам.
-        
-        Args:
-            query: Текстовый запрос
-            limit: Максимальное количество результатов
-            agent: Фильтр по агенту (опционально)
-            threshold: Порог сходства (0.0-1.0)
-            types: Список типов для фильтрации (например, ["code", "lesson", "dialogue_fragment"])
-        """
         logging.info(f"Поиск в памяти: запрос='{query}' (repr: {repr(query)}), types={types}")
         query_embedding = self._embed_text(query)
-        
-        # Строим фильтр
+
         must_conditions = []
-        
-        # Фильтр по типам
         if types:
             must_conditions.append(
                 models.FieldCondition(key="type", match=models.MatchAny(any=types))
             )
-        
-        # Фильтр по агенту (пока отключен, т.к. при индексации поле agent не заполняется)
-        # if agent:
-        #     must_conditions.append(
-        #         models.FieldCondition(key="agent", match=models.MatchValue(value=agent))
-        #     )
-        
         filter_condition = None
         if must_conditions:
             filter_condition = models.Filter(must=must_conditions)
-        
+
         try:
-            # Используем query_points (современный метод)
             results = self.client.query_points(
                 collection_name=self.collection_name,
                 query=query_embedding,
@@ -248,10 +202,12 @@ class ZoraMemory:
         except Exception as e:
             logging.error(f"Ошибка поиска: {e}")
             return []
+
         formatted = []
         for hit in results:
             payload = hit.payload
             formatted.append({
+                "id": str(hit.id),                            # <-- добавлено
                 "text": payload.get("text", ""),
                 "metadata": {k: v for k, v in payload.items() if k != "text"},
                 "score": hit.score,

@@ -400,10 +400,10 @@ class IncrementalIndexer:
                     results['successful'] += 1
                     
                 elif change['change_type'] in ['created', 'modified']:
-                    # Индексируем файл
+                    # Индексируем файл через ParserAgent
                     if os.path.exists(change['path']):
-                        from memory.indexer import index_file
-                        index_file(change['path'], self.memory, clean=False, incremental=True, force=True)
+                        from agents.parser_agent import ParserAgent
+                        ParserAgent.index_file(change['path'], self.memory, clean=False, incremental=True, force=True)
                         self.versioning.mark_change_as_indexed(change['id'])
                         results['details'].append({
                             'path': change['path'],
