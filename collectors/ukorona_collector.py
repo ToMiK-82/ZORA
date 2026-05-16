@@ -21,6 +21,11 @@ from datetime import datetime
 from typing import Dict, Any, List, Optional
 from urllib.parse import urljoin, urlparse
 
+from dotenv import load_dotenv
+load_dotenv(os.path.join(os.path.dirname(__file__), '..', '.env'))
+
+from connectors.tokenizer_utils import chunk_by_tokens
+
 import requests
 from bs4 import BeautifulSoup
 
@@ -33,6 +38,40 @@ STATE_FILE = os.path.join("data", "ukorona_state.json")
 TEMP_DIR = os.path.join("data", "ukorona_temp")
 
 REQUEST_DELAY = 1.0
+
+# ===== БЕЛЫЙ СПИСОК URL-ПАТТЕРНОВ =====
+# Индексируются только страницы, URL которых содержит один из этих паттернов.
+ALLOWED_URL_PATTERNS = [
+    "/catalog/",
+    "/product/",
+    "/articles/",
+]
+
+# ===== ЧЁРНЫЙ СПИСОК СЛОВ =====
+# Если любое из этих слов встречается в URL или заголовке — страница пропускается.
+BLACKLIST_WORDS = [
+    "contacts", "dealers", "about", "vacancy", "privacy",
+    "policy", "news", "main", "login", "register", "delivery",
+    "payment", "warranty", "service", "reviews", "faq",
+]
+
+
+def _is_url_allowed(url: str) -> bool:
+    """Проверяет, соответствует ли URL белому списку и не содержит чёрных слов."""
+    url_lower = url.lower()
+    # Проверка белого списка
+    allowed = False
+    for pattern in ALLOWED_URL_PATTERNS:
+        if pattern in url_lower:
+            allowed = True
+            break
+    if not allowed:
+        return False
+    # Проверка чёрного списка
+    for word in BLACKLIST_WORDS:
+        if word in url_lower:
+            return False
+    return True
 
 
 # ----- Вспомогательные функции -----
@@ -76,26 +115,59 @@ def _fetch_page(url: str, session: requests.Session, stream: bool = False) -> Op
     return None
 
 
-def _chunk_text(text: str, chunk_size: int = 1500, overlap: int = 200) -> List[str]:
-    if len(text) <= chunk_size:
-        return [text]
-    chunks = []
-    start = 0
-    while start < len(text):
-        end = start + chunk_size
-        if end >= len(text):
-            chunks.append(text[start:])
-            break
-        cut = text.rfind(". ", start + chunk_size - overlap, end)
-        if cut == -1:
-            cut = text.rfind("\n\n", start + chunk_size - overlap, end)
-        if cut == -1:
-            cut = end
-        else:
-            cut += 1
-        chunks.append(text[start:cut])
-        start = cut
-    return chunks
+def _detect_brand(url: str, html: str) -> str:
+    """
+    Определяет бренд/линейку кормов по URL, хлебным крошкам или мета-тегам.
+    Возвращает: "Южная Корона", "Брюхокорм" или "unknown".
+    """
+    url_lower = url.lower()
+
+    # 1. Проверка по URL
+    if "/bryuhokorm" in url_lower or "/bryukokorm" in url_lower:
+        return "Брюхокорм"
+    if "/yuzhnaya-korona" in url_lower or "/uzhnaya-korona" in url_lower:
+        return "Южная Корона"
+
+    # 2. Проверка хлебных крошек
+    try:
+        soup = BeautifulSoup(html, "html.parser")
+        breadcrumbs = soup.select_one(".breadcrumbs, nav.breadcrumb, .breadcrumb")
+        if breadcrumbs:
+            crumbs_text = breadcrumbs.get_text(" ", strip=True).lower()
+            if "брюхокорм" in crumbs_text:
+                return "Брюхокорм"
+            if "южная корона" in crumbs_text or "южнокорм" in crumbs_text:
+                return "Южная Корона"
+    except Exception:
+        pass
+
+    # 3. Проверка мета-тега
+    try:
+        soup = BeautifulSoup(html, "html.parser")
+        meta_brand = soup.find("meta", attrs={"name": "brand"})
+        if meta_brand and meta_brand.get("content"):
+            content = meta_brand["content"].strip().lower()
+            if "брюхокорм" in content:
+                return "Брюхокорм"
+            if "южная корона" in content or "южнокорм" in content:
+                return "Южная Корона"
+    except Exception:
+        pass
+
+    # 4. Проверка data-атрибута
+    try:
+        soup = BeautifulSoup(html, "html.parser")
+        elem = soup.find(attrs={"data-brand": True})
+        if elem:
+            brand_val = elem["data-brand"].strip().lower()
+            if "брюхокорм" in brand_val:
+                return "Брюхокорм"
+            if "южная корона" in brand_val or "южнокорм" in brand_val:
+                return "Южная Корона"
+    except Exception:
+        pass
+
+    return "unknown"
 
 
 def _classify_url(url: str) -> str:
@@ -389,6 +461,12 @@ def run(limit: Optional[int] = None) -> Dict[str, Any]:
             logger.debug(f"  Пропуск: {url}")
             continue
 
+        # Фильтрация по белому списку URL
+        if not _is_url_allowed(url):
+            logger.debug(f"  Пропуск (не в белом списке): {url}")
+            processed_urls.add(url)
+            continue
+
         logger.info(f"  Обработка: {url}")
         resp = _fetch_page(url, session)
         if not resp:
@@ -403,6 +481,11 @@ def run(limit: Optional[int] = None) -> Dict[str, Any]:
         parent_doc_id = url
         date = datetime.now().isoformat()
 
+        # Определяем бренд/линейку кормов
+        brand = _detect_brand(url, html)
+        if brand != "unknown":
+            logger.debug(f"  Бренд: {brand}")
+
         # Извлекаем структурированные данные (для товаров и любых других страниц)
         structured = _extract_structured_data(html)
         if "name" in structured:
@@ -411,7 +494,7 @@ def run(limit: Optional[int] = None) -> Dict[str, Any]:
         # --- Текстовый контент ---
         text = _extract_text(html)
         if text:
-            chunks = _chunk_text(text)
+            chunks = chunk_by_tokens(text)
             for i, chunk in enumerate(chunks):
                 metadata = {
                     "source": "ukorona",
@@ -422,6 +505,7 @@ def run(limit: Optional[int] = None) -> Dict[str, Any]:
                     "date": date,
                     "chunk_index": i,
                     "url": url,
+                    "brand": brand,
                 }
                 # Добавляем структурированные данные (только непустые)
                 if structured:
@@ -437,7 +521,7 @@ def run(limit: Optional[int] = None) -> Dict[str, Any]:
             logger.info(f"    Индексирую PDF: {pdf_url}")
             pdf_text = _extract_pdf_text(pdf_url, session)
             if pdf_text:
-                chunks = _chunk_text(pdf_text)
+                chunks = chunk_by_tokens(pdf_text)
                 for j, chunk in enumerate(chunks):
                     metadata = {
                         "source": "ukorona",

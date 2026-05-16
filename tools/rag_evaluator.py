@@ -2,6 +2,7 @@
 Модуль оценки качества RAG (Retrieval-Augmented Generation).
 Вычисляет метрики: Hit Rate@k, MRR, Precision@k, Recall@k.
 Использует Qdrant point ID для сопоставления с relevant_chunk_ids.
+Использует гибридный поиск (hybrid_search) с ре-ранкером.
 """
 
 import json
@@ -141,8 +142,9 @@ def evaluate_rag(dataset_path: Optional[str] = None, k_list: Optional[List[int]]
         types = [item_type] if item_type else None
 
         try:
-            results = memory.search(query=query, limit=max_k, threshold=0.0, types=types)
-            # Извлекаем ID из словарей, возвращаемых методом search
+            # Используем гибридный поиск с ре-ранкером
+            results = memory.hybrid_search(query=query, limit=max_k, types=types, score_threshold=0.0)
+            # Извлекаем ID из словарей, возвращаемых методом hybrid_search
             retrieved_ids = [hit.get("id", "") for hit in results if hit.get("id")]
             all_retrieved_ids.append(retrieved_ids)
             all_relevant_ids.append(relevant)

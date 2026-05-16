@@ -233,6 +233,45 @@ def _get_all_chunks_from_qdrant(memory, batch_size: int = 100) -> List[Dict[str,
     return all_chunks
 
 
+def _build_neighbor_index(all_chunks: List[Dict[str, Any]]) -> Dict[str, List[str]]:
+    """
+    Строит индекс соседних чанков.
+    Для каждого чанка находит соседние (parent_doc_id совпадает, chunk_index отличается на 1).
+    Возвращает словарь: chunk_id -> [соседние chunk_id]
+    """
+    # Группируем чанки по parent_doc_id
+    doc_groups = {}
+    for chunk in all_chunks:
+        meta = chunk["metadata"]
+        parent = meta.get("parent_doc_id", "")
+        if not parent:
+            continue
+        chunk_id = meta.get("chunk_id", "")
+        chunk_index = meta.get("chunk_index", 0)
+        if isinstance(chunk_index, str):
+            try:
+                chunk_index = int(chunk_index)
+            except (ValueError, TypeError):
+                chunk_index = 0
+        doc_groups.setdefault(parent, []).append((chunk_id, chunk_index))
+
+    # Строим индекс соседей
+    neighbor_index = {}
+    for parent, items in doc_groups.items():
+        # Сортируем по chunk_index
+        items.sort(key=lambda x: x[1])
+        for i, (chunk_id, idx) in enumerate(items):
+            neighbors = []
+            if i > 0:
+                neighbors.append(items[i - 1][0])  # предыдущий
+            if i < len(items) - 1:
+                neighbors.append(items[i + 1][0])  # следующий
+            neighbor_index[chunk_id] = neighbors
+
+    logger.info(f"Построен индекс соседей: {len(neighbor_index)} чанков имеют соседей")
+    return neighbor_index
+
+
 def generate_dataset(
     dataset_path: Optional[str] = None,
     max_chunks: int = MAX_CHUNKS,
@@ -281,6 +320,10 @@ def generate_dataset(
     if not selected_chunks:
         return {"success": True, "message": "Нет новых чанков", "total_pairs": len(existing_dataset)}
 
+    # Строим индекс соседних чанков для всех загруженных чанков
+    neighbor_index = _build_neighbor_index(all_chunks)
+    logger.info(f"Индекс соседей построен: {sum(len(v) for v in neighbor_index.values())} связей")
+
     question_cache = QuestionCache()
     new_pairs = []
     chunks_processed = 0
@@ -304,9 +347,13 @@ def generate_dataset(
                 try:
                     questions = future.result()
                     for q in questions:
+                        chunk_id = q["chunk_id"]
+                        # Добавляем соседние чанки в relevant_chunk_ids
+                        neighbor_ids = neighbor_index.get(chunk_id, [])
+                        all_relevant_ids = [chunk_id] + neighbor_ids
                         new_pairs.append({
                             "query": q["question"],
-                            "relevant_chunk_ids": [q["chunk_id"]],
+                            "relevant_chunk_ids": all_relevant_ids,
                             "source": q["source"],
                             "type": q["type"],
                             "chunk_text_preview": q["chunk_text_preview"]

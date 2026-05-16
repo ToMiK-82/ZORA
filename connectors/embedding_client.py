@@ -1,100 +1,92 @@
 """
 Клиент для генерации эмбеддингов через Ollama API.
-Использует модель nomic-embed-text (стабильная, без бага NaN).
+Использует модель mxbai-embed-large (1024 мерности).
+Не требует префиксов — текст используется как есть.
 
-ВАЖНО: Чанкинг текста выполняется на стороне indexer.py.
-EmbeddingClient НЕ обрезает текст — он доверяет чанкеру.
+ВАЖНО: Чанкинг текста выполняется на стороне коллекторов.
+EmbeddingClient обрезает текст по токенам (макс. 512) перед отправкой в Ollama.
 """
 import os
-import requests
 import logging
 from typing import List
+
+from connectors.tokenizer_utils import truncate_by_tokens, MAX_TOKENS
 
 logger = logging.getLogger(__name__)
 
 # URL Ollama сервера
 OLLAMA_HOST = os.getenv("OLLAMA_HOST", "http://localhost:11434")
-if not OLLAMA_HOST.startswith(("http://", "https://")):
-    OLLAMA_HOST = "http://" + OLLAMA_HOST
 
 # Модель эмбеддингов в Ollama
-EMBED_MODEL = os.getenv("EMBED_MODEL", "nomic-embed-text")
+EMBED_MODEL = os.getenv("EMBED_MODEL", "mxbai-embed-large")
 
-# Размерность эмбеддинга для nomic-embed-text
-EMBEDDING_SIZE = 768
+# Размерность эмбеддинга для mxbai-embed-large
+EMBEDDING_SIZE = 1024
 
 
 class EmbeddingClient:
     def __init__(self, model_name: str = None):
-        """
-        Инициализация клиента эмбеддингов.
-
-        Args:
-            model_name: Имя модели в Ollama (по умолчанию из EMBED_MODEL или "nomic-embed-text")
-        """
         self.model_name = model_name or EMBED_MODEL
         self.ollama_host = OLLAMA_HOST
         logger.info(f"Инициализация EmbeddingClient: модель={self.model_name}, host={self.ollama_host}")
 
     def generate_embedding(self, text: str) -> List[float]:
-        """
-        Генерирует эмбеддинг для текста через Ollama API.
-        Текст должен быть заранее подготовлен чанкером (размер <1500 символов).
-
-        Args:
-            text: Текст для векторизации (уже подготовлен чанкером)
-
-        Returns:
-            Список float — векторное представление текста (768 мер)
-        """
         if not text or not text.strip():
             logger.warning("Пустой текст для эмбеддинга")
             return [0.0] * EMBEDDING_SIZE
 
-        try:
-            url = f"{self.ollama_host}/api/embeddings"
-            logger.debug(f"Запрос к {url} (текст: {len(text)} символов)")
+        # mxbai-embed-large имеет лимит 512 токенов.
+        # Обрезаем текст по токенам, а не по символам.
+        text = truncate_by_tokens(text, max_tokens=MAX_TOKENS)
 
-            response = requests.post(
-                url,
-                json={"model": self.model_name, "prompt": text},
-                timeout=30
-            )
+        # Используем requests API напрямую (с retry при ошибке 400)
+        return self._generate_via_requests(text)
 
-            if response.status_code == 200:
-                data = response.json()
-                embedding = data.get("embedding", [0.0] * EMBEDDING_SIZE)
-                if not embedding:
-                    logger.error(f"Пустой эмбеддинг от Ollama для модели {self.model_name}")
-                    return [0.0] * EMBEDDING_SIZE
-                logger.debug(f"Эмбеддинг сгенерирован: размер={len(embedding)}")
-                return embedding
-            else:
-                # Если 404 — пробуем новый API /api/embed
-                if response.status_code == 404:
-                    logger.warning("API /api/embeddings не найден, пробую /api/embed")
-                    url = f"{self.ollama_host}/api/embed"
-                    response = requests.post(
-                        url,
-                        json={"model": self.model_name, "input": text},
-                        timeout=30
-                    )
-                    if response.status_code == 200:
-                        data = response.json()
-                        embeddings_list = data.get("embeddings", [])
-                        embedding = embeddings_list[0] if embeddings_list else [0.0] * EMBEDDING_SIZE
-                        logger.debug(f"Эмбеддинг сгенерирован (новый API): размер={len(embedding)}")
-                        return embedding
+    def _generate_via_requests(self, text: str, max_retries: int = 3) -> List[float]:
+        """
+        Генерация эмбеддинга через requests API с retry при ошибке 400.
+        При превышении длины контекста уменьшает длину текста и повторяет.
+        """
+        import requests
+        current_text = text
+        current_max_tokens = MAX_TOKENS
 
-                logger.error(f"Ошибка Ollama: {response.status_code} - {response.text[:200]}")
+        for attempt in range(max_retries):
+            try:
+                url = f"{self.ollama_host}/api/embed"
+                response = requests.post(
+                    url,
+                    json={"model": self.model_name, "input": current_text},
+                    timeout=30
+                )
+                if response.status_code == 200:
+                    data = response.json()
+                    embeddings_list = data.get("embeddings", [])
+                    if embeddings_list:
+                        logger.debug(f"Эмбеддинг сгенерирован (requests API): размер={len(embeddings_list[0])}")
+                        return embeddings_list[0]
+                    else:
+                        logger.error(f"Пустой эмбеддинг от Ollama (requests)")
+                        return [0.0] * EMBEDDING_SIZE
+
+                if response.status_code == 400 and "exceeds the context length" in response.text:
+                    # Уменьшаем длину текста и пробуем снова
+                    current_max_tokens = current_max_tokens // 2
+                    logger.warning(f"Превышение длины контекста, уменьшаю до {current_max_tokens} токенов (попытка {attempt + 1}/{max_retries})")
+                    current_text = truncate_by_tokens(text, max_tokens=current_max_tokens)
+                    continue
+
+                logger.error(f"Ошибка Ollama (requests): {response.status_code} - {response.text[:200]}")
                 return [0.0] * EMBEDDING_SIZE
 
-        except requests.exceptions.ConnectionError as e:
-            logger.error(f"Ошибка подключения к Ollama ({self.ollama_host}): {e}")
-            return [0.0] * EMBEDDING_SIZE
-        except Exception as e:
-            logger.error(f"Ошибка генерации эмбеддинга: {e}")
-            return [0.0] * EMBEDDING_SIZE
+            except Exception as e:
+                logger.error(f"Ошибка генерации эмбеддинга (requests): {e}")
+                if attempt < max_retries - 1:
+                    continue
+                return [0.0] * EMBEDDING_SIZE
+
+        logger.error(f"Не удалось сгенерировать эмбеддинг после {max_retries} попыток")
+        return [0.0] * EMBEDDING_SIZE
 
 
 # Глобальный экземпляр

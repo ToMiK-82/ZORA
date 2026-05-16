@@ -26,6 +26,69 @@ PAGE_SIZE = int(os.getenv("ONEC_ODATA_PAGE_SIZE", "100"))
 
 NS = {"edm": "http://docs.oasis-open.org/odata/ns/edm"}
 
+# ===== БЕЛЫЙ СПИСОК СУЩНОСТЕЙ 1С =====
+# Только эти сущности будут индексироваться. Все остальные игнорируются.
+ALLOWED_COLLECTIONS = {
+    # Справочники
+    "Catalog_Номенклатура",
+    "Catalog_Контрагенты",
+    "Catalog_Организации",
+    "Catalog_ДоговорыКонтрагентов",
+    "Catalog_Склады",
+    "Catalog_Валюты",
+    "Catalog_БанковскиеСчетаОрганизаций",
+    "Catalog_Кассы",
+    "Catalog_Сотрудники",
+    "Catalog_ВидыНоменклатуры",
+    "Catalog_НоменклатураПоставщиков",
+    "Catalog_Партнеры",
+
+    # Документы
+    "Document_ПоступлениеТоваровУслуг",
+    "Document_РеализацияТоваровУслуг",
+    "Document_ЗаказПоставщику",
+    "Document_ЗаказКлиента",
+    "Document_СчетФактураПолученный",
+    "Document_СчетФактураВыданный",
+    "Document_ПлатежноеПоручение",
+    "Document_ПриходныйКассовыйОрдер",
+    "Document_РасходныйКассовыйОрдер",
+    "Document_АвансовыйОтчет",
+    "Document_ПеремещениеТоваров",
+    "Document_СписаниеТоваров",
+    "Document_ОприходованиеТоваров",
+    "Document_ИнвентаризацияТоваров",
+    "Document_ВозвратТоваровОтКлиента",
+    "Document_ВозвратТоваровПоставщику",
+    "Document_КорректировкаДолга",
+    "Document_ВзаимозачетЗадолженности",
+    "Document_ВыпускПродукции",
+
+    # Регистры сведений
+    "InformationRegister_ЦеныНоменклатуры",
+    "InformationRegister_ЦеныНоменклатуры25",
+    "InformationRegister_ЦеныНоменклатурыПоставщиков",
+    "InformationRegister_КурсыВалют",
+    "InformationRegister_УсловияЗакупок",
+    "InformationRegister_НоменклатураПоставщиков",
+    "InformationRegister_Ассортимент",
+
+    # Регистры накопления
+    "AccumulationRegister_ТоварыНаСкладах",
+    "AccumulationRegister_ТоварыОрганизаций",
+    "AccumulationRegister_ТоварыВЯчейках",
+    "AccumulationRegister_ЗапасыИПотребности",
+    "AccumulationRegister_РасчетыСКлиентами",
+    "AccumulationRegister_РасчетыСПоставщиками",
+    "AccumulationRegister_ДвиженияДенежныхСредств",
+    "AccumulationRegister_ВыручкаИСебестоимостьПродаж",
+    "AccumulationRegister_ЗаказыПоставщикам",
+    "AccumulationRegister_ЗаказыКлиентов",
+    "AccumulationRegister_СебестоимостьТоваров",
+    "AccumulationRegister_ПартииТоваровОрганизаций",
+    "AccumulationRegister_РезервыТоваровОрганизаций",
+}
+
 
 def _load_state() -> Dict[str, Any]:
     if os.path.exists(STATE_FILE):
@@ -441,6 +504,24 @@ class OneCUniversalCollector:
                     "errors": [f"Сущность '{entity_filter}' не найдена"],
                     "entities_processed": 0,
                 }
+
+        # Фильтрация по белому списку ALLOWED_COLLECTIONS
+        allowed_set = ALLOWED_COLLECTIONS
+        filtered_entities = [e for e in entities if e in allowed_set]
+        skipped_entities = [e for e in entities if e not in allowed_set]
+        if skipped_entities:
+            logger.info(f"Пропущено {len(skipped_entities)} сущностей вне белого списка: {skipped_entities[:10]}...")
+        entities = filtered_entities
+        if not entities:
+            logger.warning("После фильтрации по белому списку не осталось сущностей для индексации")
+            return {
+                "success": True,
+                "items_processed": 0,
+                "items_indexed": 0,
+                "errors": [],
+                "entities_processed": 0,
+                "skipped_entities": len(skipped_entities),
+            }
 
         # Группируем сущности по типам
         catalog = [e for e in entities if e.startswith("Catalog_")]

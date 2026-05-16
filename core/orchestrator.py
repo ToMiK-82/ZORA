@@ -307,9 +307,9 @@ class ZoraOrchestrator:
         # Поиск контекста в памяти с фильтрацией
         try:
             logging.info(f"Запрос перед поиском: {repr(query)}")
-            # Передаём список типов в search
-            context_results = memory.search(query, limit=15, threshold=0.3, types=agent_types)
-            logging.info(f"Поиск контекста для запроса '{query}' вернул {len(context_results)} результатов (фильтр по типам: {agent_types})")
+            # Передаём список типов в hybrid_search
+            context_results = memory.hybrid_search(query, limit=15, types=agent_types, score_threshold=0.3)
+            logging.info(f"Гибридный поиск для запроса '{query}' вернул {len(context_results)} результатов (фильтр по типам: {agent_types})")
 
             results_with_path = [r for r in context_results if r.get("path")]
             if len(results_with_path) < 5:

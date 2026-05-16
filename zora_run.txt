@@ -1,0 +1,163 @@
+============================================================
+>>> ЗАПУСК СИСТЕМЫ ZORA
+============================================================
+2026-05-13 23:02:49,501 - __main__ - INFO - 🔍 Проверка состояния системы ZORA...
+2026-05-13 23:02:59,488 - __main__ - INFO - 📊 Результаты проверки:
+2026-05-13 23:02:59,488 - __main__ - INFO -   ✅ docker: None
+2026-05-13 23:02:59,488 - __main__ - INFO -   ✅ qdrant: None
+2026-05-13 23:02:59,488 - __main__ - INFO -   ✅ ollama: None
+2026-05-13 23:02:59,488 - __main__ - INFO -   ✅ python_deps: None
+2026-05-13 23:02:59,488 - __main__ - INFO -   ✅ port_8002: Порт свободен
+2026-05-13 23:02:59,488 - __main__ - INFO - 🎉 Все компоненты системы доступны!
+2026-05-13 23:02:59,488 - __main__ - INFO - 🚀 Запуск веб-сервера ZORA на порту 8002...
+2026-05-13 23:03:04,401 - tools.email_sender - INFO - EmailSender инициализирован: smtp.gmail.com:587
+2026-05-13 23:03:04,465 - ZORA.ModelSelector - INFO - ModelSelector: vision=qwen3-vl:4b, executor=llama3.2:latest, legacy_mode=False, default_reasoning=flash
+2026-05-13 23:03:06,526 - ZORA.ModelSelector - INFO - Исполнитель: llama3.2:latest
+2026-05-13 23:03:06,526 - zora.agent.developer_assistant - INFO - Ria инициализирована, executor_model=llama3.2:latest
+2026-05-13 23:03:06,526 - zora.agent.operator_1c - INFO - ✅ Соединение с 1С инициализировано (заглушка)
+2026-05-13 23:03:06,526 - core.agent_registry - INFO - 📦 Обнаружен агент: Accountant (роль: accountant)
+2026-05-13 23:03:06,526 - core.agent_registry - INFO - 📦 Обнаружен агент: DeveloperAssistant (роль: developer)
+2026-05-13 23:03:06,526 - core.agent_registry - INFO - 📦 Обнаружен агент: Economist (роль: economist)
+2026-05-13 23:03:06,534 - core.agent_registry - INFO - 📦 Обнаружен агент: Logistician (роль: logistician)
+2026-05-13 23:03:06,566 - connectors.embedding_client - INFO - Инициализация EmbeddingClient: модель=nomic-embed-text, host=http://localhost:11434
+2026-05-13 23:03:06,861 - httpx - INFO - HTTP Request: GET http://10.160.68.222:6333/collections/zora_memory "HTTP/1.1 200 OK"
+2026-05-13 23:03:06,862 - memory.qdrant_memory - INFO - Коллекция zora_memory уже существует
+2026-05-13 23:03:06,863 - core.agent_registry - INFO - 📦 Обнаружен агент: ParserAgent (роль: parser)
+2026-05-13 23:03:06,863 - core.agent_registry - INFO - 📦 Обнаружен агент: Purchaser (роль: procurement_manager)
+2026-05-13 23:03:06,864 - core.agent_registry - INFO - 📦 Обнаружен агент: SalesConsultant (роль: sales_consultant)
+2026-05-13 23:03:06,864 - core.agent_registry - INFO - 📦 Обнаружен агент: Smm (роль: smm)
+2026-05-13 23:03:06,864 - core.agent_registry - INFO - 📦 Обнаружен агент: Support (роль: support)
+2026-05-13 23:03:06,864 - core.agent_registry - INFO - 📦 Обнаружен агент: Website (роль: website)
+2026-05-13 23:03:06,864 - core.agent_registry - INFO - ✅ Реестр агентов обновлён: 10 агентов
+2026-05-13 23:03:06,864 - root - INFO - ➕ Добавлен узел графа: accountant (Бухгалтер)
+2026-05-13 23:03:06,865 - root - INFO - ➕ Добавлен узел графа: developer (Разработчик Ria)
+2026-05-13 23:03:06,865 - root - INFO - ➕ Добавлен узел графа: economist (Экономист)
+2026-05-13 23:03:06,865 - root - INFO - ➕ Добавлен узел графа: logistician (Логист)
+2026-05-13 23:03:06,865 - root - INFO - ➕ Добавлен узел графа: parser (Парсер (Интегратор данных))
+2026-05-13 23:03:06,865 - root - INFO - ➕ Добавлен узел графа: procurement_manager (Менеджер по закупкам)
+2026-05-13 23:03:06,865 - root - INFO - ➕ Добавлен узел графа: sales_consultant (Менеджер по продажам)
+2026-05-13 23:03:06,865 - root - INFO - ➕ Добавлен узел графа: smm (SMM-специалист)
+2026-05-13 23:03:06,865 - root - INFO - ➕ Добавлен узел графа: support (Специалист поддержки)
+2026-05-13 23:03:06,865 - root - INFO - ➕ Добавлен узел графа: website (Специалист по веб-сайту)
+2026-05-13 23:03:06,872 - interfaces.web - INFO - ✅ LangGraph оркестратор ZORA загружен для веб-интерфейса
+2026-05-13 23:03:06,872 - interfaces.web - INFO - ✅ Векторная память Qdrant загружена
+2026-05-13 23:03:06,872 - zora.telegram.handler - INFO - ✅ Оркестратор ZORA загружен для Telegram-бота
+2026-05-13 23:03:06,872 - zora.telegram.handler - INFO - ℹ️ Классическое ядро ZORA не используется, используется только оркестратор
+2026-05-13 23:03:06,872 - interfaces.web - INFO - ✅ Telegram обработчик загружен для веб-интерфейса
+INFO:     Started server process [21712]
+INFO:     Waiting for application startup.
+2026-05-13 23:03:07,011 - core.chat_history - INFO - ✅ Подключение к PostgreSQL: localhost:5432/zora
+2026-05-13 23:03:07,012 - httpx - INFO - HTTP Request: GET http://10.160.68.222:6333 "HTTP/1.1 200 OK"
+2026-05-13 23:03:07,026 - core.chat_history - INFO - ✅ Таблицы истории чатов созданы/проверены
+2026-05-13 23:03:07,026 - interfaces.web - INFO - ✅ История чатов инициализирована (PostgreSQL)
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://0.0.0.0:8002 (Press CTRL+C to quit)
+2026-05-13 23:03:07,424 - __main__ - INFO - ✅ Веб-сервер запущен на http://localhost:8002
+2026-05-13 23:03:07,424 - __main__ - INFO - ✅ Дашборд доступен по адресу http://localhost:8002/dashboard
+2026-05-13 23:03:07,549 - zora.agent.operator_1c - INFO - ✅ Соединение с 1С инициализировано (заглушка)
+2026-05-13 23:03:07,567 - apscheduler.scheduler - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2026-05-13 23:03:07,567 - __main__ - INFO - 📅 Оператор 1С запланирован на 7:30 по будням
+2026-05-13 23:03:07,567 - apscheduler.scheduler - INFO - Added job "Operator1CLocal.monitoring_loop" to job store "default"
+2026-05-13 23:03:07,567 - apscheduler.scheduler - INFO - Scheduler started
+2026-05-13 23:03:07,567 - __main__ - INFO - ✅ Планировщик фоновых задач запущен
+2026-05-13 23:03:07,567 - __main__ - INFO - 🖥️ Безголовый режим (SSH/без GUI): браузер не открывается автоматически
+2026-05-13 23:03:07,567 - __main__ - INFO -    Веб-интерфейс: http://localhost:8002/modern
+2026-05-13 23:03:07,567 - __main__ - INFO -    Дашборд: http://localhost:8002/dashboard
+
+============================================================
+>>> СИСТЕМА ZORA УСПЕШНО ЗАПУЩЕНА
+============================================================
+Веб-интерфейс: http://localhost:8002/modern
+Дашборд мониторинга: http://localhost:8002/dashboard
+Ollama: http://localhost:11434
+Qdrant: http://10.160.68.222:6333
+
+Для тестирования API:
+curl -X POST http://localhost:8002/ask \
+  -H "Content-Type: application/json" \
+  -d '{"query": "Привет! Как дела?", "agent": "developer_assistant"}'
+
+Для остановки системы нажмите Ctrl+C
+============================================================
+INFO:     10.160.68.174:61059 - "GET /favicon.ico HTTP/1.1" 200 OK
+2026-05-13 23:04:31,299 - httpx - INFO - HTTP Request: GET http://localhost:11434/api/tags "HTTP/1.1 200 OK"
+INFO:     10.160.68.174:63608 - "GET /api/zora_status HTTP/1.1" 200 OK
+INFO:     10.160.68.174:63608 - "GET /api/rag/metrics HTTP/1.1" 200 OK
+INFO:     10.160.68.174:63608 - "GET /api/rag/dataset_stats HTTP/1.1" 200 OK
+INFO:     10.160.68.174:63608 - "GET /api/parsing/status HTTP/1.1" 200 OK
+2026-05-13 23:04:33,993 - ZORA.ModelSelector - INFO - Исполнитель: llama3.2:latest
+2026-05-13 23:04:33,993 - zora.agent.developer_assistant - INFO - Ria инициализирована, executor_model=llama3.2:latest
+INFO:     10.160.68.174:63608 - "GET /api/agents HTTP/1.1" 200 OK
+INFO:     10.160.68.174:63608 - "GET /dashboard HTTP/1.1" 200 OK
+INFO:     10.160.68.174:63608 - "GET /api/health HTTP/1.1" 200 OK
+2026-05-13 23:04:39,742 - httpx - INFO - HTTP Request: GET http://localhost:11434/api/tags "HTTP/1.1 200 OK"
+INFO:     10.160.68.174:63608 - "GET /api/zora_status HTTP/1.1" 200 OK
+INFO:     10.160.68.174:63608 - "GET /api/rag/metrics HTTP/1.1" 200 OK
+INFO:     10.160.68.174:63608 - "GET /api/rag/dataset_stats HTTP/1.1" 200 OK
+INFO:     10.160.68.174:63608 - "GET /api/parsing/status HTTP/1.1" 200 OK
+INFO:     10.160.68.174:63608 - "GET /api/agents HTTP/1.1" 200 OK
+INFO:     10.160.68.174:61330 - "GET /api/health HTTP/1.1" 200 OK
+2026-05-13 23:05:10,843 - httpx - INFO - HTTP Request: GET http://localhost:11434/api/tags "HTTP/1.1 200 OK"
+INFO:     10.160.68.174:61330 - "GET /api/zora_status HTTP/1.1" 200 OK
+INFO:     10.160.68.174:61330 - "GET /api/rag/metrics HTTP/1.1" 200 OK
+INFO:     10.160.68.174:61330 - "GET /api/rag/dataset_stats HTTP/1.1" 200 OK
+INFO:     10.160.68.174:61330 - "GET /api/parsing/status HTTP/1.1" 200 OK
+INFO:     10.160.68.174:61330 - "GET /api/agents HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54784 - "GET /dashboard HTTP/1.1" 200 OK
+INFO:     10.160.68.174:58639 - "GET /api/health HTTP/1.1" 200 OK
+2026-05-13 23:05:39,815 - httpx - INFO - HTTP Request: GET http://localhost:11434/api/tags "HTTP/1.1 200 OK"
+INFO:     10.160.68.174:58639 - "GET /api/zora_status HTTP/1.1" 200 OK
+INFO:     10.160.68.174:58639 - "GET /api/rag/metrics HTTP/1.1" 200 OK
+INFO:     10.160.68.174:58639 - "GET /api/rag/dataset_stats HTTP/1.1" 200 OK
+INFO:     10.160.68.174:58639 - "GET /api/parsing/status HTTP/1.1" 200 OK
+INFO:     10.160.68.174:58639 - "GET /api/agents HTTP/1.1" 200 OK
+INFO:     10.160.68.174:56544 - "GET /api/health HTTP/1.1" 200 OK
+2026-05-13 23:06:09,795 - httpx - INFO - HTTP Request: GET http://localhost:11434/api/tags "HTTP/1.1 200 OK"
+INFO:     10.160.68.174:56544 - "GET /api/zora_status HTTP/1.1" 200 OK
+INFO:     10.160.68.174:56544 - "GET /api/rag/metrics HTTP/1.1" 200 OK
+INFO:     10.160.68.174:56544 - "GET /api/rag/dataset_stats HTTP/1.1" 200 OK
+INFO:     10.160.68.174:56544 - "GET /api/parsing/status HTTP/1.1" 200 OK
+INFO:     10.160.68.174:56544 - "GET /api/agents HTTP/1.1" 200 OK
+INFO:     10.160.68.174:54847 - "GET /api/health HTTP/1.1" 200 OK
+2026-05-13 23:06:39,392 - httpx - INFO - HTTP Request: GET http://localhost:11434/api/tags "HTTP/1.1 200 OK"
+INFO:     10.160.68.174:54847 - "GET /api/zora_status HTTP/1.1" 200 OK
+INFO:     10.160.68.174:54847 - "GET /api/rag/metrics HTTP/1.1" 200 OK
+INFO:     10.160.68.174:54847 - "GET /api/rag/dataset_stats HTTP/1.1" 200 OK
+INFO:     10.160.68.174:54847 - "GET /api/parsing/status HTTP/1.1" 200 OK
+INFO:     10.160.68.174:54847 - "GET /api/agents HTTP/1.1" 200 OK
+INFO:     10.160.68.174:60713 - "GET /api/health HTTP/1.1" 200 OK
+2026-05-13 23:07:09,415 - httpx - INFO - HTTP Request: GET http://localhost:11434/api/tags "HTTP/1.1 200 OK"
+INFO:     10.160.68.174:60713 - "GET /api/zora_status HTTP/1.1" 200 OK
+INFO:     10.160.68.174:60713 - "GET /api/rag/metrics HTTP/1.1" 200 OK
+INFO:     10.160.68.174:60713 - "GET /api/rag/dataset_stats HTTP/1.1" 200 OK
+INFO:     10.160.68.174:60713 - "GET /api/parsing/status HTTP/1.1" 200 OK
+INFO:     10.160.68.174:60713 - "GET /api/agents HTTP/1.1" 200 OK
+INFO:     10.160.68.174:57291 - "GET /api/health HTTP/1.1" 200 OK
+2026-05-13 23:07:39,595 - httpx - INFO - HTTP Request: GET http://localhost:11434/api/tags "HTTP/1.1 200 OK"
+INFO:     10.160.68.174:57291 - "GET /api/zora_status HTTP/1.1" 200 OK
+INFO:     10.160.68.174:57291 - "GET /api/rag/metrics HTTP/1.1" 200 OK
+INFO:     10.160.68.174:57291 - "GET /api/rag/dataset_stats HTTP/1.1" 200 OK
+INFO:     10.160.68.174:57291 - "GET /api/parsing/status HTTP/1.1" 200 OK
+INFO:     10.160.68.174:57291 - "GET /api/agents HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55554 - "GET /dashboard HTTP/1.1" 200 OK
+INFO:     10.160.68.174:59558 - "GET /api/health HTTP/1.1" 200 OK
+2026-05-13 23:08:09,864 - httpx - INFO - HTTP Request: GET http://localhost:11434/api/tags "HTTP/1.1 200 OK"
+INFO:     10.160.68.174:59558 - "GET /api/zora_status HTTP/1.1" 200 OK
+INFO:     10.160.68.174:59558 - "GET /api/rag/metrics HTTP/1.1" 200 OK
+INFO:     10.160.68.174:59558 - "GET /api/rag/dataset_stats HTTP/1.1" 200 OK
+INFO:     10.160.68.174:59558 - "GET /api/parsing/status HTTP/1.1" 200 OK
+INFO:     10.160.68.174:59558 - "GET /api/agents HTTP/1.1" 200 OK
+INFO:     10.160.68.174:53081 - "GET /api/health HTTP/1.1" 200 OK
+2026-05-13 23:08:39,385 - httpx - INFO - HTTP Request: GET http://localhost:11434/api/tags "HTTP/1.1 200 OK"
+INFO:     10.160.68.174:53081 - "GET /api/zora_status HTTP/1.1" 200 OK
+INFO:     10.160.68.174:53081 - "GET /api/rag/metrics HTTP/1.1" 200 OK
+INFO:     10.160.68.174:53081 - "GET /api/rag/dataset_stats HTTP/1.1" 200 OK
+INFO:     10.160.68.174:53081 - "GET /api/parsing/status HTTP/1.1" 200 OK
+INFO:     10.160.68.174:53081 - "GET /api/agents HTTP/1.1" 200 OK
+INFO:     10.160.68.174:51575 - "GET /api/health HTTP/1.1" 200 OK
+2026-05-13 23:09:39,376 - httpx - INFO - HTTP Request: GET http://localhost:11434/api/tags "HTTP/1.1 200 OK"
+INFO:     10.160.68.174:51575 - "GET /api/zora_status HTTP/1.1" 200 OK
+INFO:     10.160.68.174:51575 - "GET /api/rag/metrics HTTP/1.1" 200 OK
+INFO:     10.160.68.174:51575 - "GET /api/rag/dataset_stats HTTP/1.1" 200 OK
+INFO:     10.160.68.174:51575 - "GET /api/parsing/status HTTP/1.1" 200 OK
+INFO:     10.160.68.174:51575 - "GET /api/agents HTTP/1.1" 200 OK

@@ -1,0 +1,1 @@
+Info: {'error': "'CollectionInfo' object has no attribute 'name'"}

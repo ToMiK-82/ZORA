@@ -1,35 +1,72 @@
 """
 Модуль для работы с векторной базой данных Qdrant.
+Поддерживает гибридный поиск (dense + keyword) и ре-ранкер на базе CrossEncoder.
+Модель эмбеддингов: bge-m3 (1024 мерности) через Ollama.
 """
 
 import logging
 import os
+import threading
 from typing import List, Optional, Dict, Any
 from uuid import uuid4
 
 try:
     from qdrant_client import QdrantClient
     from qdrant_client.http import models
+    from qdrant_client.models import Prefetch, Filter, FieldCondition, MatchAny
     QDRANT_AVAILABLE = True
 except ImportError as e:
     logging.warning(f"⚠️ Библиотека qdrant-client не установлена: {e}")
     QDRANT_AVAILABLE = False
+    # Заглушки
     class QdrantClient:
         pass
     class models:
+        pass
+    class Prefetch:
+        pass
+    class Filter:
+        pass
+    class FieldCondition:
+        pass
+    class MatchAny:
         pass
 
 try:
     from connectors.embedding_client import embedding_client
 except ImportError:
     def generate_embedding(text, model=None):
-        return [0.0] * 768
+        return [0.0] * 1024
     embedding_client = None
+
+logger = logging.getLogger(__name__)
+
+# Глобальный ре-ранкер (ленивая загрузка)
+_reranker = None
+_reranker_lock = threading.Lock()
+RERANKER_MODEL = os.getenv("RERANKER_MODEL", "DiTy/cross-encoder-russian-msmarco")
+
+
+def _get_reranker():
+    """Ленивая загрузка CrossEncoder ре-ранкера."""
+    global _reranker
+    if _reranker is None:
+        with _reranker_lock:
+            if _reranker is None:
+                try:
+                    from sentence_transformers import CrossEncoder
+                    logger.info(f"🔄 Загрузка ре-ранкера {RERANKER_MODEL}...")
+                    _reranker = CrossEncoder(RERANKER_MODEL, max_length=512)
+                    logger.info(f"✅ Ре-ранкер {RERANKER_MODEL} загружен")
+                except Exception as e:
+                    logger.warning(f"⚠️ Не удалось загрузить ре-ранкер: {e}. Ре-ранкинг отключён.")
+                    _reranker = False  # False = попытка была, но не удалась
+    return _reranker if _reranker else None
 
 
 class ZoraMemory:
     def __init__(self, host=None, port=None, collection_name="zora_memory",
-                 embedding_model="nomic-embed-text", embedding_size=768,
+                 embedding_model="bge-m3", embedding_size=1024,
                  optimizers_config: Optional[Dict] = None):
         if not QDRANT_AVAILABLE:
             raise ImportError("Установите qdrant-client")
@@ -72,6 +109,7 @@ class ZoraMemory:
     def _ensure_collection(self):
         try:
             self.client.get_collection(self.collection_name)
+            logger.info(f"Коллекция {self.collection_name} уже существует")
         except Exception:
             optimizers_diff = models.OptimizersConfigDiff(**self.optimizers_config)
             self.client.create_collection(
@@ -82,7 +120,26 @@ class ZoraMemory:
                 ),
                 optimizers_config=optimizers_diff,
             )
-            logging.info(f"Коллекция {self.collection_name} создана с оптимизатором: {self.optimizers_config}")
+            logger.info(f"Коллекция {self.collection_name} создана с размерностью {self.embedding_size}")
+
+    def _ensure_text_index(self):
+        """Создаёт полнотекстовый индекс на поле text, если его нет."""
+        try:
+            self.client.create_field_index(
+                collection_name=self.collection_name,
+                field_name="text",
+                field_schema=models.TextIndexParams(
+                    type=models.TextIndexType.TEXT,
+                    tokenizer=models.TokenizerType.WORD,
+                    min_token_len=2,
+                    max_token_len=20,
+                    lowercase=True,
+                )
+            )
+            logger.info(f"✅ Полнотекстовый индекс на поле 'text' создан для {self.collection_name}")
+        except Exception as e:
+            # Индекс может уже существовать — это нормально
+            logger.debug(f"Полнотекстовый индекс (возможно уже есть): {e}")
 
     def _embed_text(self, text: str) -> List[float]:
         try:
@@ -91,26 +148,26 @@ class ZoraMemory:
                 try:
                     from connectors.embedding_client import embedding_client as ec
                     embedding_client = ec
-                    logging.info(f"embedding_client импортирован: {embedding_client}")
+                    logger.info(f"embedding_client импортирован: {embedding_client}")
                 except ImportError as e:
-                    logging.error(f"Не удалось импортировать embedding_client: {e}")
+                    logger.error(f"Не удалось импортировать embedding_client: {e}")
                     return [0.0] * self.embedding_size
 
             if embedding_client:
-                logging.debug(f"Генерация эмбеддинга для текста: {text[:50]}...")
+                logger.debug(f"Генерация эмбеддинга для текста: {text[:50]}...")
                 emb = embedding_client.generate_embedding(text)
                 if emb and len(emb) == self.embedding_size:
                     if all(v == 0.0 for v in emb[:10]):
-                        logging.warning("Эмбеддинг состоит из нулей!")
+                        logger.warning("Эмбеддинг состоит из нулей!")
                     return emb
                 else:
-                    logging.warning(f"Неверный размер эмбеддинга: {len(emb) if emb else 'None'} вместо {self.embedding_size}")
+                    logger.warning(f"Неверный размер эмбеддинга: {len(emb) if emb else 'None'} вместо {self.embedding_size}")
             else:
-                logging.error("embedding_client не доступен")
+                logger.error("embedding_client не доступен")
         except Exception as e:
-            logging.error(f"Ошибка эмбеддинга: {e}")
+            logger.error(f"Ошибка эмбеддинга: {e}")
             import traceback
-            logging.error(traceback.format_exc())
+            logger.error(traceback.format_exc())
         return [0.0] * self.embedding_size
 
     def store(self, text: str, metadata: Optional[Dict] = None,
@@ -124,10 +181,10 @@ class ZoraMemory:
         point_id = str(uuid4())
 
         vector = self._embed_text(text)
-        logging.info(f"store: text='{text[:50]}...', vector_size={len(vector)}, first_5={vector[:5]}")
+        logger.info(f"store: text='{text[:50]}...', vector_size={len(vector)}, first_5={vector[:5]}")
 
         if all(v == 0.0 for v in vector[:10]):
-            logging.warning("store: Вектор состоит из нулей!")
+            logger.warning("store: Вектор состоит из нулей!")
 
         try:
             vector_float = [float(v) for v in vector]
@@ -141,9 +198,9 @@ class ZoraMemory:
                     )
                 ],
             )
-            logging.info(f"store: Точка сохранена с ID: {point_id}")
+            logger.info(f"store: Точка сохранена с ID: {point_id}")
         except Exception as e:
-            logging.error(f"store: Ошибка сохранения точки: {e}")
+            logger.error(f"store: Ошибка сохранения точки: {e}")
             try:
                 import numpy as np
                 vector_np = np.array(vector, dtype=np.float32)
@@ -157,9 +214,9 @@ class ZoraMemory:
                         )
                     ],
                 )
-                logging.info(f"store: Точка сохранена с ID: {point_id} (через numpy)")
+                logger.info(f"store: Точка сохранена с ID: {point_id} (через numpy)")
             except Exception as e2:
-                logging.error(f"store: Ошибка сохранения через numpy: {e2}")
+                logger.error(f"store: Ошибка сохранения через numpy: {e2}")
                 raise
 
         return point_id
@@ -173,41 +230,141 @@ class ZoraMemory:
                 collection_name=self.collection_name,
                 points_selector=filter_condition
             )
-            logging.info(f"🗑️ Удалены точки по фильтру: {filter_dict}")
+            logger.info(f"🗑️ Удалены точки по фильтру: {filter_dict}")
         except Exception as e:
-            logging.error(f"Ошибка удаления по фильтру {filter_dict}: {e}")
+            logger.error(f"Ошибка удаления по фильтру {filter_dict}: {e}")
 
     def search(self, query: str, limit: int = 5, agent: Optional[str] = None,
                threshold: float = 0.7, types: Optional[List[str]] = None) -> List[Dict[str, Any]]:
-        logging.info(f"Поиск в памяти: запрос='{query}' (repr: {repr(query)}), types={types}")
+        """
+        Поиск в памяти. Теперь использует hybrid_search с ре-ранкером.
+        Для обратной совместимости.
+        """
+        return self.hybrid_search(query=query, types=types, limit=limit, score_threshold=threshold)
+
+    def hybrid_search(self, query: str, types: Optional[List[str]] = None,
+                      limit: int = 5, score_threshold: float = 0.0) -> List[Dict[str, Any]]:
+        """
+        Гибридный поиск: dense (векторный) + keyword (полнотекстовый) с RRF-слиянием.
+        Затем ре-ранкинг через CrossEncoder для финального топ-N.
+
+        Args:
+            query: Текстовый запрос
+            types: Список типов для фильтрации (например, ["catalog", "document"])
+            limit: Количество результатов
+            score_threshold: Порог оценки (0.0 = без фильтра)
+
+        Returns:
+            Список словарей с результатами
+        """
+        logger.info(f"Гибридный поиск: запрос='{query}', types={types}, limit={limit}")
+
+        # 1. Получаем эмбеддинг запроса
         query_embedding = self._embed_text(query)
 
+        # 2. Строим фильтр по типам
         must_conditions = []
         if types:
             must_conditions.append(
-                models.FieldCondition(key="type", match=models.MatchAny(any=types))
+                FieldCondition(key="type", match=MatchAny(any=types))
             )
-        filter_condition = None
-        if must_conditions:
-            filter_condition = models.Filter(must=must_conditions)
+        query_filter = Filter(must=must_conditions) if must_conditions else None
+
+        # 3. Prefetch: dense + keyword
+        prefetch_limit = limit * 4  # берём с запасом для ре-ранкера
+        prefetch = [
+            Prefetch(
+                query=query_embedding,
+                using="",          # dense index (основной вектор)
+                limit=prefetch_limit,
+                score_threshold=score_threshold,
+            ),
+            Prefetch(
+                query=query,
+                using="text",      # keyword index (полнотекстовый)
+                limit=prefetch_limit,
+                score_threshold=score_threshold,
+            )
+        ]
 
         try:
             results = self.client.query_points(
                 collection_name=self.collection_name,
-                query=query_embedding,
-                query_filter=filter_condition,
-                limit=limit,
-                score_threshold=threshold,
+                prefetch=prefetch,
+                query_filter=query_filter,
+                limit=prefetch_limit * 2,
+                score_threshold=score_threshold,
             ).points
         except Exception as e:
-            logging.error(f"Ошибка поиска: {e}")
+            logger.error(f"Ошибка гибридного поиска: {e}")
+            # Fallback на обычный dense search
+            return self._dense_search_fallback(query, query_embedding, query_filter, limit, score_threshold)
+
+        # 4. Дедупликация по ID
+        seen_ids = set()
+        unique_results = []
+        for hit in results:
+            if hit.id not in seen_ids:
+                seen_ids.add(hit.id)
+                unique_results.append(hit)
+
+        if not unique_results:
+            logger.info("Гибридный поиск не дал результатов")
+            return []
+
+        # 5. Ре-ранкинг через CrossEncoder
+        reranker = _get_reranker()
+        if reranker and len(unique_results) > 1:
+            try:
+                pairs = [(query, hit.payload.get("text", "")) for hit in unique_results]
+                scores = reranker.predict(pairs)
+                ranked = sorted(zip(unique_results, scores), key=lambda x: x[1], reverse=True)
+                unique_results = [r[0] for r in ranked[:limit]]
+                logger.debug(f"Ре-ранкинг выполнен: {len(unique_results)} результатов")
+            except Exception as e:
+                logger.warning(f"Ошибка ре-ранкинга: {e}, использую результаты без ре-ранкинга")
+                unique_results = unique_results[:limit]
+        else:
+            unique_results = unique_results[:limit]
+
+        # 6. Форматирование результата
+        formatted = []
+        for hit in unique_results:
+            payload = hit.payload or {}
+            formatted.append({
+                "id": str(hit.id),
+                "text": payload.get("text", ""),
+                "metadata": {k: v for k, v in payload.items() if k != "text"},
+                "score": getattr(hit, 'score', 0.0),
+                "path": payload.get("path", ""),
+                "filename": payload.get("filename", ""),
+                "type": payload.get("type", ""),
+            })
+
+        logger.info(f"Гибридный поиск: найдено {len(formatted)} результатов")
+        return formatted
+
+    def _dense_search_fallback(self, query: str, query_embedding: List[float],
+                                query_filter, limit: int, score_threshold: float) -> List[Dict[str, Any]]:
+        """Fallback на обычный dense search, если hybrid_search не сработал."""
+        logger.info("Fallback на dense search")
+        try:
+            results = self.client.query_points(
+                collection_name=self.collection_name,
+                query=query_embedding,
+                query_filter=query_filter,
+                limit=limit,
+                score_threshold=score_threshold,
+            ).points
+        except Exception as e:
+            logger.error(f"Ошибка dense search fallback: {e}")
             return []
 
         formatted = []
         for hit in results:
-            payload = hit.payload
+            payload = hit.payload or {}
             formatted.append({
-                "id": str(hit.id),                            # <-- добавлено
+                "id": str(hit.id),
                 "text": payload.get("text", ""),
                 "metadata": {k: v for k, v in payload.items() if k != "text"},
                 "score": hit.score,
@@ -215,7 +372,6 @@ class ZoraMemory:
                 "filename": payload.get("filename", ""),
                 "type": payload.get("type", ""),
             })
-        logging.info(f"Найдено результатов: {len(formatted)}")
         return formatted
 
     def clear(self):
@@ -225,7 +381,7 @@ class ZoraMemory:
     def get_collection_info(self):
         try:
             info = self.client.get_collection(self.collection_name)
-            return {"name": info.name, "vectors_count": info.vectors_count}
+            return {"name": self.collection_name, "vectors_count": info.vectors_count}
         except Exception as e:
             return {"error": str(e)}
 

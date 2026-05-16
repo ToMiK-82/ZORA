@@ -1,0 +1,734 @@
+2026-05-16 18:23:13,011 - ZORA.Collector.Ukorona - INFO - Запуск полного парсинга ukorona.ru...
+2026-05-16 18:23:13,012 - ZORA.Collector.Ukorona - INFO - Всего страниц: 241
+2026-05-16 18:23:13,975 - connectors.embedding_client - INFO - Инициализация EmbeddingClient: модель=mxbai-embed-large, host=http://localhost:11434
+2026-05-16 18:23:14,388 - httpx - INFO - HTTP Request: GET http://10.160.68.222:6333/collections/zora_memory "HTTP/1.1 200 OK"
+2026-05-16 18:23:14,390 - memory.qdrant_memory - INFO - Коллекция zora_memory уже существует
+2026-05-16 18:23:14,390 - ZORA.Collector.Ukorona - INFO -   Обработка: https://www.ukorona.ru/catalog/kombikorm/kombikorm-dlya-ptits/dlya-indyushek/rost-eco-pk-12/
+2026-05-16 18:23:14,606 - httpx - INFO - HTTP Request: GET http://10.160.68.222:6333 "HTTP/1.1 200 OK"
+2026-05-16 18:23:22,954 - httpx - INFO - HTTP Request: HEAD https://huggingface.co/mixedbread-ai/mxbai-embed-large-v1/resolve/main/config.json "HTTP/1.1 307 Temporary Redirect"
+2026-05-16 18:23:23,037 - httpx - INFO - HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/mixedbread-ai/mxbai-embed-large-v1/b33106f585b9ce46904ad7443a3b52b7a63e231c/config.json "HTTP/1.1 200 OK"
+2026-05-16 18:23:23,232 - httpx - INFO - HTTP Request: HEAD https://huggingface.co/mixedbread-ai/mxbai-embed-large-v1/resolve/main/tokenizer_config.json "HTTP/1.1 307 Temporary Redirect"
+2026-05-16 18:23:23,313 - httpx - INFO - HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/mixedbread-ai/mxbai-embed-large-v1/b33106f585b9ce46904ad7443a3b52b7a63e231c/tokenizer_config.json "HTTP/1.1 200 OK"
+2026-05-16 18:23:23,505 - httpx - INFO - HTTP Request: GET https://huggingface.co/api/models/mixedbread-ai/mxbai-embed-large-v1/tree/main/additional_chat_templates?recursive=false&expand=false "HTTP/1.1 404 Not Found"
+2026-05-16 18:23:23,693 - httpx - INFO - HTTP Request: GET https://huggingface.co/api/models/mixedbread-ai/mxbai-embed-large-v1/tree/main?recursive=true&expand=false "HTTP/1.1 200 OK"
+2026-05-16 18:23:23,720 - connectors.tokenizer_utils - INFO - Токенизатор загружен: vocab_size=30522
+[transformers] Token indices sequence length is longer than the specified maximum sequence length for this model (3130 > 512). Running this sequence through the model will result in indexing errors
+2026-05-16 18:23:26,829 - memory.qdrant_memory - INFO - store: text='полнорационныи комбикорм для молодняка индеек в во...', vector_size=1024, first_5=[0.005334825, 0.019644443, -0.009519, 0.03581919, 0.010864355]
+2026-05-16 18:23:26,846 - httpx - INFO - HTTP Request: PUT http://10.160.68.222:6333/collections/zora_memory/points?wait=true "HTTP/1.1 200 OK"
+2026-05-16 18:23:26,847 - memory.qdrant_memory - INFO - store: Точка сохранена с ID: 4534008a-e0b9-483a-925d-f39fd1828aaf
+2026-05-16 18:23:28,955 - memory.qdrant_memory - INFO - store: text='за весь период на одну голову / день пк - 11 старт...', vector_size=1024, first_5=[-0.015036, -0.010035063, 0.021523584, 0.040560514, -0.01183935]
+2026-05-16 18:23:28,972 - httpx - INFO - HTTP Request: PUT http://10.160.68.222:6333/collections/zora_memory/points?wait=true "HTTP/1.1 200 OK"
+2026-05-16 18:23:28,972 - memory.qdrant_memory - INFO - store: Точка сохранена с ID: 4031de3c-29df-4aa7-9b94-f5455a23284e
+2026-05-16 18:23:31,094 - memory.qdrant_memory - INFO - store: text='28 днеи 25 - 29 °с 17 часов 30 лк 8 29 - 40 днеи 2...', vector_size=1024, first_5=[-0.011414705, -0.017400276, 0.009587641, 0.038455803, 0.009665131]
+2026-05-16 18:23:31,104 - httpx - INFO - HTTP Request: PUT http://10.160.68.222:6333/collections/zora_memory/points?wait=true "HTTP/1.1 200 OK"
+2026-05-16 18:23:31,104 - memory.qdrant_memory - INFO - store: Точка сохранена с ID: 8d9244d7-87b0-443d-86d8-c4ca0efcca61
+2026-05-16 18:23:33,238 - memory.qdrant_memory - INFO - store: text='##я птицы ккал / 100 г 304, 00 cырои протеин % 21,...', vector_size=1024, first_5=[0.0011995337, 0.0036823335, 0.019797713, 0.028849712, -0.013045421]
+2026-05-16 18:23:33,253 - httpx - INFO - HTTP Request: PUT http://10.160.68.222:6333/collections/zora_memory/points?wait=true "HTTP/1.1 200 OK"
+2026-05-16 18:23:33,254 - memory.qdrant_memory - INFO - store: Точка сохранена с ID: ca2ebd40-b551-43d1-a7a1-702d46f60b5b
+2026-05-16 18:23:35,401 - memory.qdrant_memory - INFO - store: text='##ого для индеек количество голов рассчитать объем...', vector_size=1024, first_5=[0.006961019, -0.005722499, -0.023273297, 0.030716296, 0.0066317343]
+2026-05-16 18:23:35,408 - httpx - INFO - HTTP Request: PUT http://10.160.68.222:6333/collections/zora_memory/points?wait=true "HTTP/1.1 200 OK"
+2026-05-16 18:23:35,409 - memory.qdrant_memory - INFO - store: Точка сохранена с ID: 2920ef22-6f57-45a8-b171-4780059b83d3
+2026-05-16 18:23:37,520 - memory.qdrant_memory - INFO - store: text='комбикорм рост для индеек обеспечивает эффективныи...', vector_size=1024, first_5=[-0.009249178, 0.0020333496, -0.034047622, -5.0310933e-05, 0.0013858675]
+2026-05-16 18:23:37,536 - httpx - INFO - HTTP Request: PUT http://10.160.68.222:6333/collections/zora_memory/points?wait=true "HTTP/1.1 200 OK"
+2026-05-16 18:23:37,537 - memory.qdrant_memory - INFO - store: Точка сохранена с ID: 21830090-df6d-47ce-a509-a3aa54a0a77c
+2026-05-16 18:23:39,668 - memory.qdrant_memory - INFO - store: text='выращеннои на « росте », безопасно и полезно для д...', vector_size=1024, first_5=[-0.015864609, 0.014632407, -0.010147941, 0.038421866, -0.016218984]
+2026-05-16 18:23:39,677 - httpx - INFO - HTTP Request: PUT http://10.160.68.222:6333/collections/zora_memory/points?wait=true "HTTP/1.1 200 OK"
+2026-05-16 18:23:39,678 - memory.qdrant_memory - INFO - store: Точка сохранена с ID: caf0b53f-61e0-41f5-b7f2-7c4e23785751
+2026-05-16 18:23:39,803 - ZORA.Collector.Ukorona - INFO -     Индексирую PDF: https://www.ukorona.ru/upload/shema/26/REKOMENDATSII-PO-KORMLENIIU-INDEYKI.pdf
+2026-05-16 18:23:43,401 - connectors.embedding_client - WARNING - Превышение длины контекста, уменьшаю до 256 токенов (попытка 1/3)
+2026-05-16 18:23:45,488 - memory.qdrant_memory - INFO - store: text='/ uni041f / uni043e / uni0442 / uni0440 / uni0435 ...', vector_size=1024, first_5=[0.019497061, -0.038571995, 0.03701698, 0.022811575, -0.042694815]
+2026-05-16 18:23:45,497 - httpx - INFO - HTTP Request: PUT http://10.160.68.222:6333/collections/zora_memory/points?wait=true "HTTP/1.1 200 OK"
+2026-05-16 18:23:45,497 - memory.qdrant_memory - INFO - store: Точка сохранена с ID: 2a80aa9a-0dc3-44a7-9219-791d72432331
+2026-05-16 18:23:47,586 - connectors.embedding_client - WARNING - Превышение длины контекста, уменьшаю до 256 токенов (попытка 1/3)
+2026-05-16 18:23:49,686 - memory.qdrant_memory - INFO - store: text='##2 / uni0438 / uni0446 / uni044b – 30 / uni043d /...', vector_size=1024, first_5=[0.011099124, -0.010609811, 0.029108912, 0.010866972, -0.030005079]
+2026-05-16 18:23:49,702 - httpx - INFO - HTTP Request: PUT http://10.160.68.222:6333/collections/zora_memory/points?wait=true "HTTP/1.1 200 OK"
+2026-05-16 18:23:49,702 - memory.qdrant_memory - INFO - store: Точка сохранена с ID: 9874d07f-781f-4252-9a49-9fe261577cee
+2026-05-16 18:23:51,817 - memory.qdrant_memory - INFO - store: text='##e / uni0440 / uni043c / uni0430 / uni0432 / uni0...', vector_size=1024, first_5=[0.0074052783, -0.030522184, 0.0290984, 0.016592655, -0.032868914]
+2026-05-16 18:23:51,827 - httpx - INFO - HTTP Request: PUT http://10.160.68.222:6333/collections/zora_memory/points?wait=true "HTTP/1.1 200 OK"
+2026-05-16 18:23:51,827 - memory.qdrant_memory - INFO - store: Точка сохранена с ID: 437c81a3-8186-4004-a17d-830b3be69928
+2026-05-16 18:23:53,929 - memory.qdrant_memory - INFO - store: text='##i0421 / uni0422 ( / uni0433 / uni0440 / uni0430 ...', vector_size=1024, first_5=[0.019900136, 0.0019537953, 0.02286732, 0.009648929, -0.04641116]
+2026-05-16 18:23:53,936 - httpx - INFO - HTTP Request: PUT http://10.160.68.222:6333/collections/zora_memory/points?wait=true "HTTP/1.1 200 OK"
+2026-05-16 18:23:53,936 - memory.qdrant_memory - INFO - store: Точка сохранена с ID: f23b4e63-1a64-40ea-b46a-c1869f01633f
+2026-05-16 18:23:56,136 - memory.qdrant_memory - INFO - store: text='Полнорационный комбикорм для молодняка индеек в во...', vector_size=1024, first_5=[-0.016208537, 0.018276615, -0.005588793, 0.030663189, -0.0025414883]
+2026-05-16 18:23:56,146 - httpx - INFO - HTTP Request: PUT http://10.160.68.222:6333/collections/zora_memory/points?wait=true "HTTP/1.1 200 OK"
+2026-05-16 18:23:56,147 - memory.qdrant_memory - INFO - store: Точка сохранена с ID: 1326c3d7-85b2-4280-bbf4-4e024ccb4afc
+2026-05-16 18:23:58,221 - memory.qdrant_memory - INFO - store: text='Полнорационный комбикорм для молодняка индеек в во...', vector_size=1024, first_5=[-0.016208537, 0.018276615, -0.005588793, 0.030663189, -0.0025414883]
+2026-05-16 18:23:58,231 - httpx - INFO - HTTP Request: PUT http://10.160.68.222:6333/collections/zora_memory/points?wait=true "HTTP/1.1 200 OK"
+2026-05-16 18:23:58,231 - memory.qdrant_memory - INFO - store: Точка сохранена с ID: 3512a574-9395-48ef-b774-f86686d439ab
+2026-05-16 18:24:00,294 - memory.qdrant_memory - INFO - store: text='8f7831c1a4b2ef85332f6c4038068909.webp...', vector_size=1024, first_5=[-0.013723117, -0.032049954, -0.037853587, 0.0044497987, 0.013007157]
+2026-05-16 18:24:00,304 - httpx - INFO - HTTP Request: PUT http://10.160.68.222:6333/collections/zora_memory/points?wait=true "HTTP/1.1 200 OK"
+2026-05-16 18:24:00,305 - memory.qdrant_memory - INFO - store: Точка сохранена с ID: e86a05e1-d3db-46f5-a627-3d104ef09432
+2026-05-16 18:24:02,388 - memory.qdrant_memory - INFO - store: text='b6e09da97741b604e6e317cd80afa146.webp...', vector_size=1024, first_5=[-0.023600236, -0.0322669, -0.004159755, -0.00029704318, 0.01183584]
+2026-05-16 18:24:02,398 - httpx - INFO - HTTP Request: PUT http://10.160.68.222:6333/collections/zora_memory/points?wait=true "HTTP/1.1 200 OK"
+2026-05-16 18:24:02,399 - memory.qdrant_memory - INFO - store: Точка сохранена с ID: 53d2a1c1-4804-438b-bb37-87c7e15819c2
+2026-05-16 18:24:02,543 - ZORA.Collector.Ukorona - INFO -   Обработка: https://www.ukorona.ru/articles/kak-vylechit-kashel-u-telenka/
+2026-05-16 18:24:07,415 - memory.qdrant_memory - INFO - store: text='статьи регионы как вылечить кашель у теленка как в...', vector_size=1024, first_5=[0.019476319, 0.015732348, -0.032505162, 0.053485736, -0.027447801]
+2026-05-16 18:24:07,426 - httpx - INFO - HTTP Request: PUT http://10.160.68.222:6333/collections/zora_memory/points?wait=true "HTTP/1.1 200 OK"
+2026-05-16 18:24:07,427 - memory.qdrant_memory - INFO - store: Точка сохранена с ID: e2c573d8-4f7b-44f4-856c-2edd85736e40
+2026-05-16 18:24:09,528 - memory.qdrant_memory - INFO - store: text='##теринарные сыворотки разрабатываются специально ...', vector_size=1024, first_5=[0.015606114, 0.0021297836, -0.028334731, 0.04402351, 0.012016188]
+2026-05-16 18:24:09,535 - httpx - INFO - HTTP Request: PUT http://10.160.68.222:6333/collections/zora_memory/points?wait=true "HTTP/1.1 200 OK"
+2026-05-16 18:24:09,536 - memory.qdrant_memory - INFO - store: Точка сохранена с ID: 27596a1d-2ceb-4757-bd8f-d4c6e0ba0007
+2026-05-16 18:24:11,679 - memory.qdrant_memory - INFO - store: text='##ия кашля в группу риска попадает молодняк до 5 м...', vector_size=1024, first_5=[0.0074331365, 0.008919448, -0.021302039, 0.024133867, -0.003603284]
+2026-05-16 18:24:11,688 - httpx - INFO - HTTP Request: PUT http://10.160.68.222:6333/collections/zora_memory/points?wait=true "HTTP/1.1 200 OK"
+2026-05-16 18:24:11,689 - memory.qdrant_memory - INFO - store: Точка сохранена с ID: 05435985-a115-41f1-9069-db9e706e4234
+2026-05-16 18:24:13,823 - memory.qdrant_memory - INFO - store: text='##ии проживания ; недостаток движения и свежего во...', vector_size=1024, first_5=[-0.00070281525, 0.017509447, -0.019405495, 0.018098004, -0.019181462]
+2026-05-16 18:24:13,832 - httpx - INFO - HTTP Request: PUT http://10.160.68.222:6333/collections/zora_memory/points?wait=true "HTTP/1.1 200 OK"
+2026-05-16 18:24:13,833 - memory.qdrant_memory - INFO - store: Точка сохранена с ID: b8abcff7-49d7-4118-a8db-378d8e296f0f
+2026-05-16 18:24:15,951 - memory.qdrant_memory - INFO - store: text='капельным путем от зараженных животных к здоровым....', vector_size=1024, first_5=[-0.0042475765, -0.0055834046, -0.0178207, 0.040671065, -0.005766001]
+2026-05-16 18:24:15,958 - httpx - INFO - HTTP Request: PUT http://10.160.68.222:6333/collections/zora_memory/points?wait=true "HTTP/1.1 200 OK"
+2026-05-16 18:24:15,958 - memory.qdrant_memory - INFO - store: Точка сохранена с ID: c3ddbda7-8a34-47fe-9cf6-f0a35e84620c
+2026-05-16 18:24:18,108 - memory.qdrant_memory - INFO - store: text='##олевании кашель у телят может сопровождаться оби...', vector_size=1024, first_5=[0.033144847, 0.028018977, -0.040436916, 0.028572071, 0.011447979]
+2026-05-16 18:24:18,124 - httpx - INFO - HTTP Request: PUT http://10.160.68.222:6333/collections/zora_memory/points?wait=true "HTTP/1.1 200 OK"
+2026-05-16 18:24:18,125 - memory.qdrant_memory - INFO - store: Точка сохранена с ID: 2591c3d6-122c-4550-94ef-af8288b9ea74
+2026-05-16 18:24:20,251 - memory.qdrant_memory - INFO - store: text='##ное и назначает дополнительные методы исследован...', vector_size=1024, first_5=[0.023289371, -0.007840752, -0.035430633, 0.035336312, -0.021324225]
+2026-05-16 18:24:20,267 - httpx - INFO - HTTP Request: PUT http://10.160.68.222:6333/collections/zora_memory/points?wait=true "HTTP/1.1 200 OK"
+2026-05-16 18:24:20,267 - memory.qdrant_memory - INFO - store: Точка сохранена с ID: 012f5b53-3c8f-4122-95b0-880229c0a34a
+2026-05-16 18:24:22,382 - memory.qdrant_memory - INFO - store: text='. они становятся слабее, меньше двигаются, хуже ед...', vector_size=1024, first_5=[0.012319626, 0.0006984104, -0.020035142, 0.06547745, -0.011987267]
+2026-05-16 18:24:22,389 - httpx - INFO - HTTP Request: PUT http://10.160.68.222:6333/collections/zora_memory/points?wait=true "HTTP/1.1 200 OK"
+2026-05-16 18:24:22,389 - memory.qdrant_memory - INFO - store: Точка сохранена с ID: da0ad30e-8545-4e14-9460-9c70d6ffc19c
+2026-05-16 18:24:24,525 - memory.qdrant_memory - INFO - store: text='##ке, избыточнои влажности и недостаточнои вентиля...', vector_size=1024, first_5=[-0.0020015668, -0.0021306372, -0.02965151, 0.06697837, 0.005066785]
+2026-05-16 18:24:24,537 - httpx - INFO - HTTP Request: PUT http://10.160.68.222:6333/collections/zora_memory/points?wait=true "HTTP/1.1 200 OK"
+2026-05-16 18:24:24,537 - memory.qdrant_memory - INFO - store: Точка сохранена с ID: c7fa4265-9885-4ba6-85bd-f415ea2024da
+2026-05-16 18:24:26,660 - memory.qdrant_memory - INFO - store: text='##ия большого количества мокроты он становится вла...', vector_size=1024, first_5=[0.006665569, -0.00200446, -0.046288323, 0.03845035, 0.0034711414]
+2026-05-16 18:24:26,668 - httpx - INFO - HTTP Request: PUT http://10.160.68.222:6333/collections/zora_memory/points?wait=true "HTTP/1.1 200 OK"
+2026-05-16 18:24:26,669 - memory.qdrant_memory - INFO - store: Точка сохранена с ID: 5b97e29d-7645-423e-946c-aa267e163943
+2026-05-16 18:24:28,804 - memory.qdrant_memory - INFO - store: text='##нием инфекции или интоксикациеи организма парази...', vector_size=1024, first_5=[0.0017685762, -0.005309027, -0.0072876206, 0.03985458, -0.01043158]
+2026-05-16 18:24:28,813 - httpx - INFO - HTTP Request: PUT http://10.160.68.222:6333/collections/zora_memory/points?wait=true "HTTP/1.1 200 OK"
+2026-05-16 18:24:28,813 - memory.qdrant_memory - INFO - store: Точка сохранена с ID: edb5bd42-8795-4701-abdf-d9f06ffc2b15
+2026-05-16 18:24:30,956 - memory.qdrant_memory - INFO - store: text='##иктиокаулез это заболевание вызывается паразитам...', vector_size=1024, first_5=[-0.0073777414, 0.013089749, -0.014614506, 0.050529726, -0.012233141]
+2026-05-16 18:24:30,965 - httpx - INFO - HTTP Request: PUT http://10.160.68.222:6333/collections/zora_memory/points?wait=true "HTTP/1.1 200 OK"
+2026-05-16 18:24:30,965 - memory.qdrant_memory - INFO - store: Точка сохранена с ID: 0f871729-9b79-478d-973a-24940b2d67bc
+2026-05-16 18:24:33,094 - memory.qdrant_memory - INFO - store: text='##ла. туберкулез это одно из самых опасных заболев...', vector_size=1024, first_5=[0.0029946093, 0.0075471303, -0.029201772, 0.041076187, 0.008121234]
+2026-05-16 18:24:33,102 - httpx - INFO - HTTP Request: PUT http://10.160.68.222:6333/collections/zora_memory/points?wait=true "HTTP/1.1 200 OK"
+2026-05-16 18:24:33,104 - memory.qdrant_memory - INFO - store: Точка сохранена с ID: e252d0e9-8ef4-4a06-9c7b-e746ccf6dfce
+2026-05-16 18:24:35,234 - memory.qdrant_memory - INFO - store: text='начальнои стадии дают похожую клиническую картину....', vector_size=1024, first_5=[0.011653199, -0.0042991918, -0.016881656, 0.038290903, -0.021327287]
+2026-05-16 18:24:35,244 - httpx - INFO - HTTP Request: PUT http://10.160.68.222:6333/collections/zora_memory/points?wait=true "HTTP/1.1 200 OK"
+2026-05-16 18:24:35,244 - memory.qdrant_memory - INFO - store: Точка сохранена с ID: e72ec735-dd89-40b1-8af8-8cc0e466fa16
+2026-05-16 18:24:37,403 - memory.qdrant_memory - INFO - store: text='##щения, в которых содержатся телята, убирают и де...', vector_size=1024, first_5=[0.004417282, 0.00039068575, -0.068991005, 0.04386006, -0.026137844]
+2026-05-16 18:24:37,410 - httpx - INFO - HTTP Request: PUT http://10.160.68.222:6333/collections/zora_memory/points?wait=true "HTTP/1.1 200 OK"
+2026-05-16 18:24:37,410 - memory.qdrant_memory - INFO - store: Точка сохранена с ID: 0afe0bef-c5e7-48f7-8a8f-b8661a96e8a4
+2026-05-16 18:24:39,516 - connectors.embedding_client - WARNING - Превышение длины контекста, уменьшаю до 256 токенов (попытка 1/3)
+2026-05-16 18:24:41,652 - memory.qdrant_memory - INFO - store: text='##ту и способствуют ее отхаркиванию из бронхов и л...', vector_size=1024, first_5=[0.020765562, -0.025481137, -0.045081373, 0.04685393, -0.029033808]
+2026-05-16 18:24:41,662 - httpx - INFO - HTTP Request: PUT http://10.160.68.222:6333/collections/zora_memory/points?wait=true "HTTP/1.1 200 OK"
+2026-05-16 18:24:41,662 - memory.qdrant_memory - INFO - store: Точка сохранена с ID: 5935ea6e-572e-4788-a9a9-d3797a67f143
+2026-05-16 18:24:43,808 - memory.qdrant_memory - INFO - store: text='до месяца можно давать теплыи раствор соды или отв...', vector_size=1024, first_5=[-0.0074359374, -0.0045261197, -0.022758458, 0.03000373, 0.012715411]
+2026-05-16 18:24:43,818 - httpx - INFO - HTTP Request: PUT http://10.160.68.222:6333/collections/zora_memory/points?wait=true "HTTP/1.1 200 OK"
+2026-05-16 18:24:43,819 - memory.qdrant_memory - INFO - store: Точка сохранена с ID: 5f45d90b-7369-47fc-a6dd-ae06de286e30
+2026-05-16 18:24:45,975 - memory.qdrant_memory - INFO - store: text='##и. при диктиокаулезе назначают инъекции в трахею...', vector_size=1024, first_5=[0.009425955, 0.007874229, -0.013587117, 0.032068297, -0.012552166]
+2026-05-16 18:24:45,986 - httpx - INFO - HTTP Request: PUT http://10.160.68.222:6333/collections/zora_memory/points?wait=true "HTTP/1.1 200 OK"
+2026-05-16 18:24:45,986 - memory.qdrant_memory - INFO - store: Точка сохранена с ID: e33e514b-c5f5-48de-bf9b-7cc057283a27
+2026-05-16 18:24:48,126 - memory.qdrant_memory - INFO - store: text='процедуры и растирания составами на основе скипида...', vector_size=1024, first_5=[-0.0063165626, 0.00072624953, -0.024062885, 0.050921846, -0.0015005944]
+2026-05-16 18:24:48,137 - httpx - INFO - HTTP Request: PUT http://10.160.68.222:6333/collections/zora_memory/points?wait=true "HTTP/1.1 200 OK"
+2026-05-16 18:24:48,137 - memory.qdrant_memory - INFO - store: Точка сохранена с ID: 10539eea-0863-444f-b2a5-5e746a3eb2a8
+2026-05-16 18:24:50,208 - connectors.embedding_client - WARNING - Превышение длины контекста, уменьшаю до 256 токенов (попытка 1/3)
+2026-05-16 18:24:52,328 - memory.qdrant_memory - INFO - store: text='##орое время, чтобы они не заразили остальных живо...', vector_size=1024, first_5=[0.01895287, -0.010522168, -0.023949912, 0.057179816, -0.0057985974]
+2026-05-16 18:24:52,344 - httpx - INFO - HTTP Request: PUT http://10.160.68.222:6333/collections/zora_memory/points?wait=true "HTTP/1.1 200 OK"
+2026-05-16 18:24:52,344 - memory.qdrant_memory - INFO - store: Точка сохранена с ID: 5544f78c-b149-44a8-90ce-de00b5971ae4
+2026-05-16 18:24:54,489 - memory.qdrant_memory - INFO - store: text='антител, способствующих формированию у теленка соб...', vector_size=1024, first_5=[-0.0028610562, -0.009811708, -0.012282085, 0.043000903, 0.005952129]
+2026-05-16 18:24:54,496 - httpx - INFO - HTTP Request: PUT http://10.160.68.222:6333/collections/zora_memory/points?wait=true "HTTP/1.1 200 OK"
+2026-05-16 18:24:54,497 - memory.qdrant_memory - INFO - store: Точка сохранена с ID: 5c160f43-8b90-4257-aa87-ddb6c52516b3
+2026-05-16 18:24:56,598 - connectors.embedding_client - WARNING - Превышение длины контекста, уменьшаю до 256 токенов (попытка 1/3)
+2026-05-16 18:24:58,724 - memory.qdrant_memory - INFO - store: text='в условиях стоилового содержания животные не могут...', vector_size=1024, first_5=[-0.014177505, 0.012525964, -0.0032761171, 0.033386923, -0.034716684]
+2026-05-16 18:24:58,734 - httpx - INFO - HTTP Request: PUT http://10.160.68.222:6333/collections/zora_memory/points?wait=true "HTTP/1.1 200 OK"
+2026-05-16 18:24:58,734 - memory.qdrant_memory - INFO - store: Точка сохранена с ID: d6db2d56-22c9-4294-bb3a-812e23b6e2bd
+2026-05-16 18:25:00,847 - memory.qdrant_memory - INFO - store: text='за чистотои питьевои воды и регулярно обновлять по...', vector_size=1024, first_5=[-0.011347462, 0.002714402, 0.0105708195, 0.06647242, -0.007197992]
+2026-05-16 18:25:00,863 - httpx - INFO - HTTP Request: PUT http://10.160.68.222:6333/collections/zora_memory/points?wait=true "HTTP/1.1 200 OK"
+2026-05-16 18:25:00,864 - memory.qdrant_memory - INFO - store: Точка сохранена с ID: 17299b8c-dfc0-4dd8-97ad-c2a86abd84aa
+2026-05-16 18:25:02,983 - memory.qdrant_memory - INFO - store: text='##едует сменить место выпаса, чтобы избежать рецид...', vector_size=1024, first_5=[0.009032003, 0.030938841, -0.05633948, 0.06996216, 0.017752428]
+2026-05-16 18:25:03,000 - httpx - INFO - HTTP Request: PUT http://10.160.68.222:6333/collections/zora_memory/points?wait=true "HTTP/1.1 200 OK"
+2026-05-16 18:25:03,000 - memory.qdrant_memory - INFO - store: Точка сохранена с ID: 57755c3c-9e84-42e8-8445-c6e263bf7075
+2026-05-16 18:25:03,520 - ZORA.Collector.Ukorona - INFO -   Обработка: https://www.ukorona.ru/articles/sostav-kombikorma-dlya-kur/
+2026-05-16 18:25:08,121 - connectors.embedding_client - WARNING - Превышение длины контекста, уменьшаю до 256 токенов (попытка 1/3)
+2026-05-16 18:25:10,243 - memory.qdrant_memory - INFO - store: text='статьи регионы состав комбикорма для кур - несушек...', vector_size=1024, first_5=[0.023450112, 0.018122701, -0.026285607, 0.013230873, -0.027757099]
+2026-05-16 18:25:10,260 - httpx - INFO - HTTP Request: PUT http://10.160.68.222:6333/collections/zora_memory/points?wait=true "HTTP/1.1 200 OK"
+2026-05-16 18:25:10,260 - memory.qdrant_memory - INFO - store: Точка сохранена с ID: b858e1f7-bed3-44c7-bb0a-a2dcb68b1347
+2026-05-16 18:25:12,315 - connectors.embedding_client - WARNING - Превышение длины контекста, уменьшаю до 256 токенов (попытка 1/3)
+2026-05-16 18:25:14,433 - memory.qdrant_memory - INFO - store: text='##ыпчатую смесь из различных натуральных, чаще все...', vector_size=1024, first_5=[0.025283054, 0.01617312, -0.020522784, 0.024841683, -0.034545068]
+2026-05-16 18:25:14,448 - httpx - INFO - HTTP Request: PUT http://10.160.68.222:6333/collections/zora_memory/points?wait=true "HTTP/1.1 200 OK"
+2026-05-16 18:25:14,448 - memory.qdrant_memory - INFO - store: Точка сохранена с ID: 885b8226-f658-47b0-aab6-2887eef49d2a
+2026-05-16 18:25:16,540 - connectors.embedding_client - WARNING - Превышение длины контекста, уменьшаю до 256 токенов (попытка 1/3)
+2026-05-16 18:25:18,657 - memory.qdrant_memory - INFO - store: text='##буется ; его удобно использовать – не нужно трат...', vector_size=1024, first_5=[0.0042439736, -0.0032538876, -0.017611312, 0.0361844, -0.010822242]
+2026-05-16 18:25:18,667 - httpx - INFO - HTTP Request: PUT http://10.160.68.222:6333/collections/zora_memory/points?wait=true "HTTP/1.1 200 OK"
+2026-05-16 18:25:18,668 - memory.qdrant_memory - INFO - store: Точка сохранена с ID: ac100a0f-d622-4aac-afa1-feef0b7faffd
+2026-05-16 18:25:20,801 - memory.qdrant_memory - INFO - store: text='##ости либо различаются названием, в котором отраж...', vector_size=1024, first_5=[0.01960645, 0.021679375, 0.00095308205, 0.025903799, -0.009854335]
+2026-05-16 18:25:20,812 - httpx - INFO - HTTP Request: PUT http://10.160.68.222:6333/collections/zora_memory/points?wait=true "HTTP/1.1 200 OK"
+2026-05-16 18:25:20,812 - memory.qdrant_memory - INFO - store: Точка сохранена с ID: 70db61f4-1d30-409f-8f78-3c9524c261c1
+2026-05-16 18:25:22,957 - memory.qdrant_memory - INFO - store: text='##я по составу ввиду разницы в соотношении компоне...', vector_size=1024, first_5=[-0.00078247814, 0.020750148, -0.0290561, 0.035366293, 0.0019226453]
+2026-05-16 18:25:22,966 - httpx - INFO - HTTP Request: PUT http://10.160.68.222:6333/collections/zora_memory/points?wait=true "HTTP/1.1 200 OK"
+2026-05-16 18:25:22,967 - memory.qdrant_memory - INFO - store: Точка сохранена с ID: 84e928c7-9c52-4a1f-af52-4cb21907e34a
+2026-05-16 18:25:25,086 - memory.qdrant_memory - INFO - store: text='##м для кур - несушек, цена на которыи вас приятно...', vector_size=1024, first_5=[-0.0012327691, -0.0057815225, -0.014093942, 0.0022928417, -0.006325715]
+2026-05-16 18:25:25,101 - httpx - INFO - HTTP Request: PUT http://10.160.68.222:6333/collections/zora_memory/points?wait=true "HTTP/1.1 200 OK"
+2026-05-16 18:25:25,101 - memory.qdrant_memory - INFO - store: Точка сохранена с ID: 37a9bfac-a246-4499-baab-a11b255000cf
+2026-05-16 18:25:27,253 - memory.qdrant_memory - INFO - store: text='##ы ), 0, 03 % метионина ( серосодержащая аминокис...', vector_size=1024, first_5=[0.020374253, 0.017934041, -0.04068358, 0.040660903, -0.016771408]
+2026-05-16 18:25:27,265 - httpx - INFO - HTTP Request: PUT http://10.160.68.222:6333/collections/zora_memory/points?wait=true "HTTP/1.1 200 OK"
+2026-05-16 18:25:27,265 - memory.qdrant_memory - INFO - store: Точка сохранена с ID: 088b764c-07ce-4d32-8676-3292b488bdf6
+2026-05-16 18:25:29,358 - memory.qdrant_memory - INFO - store: text='##е на прочность скорлупы и правильное развитие пт...', vector_size=1024, first_5=[-0.0055029914, 0.0142278895, -0.00059672067, 0.069585174, 0.00055978296]
+2026-05-16 18:25:29,369 - httpx - INFO - HTTP Request: PUT http://10.160.68.222:6333/collections/zora_memory/points?wait=true "HTTP/1.1 200 OK"
+2026-05-16 18:25:29,370 - memory.qdrant_memory - INFO - store: Точка сохранена с ID: 7ca5e981-5434-4174-8799-772a58b77d58
+2026-05-16 18:25:31,741 - memory.qdrant_memory - INFO - store: text='Состав комбикорма для кур-несушек – каким он долже...', vector_size=1024, first_5=[0.024372907, 0.0094374865, -0.007145487, 0.0006223037, -0.031643502]
+2026-05-16 18:25:31,747 - httpx - INFO - HTTP Request: PUT http://10.160.68.222:6333/collections/zora_memory/points?wait=true "HTTP/1.1 200 OK"
+2026-05-16 18:25:31,747 - memory.qdrant_memory - INFO - store: Точка сохранена с ID: fe03e89f-6b6e-409b-bac6-7c332acf3338
+2026-05-16 18:25:32,000 - ZORA.Collector.Ukorona - INFO -   Обработка: https://www.ukorona.ru/articles/premiks-dlya-broylerov-sostav-vazhnost-dlya-pitaniya/
+2026-05-16 18:25:36,301 - memory.qdrant_memory - INFO - store: text='статьи регионы премикс для броилеров : состав, важ...', vector_size=1024, first_5=[0.021063456, 0.009348865, -0.011690907, 0.055191405, 0.016122704]
+2026-05-16 18:25:36,308 - httpx - INFO - HTTP Request: PUT http://10.160.68.222:6333/collections/zora_memory/points?wait=true "HTTP/1.1 200 OK"
+2026-05-16 18:25:36,309 - memory.qdrant_memory - INFO - store: Точка сохранена с ID: 90b23e9b-6b9b-4ea3-a1a1-5d19a3d157fb
+2026-05-16 18:25:38,397 - connectors.embedding_client - WARNING - Превышение длины контекста, уменьшаю до 256 токенов (попытка 1/3)
+2026-05-16 18:25:40,494 - memory.qdrant_memory - INFO - store: text='##ремикс, состав и влияние которого мы и рассмотри...', vector_size=1024, first_5=[0.01702863, 0.016398026, -0.0137148835, 0.046692777, 0.028071295]
+2026-05-16 18:25:40,502 - httpx - INFO - HTTP Request: PUT http://10.160.68.222:6333/collections/zora_memory/points?wait=true "HTTP/1.1 200 OK"
+2026-05-16 18:25:40,503 - memory.qdrant_memory - INFO - store: Точка сохранена с ID: 721e849a-6084-49f2-b3d8-3f316fb7249b
+2026-05-16 18:25:42,559 - connectors.embedding_client - WARNING - Превышение длины контекста, уменьшаю до 256 токенов (попытка 1/3)
+2026-05-16 18:25:44,659 - memory.qdrant_memory - INFO - store: text='##и и иммуннои систем в раннем возрасте и, как сле...', vector_size=1024, first_5=[0.02724856, 0.0019463913, -0.01486728, 0.0498634, 0.01167798]
+2026-05-16 18:25:44,670 - httpx - INFO - HTTP Request: PUT http://10.160.68.222:6333/collections/zora_memory/points?wait=true "HTTP/1.1 200 OK"
+2026-05-16 18:25:44,670 - memory.qdrant_memory - INFO - store: Точка сохранена с ID: 71a0e87e-ac16-41ce-b641-b1e2dc1b8a5b
+2026-05-16 18:25:46,739 - connectors.embedding_client - WARNING - Превышение длины контекста, уменьшаю до 256 токенов (попытка 1/3)
+2026-05-16 18:25:48,852 - memory.qdrant_memory - INFO - store: text='##ствия в составе основных питательных веществ, не...', vector_size=1024, first_5=[-0.0060704746, 0.012838816, -0.056067053, 0.04429608, -0.012616068]
+2026-05-16 18:25:48,862 - httpx - INFO - HTTP Request: PUT http://10.160.68.222:6333/collections/zora_memory/points?wait=true "HTTP/1.1 200 OK"
+2026-05-16 18:25:48,863 - memory.qdrant_memory - INFO - store: Точка сохранена с ID: b8dd5ce1-bb13-4d01-8f71-334ebd18d983
+2026-05-16 18:25:50,972 - memory.qdrant_memory - INFO - store: text='##итель предлагает качественное питание для всех в...', vector_size=1024, first_5=[0.015856616, 0.01731964, -0.04736148, 0.053052537, 0.020584894]
+2026-05-16 18:25:50,983 - httpx - INFO - HTTP Request: PUT http://10.160.68.222:6333/collections/zora_memory/points?wait=true "HTTP/1.1 200 OK"
+2026-05-16 18:25:50,983 - memory.qdrant_memory - INFO - store: Точка сохранена с ID: 9bb8aecf-6238-45e3-ac3e-24ab8d02eaa1
+2026-05-16 18:25:53,340 - memory.qdrant_memory - INFO - store: text='Премикс для бройлеров: состав, важность для питани...', vector_size=1024, first_5=[-0.00077994686, 0.0054799593, 0.024365058, 0.039156307, 0.0042884373]
+2026-05-16 18:25:53,349 - httpx - INFO - HTTP Request: PUT http://10.160.68.222:6333/collections/zora_memory/points?wait=true "HTTP/1.1 200 OK"
+2026-05-16 18:25:53,349 - memory.qdrant_memory - INFO - store: Точка сохранена с ID: 20f7b9e9-d7c1-4202-9e60-66d1c208da32
+2026-05-16 18:25:53,467 - ZORA.Collector.Ukorona - INFO -   Обработка: https://www.ukorona.ru/catalog/kombikorm/kombikorm-dlya-krs/
+2026-05-16 18:25:58,109 - memory.qdrant_memory - INFO - store: text='комбикорм комбикорм для птиц для кур броилеров на ...', vector_size=1024, first_5=[0.022641119, -0.0063492577, 0.015096885, 0.01945981, 0.002704271]
+2026-05-16 18:25:58,122 - httpx - INFO - HTTP Request: PUT http://10.160.68.222:6333/collections/zora_memory/points?wait=true "HTTP/1.1 200 OK"
+2026-05-16 18:25:58,122 - memory.qdrant_memory - INFO - store: Точка сохранена с ID: 0e603823-4dfc-4896-b398-3b84a025b9d4
+2026-05-16 18:26:00,278 - memory.qdrant_memory - INFO - store: text=', 2 мм ) мешок ( кг ) : 25 сделано на кубани : да ...', vector_size=1024, first_5=[0.038733933, 0.021992402, -0.012489292, 0.02539408, -0.016000014]
+2026-05-16 18:26:00,289 - httpx - INFO - HTTP Request: PUT http://10.160.68.222:6333/collections/zora_memory/points?wait=true "HTTP/1.1 200 OK"
+2026-05-16 18:26:00,290 - memory.qdrant_memory - INFO - store: Точка сохранена с ID: 63ef86c9-3528-4774-bffd-80b99a748ba0
+2026-05-16 18:26:02,396 - memory.qdrant_memory - INFO - store: text='##сяцев рост ( гранула, 3, 2 мм ) мешок ( кг ) : 2...', vector_size=1024, first_5=[0.037522756, 0.02512438, -0.01233025, 0.011455224, 0.004821304]
+2026-05-16 18:26:02,406 - httpx - INFO - HTTP Request: PUT http://10.160.68.222:6333/collections/zora_memory/points?wait=true "HTTP/1.1 200 OK"
+2026-05-16 18:26:02,406 - memory.qdrant_memory - INFO - store: Точка сохранена с ID: 1720d3ae-ce7f-4064-99fc-0ba42f0c4bb0
+2026-05-16 18:26:04,552 - memory.qdrant_memory - INFO - store: text='##родолжительность их хозяиственного использования...', vector_size=1024, first_5=[-0.002892456, 0.016409134, -0.03315589, 0.049382985, 0.03624665]
+2026-05-16 18:26:04,559 - httpx - INFO - HTTP Request: PUT http://10.160.68.222:6333/collections/zora_memory/points?wait=true "HTTP/1.1 200 OK"
+2026-05-16 18:26:04,560 - memory.qdrant_memory - INFO - store: Точка сохранена с ID: 8bbed5f7-4a03-40a3-8c3a-914f1a69f67c
+2026-05-16 18:26:06,690 - memory.qdrant_memory - INFO - store: text='##сли нет возможности организовать регулярныи выпа...', vector_size=1024, first_5=[-0.006583846, 0.0077714864, -0.0070146574, 0.048665825, 0.006364395]
+2026-05-16 18:26:06,700 - httpx - INFO - HTTP Request: PUT http://10.160.68.222:6333/collections/zora_memory/points?wait=true "HTTP/1.1 200 OK"
+2026-05-16 18:26:06,700 - memory.qdrant_memory - INFO - store: Точка сохранена с ID: 242097c5-644b-4f9f-94f9-896e87885a91
+2026-05-16 18:26:08,786 - connectors.embedding_client - WARNING - Превышение длины контекста, уменьшаю до 256 токенов (попытка 1/3)
+2026-05-16 18:26:10,885 - memory.qdrant_memory - INFO - store: text='##ли предлагают различные варианты видов корма для...', vector_size=1024, first_5=[-0.0010690811, -0.013975255, -0.032087084, 0.03590429, 0.0069668214]
+2026-05-16 18:26:10,895 - httpx - INFO - HTTP Request: PUT http://10.160.68.222:6333/collections/zora_memory/points?wait=true "HTTP/1.1 200 OK"
+2026-05-16 18:26:10,896 - memory.qdrant_memory - INFO - store: Точка сохранена с ID: 69501179-00c6-4739-8167-615ba01b18b6
+2026-05-16 18:26:13,044 - memory.qdrant_memory - INFO - store: text='##ных преимуществ корма для крс входит следующее :...', vector_size=1024, first_5=[0.0017416257, -0.013840847, -0.021285022, 0.033559464, -0.006704359]
+2026-05-16 18:26:13,051 - httpx - INFO - HTTP Request: PUT http://10.160.68.222:6333/collections/zora_memory/points?wait=true "HTTP/1.1 200 OK"
+2026-05-16 18:26:13,051 - memory.qdrant_memory - INFO - store: Точка сохранена с ID: 2d931b09-46e0-4f60-b57d-619b79f86893
+2026-05-16 18:26:15,187 - memory.qdrant_memory - INFO - store: text='##омплекс питательных веществ, необходимых для крс...', vector_size=1024, first_5=[0.046628617, 0.0017699583, -0.004551197, 0.043056354, 0.0064440905]
+2026-05-16 18:26:15,196 - httpx - INFO - HTTP Request: PUT http://10.160.68.222:6333/collections/zora_memory/points?wait=true "HTTP/1.1 200 OK"
+2026-05-16 18:26:15,197 - memory.qdrant_memory - INFO - store: Точка сохранена с ID: 28674efe-c311-436e-9b2e-567bcb8fcdad
+2026-05-16 18:26:17,287 - memory.qdrant_memory - INFO - store: text='просмотр премикс рост для телят ( 25 кг ) мешок ( ...', vector_size=1024, first_5=[0.045675594, -0.012695985, -0.008898814, 0.0445146, -0.03363518]
+2026-05-16 18:26:17,298 - httpx - INFO - HTTP Request: PUT http://10.160.68.222:6333/collections/zora_memory/points?wait=true "HTTP/1.1 200 OK"
+2026-05-16 18:26:17,298 - memory.qdrant_memory - INFO - store: Точка сохранена с ID: bb9433e5-9868-4ef0-83f0-85d4928d2f2f
+2026-05-16 18:26:19,665 - memory.qdrant_memory - INFO - store: text='Комбикорм-концентрат для телят в возрасте до 4 мес...', vector_size=1024, first_5=[0.01126072, -0.022335932, 0.0018151895, 0.03036682, -0.021955615]
+2026-05-16 18:26:19,674 - httpx - INFO - HTTP Request: PUT http://10.160.68.222:6333/collections/zora_memory/points?wait=true "HTTP/1.1 200 OK"
+2026-05-16 18:26:19,675 - memory.qdrant_memory - INFO - store: Точка сохранена с ID: e2e9f871-d90e-45d7-810c-9112c187d178
+2026-05-16 18:26:21,755 - memory.qdrant_memory - INFO - store: text='Комбикорм-концентрат для молодняка КРС в возрасте ...', vector_size=1024, first_5=[-0.012487615, 0.008047869, -0.0018704074, 0.0063893413, -0.01801471]
+2026-05-16 18:26:21,768 - httpx - INFO - HTTP Request: PUT http://10.160.68.222:6333/collections/zora_memory/points?wait=true "HTTP/1.1 200 OK"
+2026-05-16 18:26:21,769 - memory.qdrant_memory - INFO - store: Точка сохранена с ID: 7cdaabef-cf19-43fc-9ff0-60e8c21d76c3
+2026-05-16 18:26:23,871 - memory.qdrant_memory - INFO - store: text='Комбикорм-концентрат для нетелей и молочных коров ...', vector_size=1024, first_5=[0.023598075, -0.0035261996, 0.022031967, 0.014281307, -0.014328526]
+2026-05-16 18:26:23,882 - httpx - INFO - HTTP Request: PUT http://10.160.68.222:6333/collections/zora_memory/points?wait=true "HTTP/1.1 200 OK"
+2026-05-16 18:26:23,883 - memory.qdrant_memory - INFO - store: Точка сохранена с ID: 54a0c121-0d0a-41d9-bf35-33f6f4da68aa
+2026-05-16 18:26:25,981 - memory.qdrant_memory - INFO - store: text='Комбикорм-концентрат для козлят и ягнят в возрасте...', vector_size=1024, first_5=[0.02462319, -0.0226382, 0.0022297213, 0.028486272, -0.016234417]
+2026-05-16 18:26:25,993 - httpx - INFO - HTTP Request: PUT http://10.160.68.222:6333/collections/zora_memory/points?wait=true "HTTP/1.1 200 OK"
+2026-05-16 18:26:25,993 - memory.qdrant_memory - INFO - store: Точка сохранена с ID: 132140eb-1154-4df4-93c3-20933b2b5a72
+2026-05-16 18:26:28,097 - memory.qdrant_memory - INFO - store: text='Комбикорм-концентрат для молодняка коз в возрасте ...', vector_size=1024, first_5=[0.014544837, 0.010845041, -0.005013865, 0.0067330515, -0.01633587]
+2026-05-16 18:26:28,105 - httpx - INFO - HTTP Request: PUT http://10.160.68.222:6333/collections/zora_memory/points?wait=true "HTTP/1.1 200 OK"
+2026-05-16 18:26:28,105 - memory.qdrant_memory - INFO - store: Точка сохранена с ID: 63755ca4-ff69-4b45-8fae-d8275d05b122
+2026-05-16 18:26:30,198 - memory.qdrant_memory - INFO - store: text='Комбикорм-концентрат для подсосных козоматок и овц...', vector_size=1024, first_5=[0.0037783962, -0.017970253, 0.03723749, 0.026371408, -0.021497881]
+2026-05-16 18:26:30,206 - httpx - INFO - HTTP Request: PUT http://10.160.68.222:6333/collections/zora_memory/points?wait=true "HTTP/1.1 200 OK"
+2026-05-16 18:26:30,207 - memory.qdrant_memory - INFO - store: Точка сохранена с ID: 8b54c64f-ebe7-46c6-911c-e48605985bc9
+2026-05-16 18:26:30,335 - ZORA.Collector.Ukorona - INFO -   Обработка: https://www.ukorona.ru/articles/kakoy-kombikorm-luchshe-osnovnye-kriterii-i-slozhnosti-vybora/
+2026-05-16 18:26:37,639 - memory.qdrant_memory - INFO - store: text='статьи регионы какои комбикорм лучше : основные кр...', vector_size=1024, first_5=[0.0049325163, 0.004373983, -0.04276712, 0.023465103, -0.019838462]
+2026-05-16 18:26:37,652 - httpx - INFO - HTTP Request: PUT http://10.160.68.222:6333/collections/zora_memory/points?wait=true "HTTP/1.1 200 OK"
+2026-05-16 18:26:37,652 - memory.qdrant_memory - INFO - store: Точка сохранена с ID: c6d4bef7-b339-4f4c-9b18-3f9ddb41738e
+2026-05-16 18:26:39,719 - connectors.embedding_client - WARNING - Превышение длины контекста, уменьшаю до 256 токенов (попытка 1/3)
+2026-05-16 18:26:41,842 - memory.qdrant_memory - INFO - store: text='плохого и выбрать оптимальныи вариант среди доступ...', vector_size=1024, first_5=[-0.00141112, -0.00889427, -0.022357507, 0.051591635, 0.0038148512]
+2026-05-16 18:26:41,851 - httpx - INFO - HTTP Request: PUT http://10.160.68.222:6333/collections/zora_memory/points?wait=true "HTTP/1.1 200 OK"
+2026-05-16 18:26:41,852 - memory.qdrant_memory - INFO - store: Точка сохранена с ID: dc576aeb-2da7-4285-b656-bb2b698cb0b8
+2026-05-16 18:26:43,934 - connectors.embedding_client - WARNING - Превышение длины контекста, уменьшаю до 256 токенов (попытка 1/3)
+2026-05-16 18:26:46,074 - memory.qdrant_memory - INFO - store: text='##одящих составов ведет к проблемам в формировании...', vector_size=1024, first_5=[-0.009400273, -0.011343267, -0.034654096, 0.05493458, 0.019023785]
+2026-05-16 18:26:46,094 - httpx - INFO - HTTP Request: PUT http://10.160.68.222:6333/collections/zora_memory/points?wait=true "HTTP/1.1 200 OK"
+2026-05-16 18:26:46,095 - memory.qdrant_memory - INFO - store: Точка сохранена с ID: 2f3994a9-2668-4bc9-8064-db3816ddf40a
+2026-05-16 18:26:48,214 - memory.qdrant_memory - INFO - store: text='в их число входят : гост 18221 – для сельскохозяис...', vector_size=1024, first_5=[0.0010710501, 0.02116441, -0.03536948, 0.06052612, -0.019035006]
+2026-05-16 18:26:48,221 - httpx - INFO - HTTP Request: PUT http://10.160.68.222:6333/collections/zora_memory/points?wait=true "HTTP/1.1 200 OK"
+2026-05-16 18:26:48,221 - memory.qdrant_memory - INFO - store: Точка сохранена с ID: 2d5f4706-1ff2-4986-9e57-f3a5393cd88e
+2026-05-16 18:26:50,370 - memory.qdrant_memory - INFO - store: text='##я факт соблюдения гост не является залогом 100 %...', vector_size=1024, first_5=[0.043734588, 0.021205032, -0.043634705, 0.041480754, 0.002452757]
+2026-05-16 18:26:50,376 - httpx - INFO - HTTP Request: PUT http://10.160.68.222:6333/collections/zora_memory/points?wait=true "HTTP/1.1 200 OK"
+2026-05-16 18:26:50,377 - memory.qdrant_memory - INFO - store: Точка сохранена с ID: b8f8ea94-8aae-4f25-aa30-61837f5f7082
+2026-05-16 18:26:52,466 - connectors.embedding_client - WARNING - Превышение длины контекста, уменьшаю до 256 токенов (попытка 1/3)
+2026-05-16 18:26:54,574 - memory.qdrant_memory - INFO - store: text='##бое внимание следует обратить на различные допол...', vector_size=1024, first_5=[-0.0030174076, 0.015352788, -0.031391405, 0.059824925, 0.02091839]
+2026-05-16 18:26:54,585 - httpx - INFO - HTTP Request: PUT http://10.160.68.222:6333/collections/zora_memory/points?wait=true "HTTP/1.1 200 OK"
+2026-05-16 18:26:54,585 - memory.qdrant_memory - INFO - store: Точка сохранена с ID: 5389994c-6ccf-4ce7-8e43-d11cdd1fc61a
+2026-05-16 18:26:56,675 - connectors.embedding_client - WARNING - Превышение длины контекста, уменьшаю до 256 токенов (попытка 1/3)
+2026-05-16 18:26:58,796 - memory.qdrant_memory - INFO - store: text='##одимых особеи и на качестве получаемои продукции...', vector_size=1024, first_5=[0.00046907755, -0.0009869881, -0.020727627, 0.054198653, 0.0024903885]
+2026-05-16 18:26:58,812 - httpx - INFO - HTTP Request: PUT http://10.160.68.222:6333/collections/zora_memory/points?wait=true "HTTP/1.1 200 OK"
+2026-05-16 18:26:58,812 - memory.qdrant_memory - INFO - store: Точка сохранена с ID: f206d889-74a7-448f-9f8f-99b8b0f5c69a
+2026-05-16 18:27:00,922 - connectors.embedding_client - WARNING - Превышение длины контекста, уменьшаю до 256 токенов (попытка 1/3)
+2026-05-16 18:27:03,048 - memory.qdrant_memory - INFO - store: text='##вками – они столь же обязательны для здоровья лю...', vector_size=1024, first_5=[0.0028263903, -0.0100494195, -0.033142652, 0.080517605, -0.0034409976]
+2026-05-16 18:27:03,064 - httpx - INFO - HTTP Request: PUT http://10.160.68.222:6333/collections/zora_memory/points?wait=true "HTTP/1.1 200 OK"
+2026-05-16 18:27:03,064 - memory.qdrant_memory - INFO - store: Точка сохранена с ID: d463ad05-641c-4e77-aab2-c71526582db2
+2026-05-16 18:27:05,219 - memory.qdrant_memory - INFO - store: text='##ть, какои комбикорм лучше, практически невозможн...', vector_size=1024, first_5=[0.01873453, 0.0025246176, -0.034564465, 0.056560975, -0.0028864483]
+2026-05-16 18:27:05,226 - httpx - INFO - HTTP Request: PUT http://10.160.68.222:6333/collections/zora_memory/points?wait=true "HTTP/1.1 200 OK"
+2026-05-16 18:27:05,227 - memory.qdrant_memory - INFO - store: Точка сохранена с ID: df8e31d2-c46e-4f7f-8c5c-1ba854d6115b
+2026-05-16 18:27:07,341 - memory.qdrant_memory - INFO - store: text='купить комбикорм высочаишего качества, соответству...', vector_size=1024, first_5=[-0.01935702, 0.011489017, -0.021679474, 0.03879907, -0.0015398765]
+2026-05-16 18:27:07,354 - httpx - INFO - HTTP Request: PUT http://10.160.68.222:6333/collections/zora_memory/points?wait=true "HTTP/1.1 200 OK"
+2026-05-16 18:27:07,354 - memory.qdrant_memory - INFO - store: Точка сохранена с ID: 96471ee7-40c0-49f1-8b8e-549ec2f12dd8
+2026-05-16 18:27:09,842 - memory.qdrant_memory - INFO - store: text='Какой комбикорм лучше: основные критерии и сложнос...', vector_size=1024, first_5=[0.02879961, -0.004293394, 0.010003386, 0.014946097, 0.00035679346]
+2026-05-16 18:27:09,857 - httpx - INFO - HTTP Request: PUT http://10.160.68.222:6333/collections/zora_memory/points?wait=true "HTTP/1.1 200 OK"
+2026-05-16 18:27:09,857 - memory.qdrant_memory - INFO - store: Точка сохранена с ID: 1e254a7d-026a-418e-8dad-6e36455f9714
+2026-05-16 18:27:11,961 - memory.qdrant_memory - INFO - store: text='hqdefault.jpg...', vector_size=1024, first_5=[-0.042611606, -0.007505402, 0.0292463, 0.012183657, -0.042508464]
+2026-05-16 18:27:11,972 - httpx - INFO - HTTP Request: PUT http://10.160.68.222:6333/collections/zora_memory/points?wait=true "HTTP/1.1 200 OK"
+2026-05-16 18:27:11,973 - memory.qdrant_memory - INFO - store: Точка сохранена с ID: 134cef97-33ad-49ae-8d8c-d1a9e3714fb9
+2026-05-16 18:27:14,201 - memory.qdrant_memory - INFO - store: text='Какой комбикорм лучше: основные критерии и сложнос...', vector_size=1024, first_5=[0.02879961, -0.004293394, 0.010003386, 0.014946097, 0.00035679346]
+2026-05-16 18:27:14,209 - httpx - INFO - HTTP Request: PUT http://10.160.68.222:6333/collections/zora_memory/points?wait=true "HTTP/1.1 200 OK"
+2026-05-16 18:27:14,210 - memory.qdrant_memory - INFO - store: Точка сохранена с ID: 3d8dd538-9716-4722-b281-997392e7a1a5
+2026-05-16 18:27:14,210 - ZORA.Collector.Ukorona - INFO -   Обработка: https://www.ukorona.ru/articles/kombikorm/
+2026-05-16 18:27:20,134 - memory.qdrant_memory - INFO - store: text='статьи регионы что такое комбикорм и как выбрать к...', vector_size=1024, first_5=[0.012510586, 0.010019339, -0.0046095657, 0.0659875, 0.0037530712]
+2026-05-16 18:27:20,158 - httpx - INFO - HTTP Request: PUT http://10.160.68.222:6333/collections/zora_memory/points?wait=true "HTTP/1.1 200 OK"
+2026-05-16 18:27:20,158 - memory.qdrant_memory - INFO - store: Точка сохранена с ID: 1fbec222-c9df-439d-93d0-d00f9439b342
+2026-05-16 18:27:22,321 - memory.qdrant_memory - INFO - store: text='сроки хранения преимущества комбикорма производств...', vector_size=1024, first_5=[0.010288502, 0.0036942372, -0.01850748, 0.026221635, -0.012861442]
+2026-05-16 18:27:22,328 - httpx - INFO - HTTP Request: PUT http://10.160.68.222:6333/collections/zora_memory/points?wait=true "HTTP/1.1 200 OK"
+2026-05-16 18:27:22,328 - memory.qdrant_memory - INFO - store: Точка сохранена с ID: be68b441-18bd-4778-bfae-a0c2390de0d3
+2026-05-16 18:27:24,467 - memory.qdrant_memory - INFO - store: text='##авляет собои очищенную и измельченную до определ...', vector_size=1024, first_5=[0.021706885, 0.019804914, -0.016259583, 0.05079268, 0.012944031]
+2026-05-16 18:27:24,475 - httpx - INFO - HTTP Request: PUT http://10.160.68.222:6333/collections/zora_memory/points?wait=true "HTTP/1.1 200 OK"
+2026-05-16 18:27:24,475 - memory.qdrant_memory - INFO - store: Точка сохранена с ID: 0dfc1c44-0e3d-47b9-a5b6-6c7d631c3bae
+2026-05-16 18:27:26,611 - memory.qdrant_memory - INFO - store: text='##тятся при перевозке. долго хранятся. гранулирова...', vector_size=1024, first_5=[0.005576762, 0.0152729545, -0.034104906, 0.04956277, 0.0066531263]
+2026-05-16 18:27:26,619 - httpx - INFO - HTTP Request: PUT http://10.160.68.222:6333/collections/zora_memory/points?wait=true "HTTP/1.1 200 OK"
+2026-05-16 18:27:26,620 - memory.qdrant_memory - INFO - store: Точка сохранена с ID: 4db9fb25-43ed-49f8-927f-04cb2cf7a99a
+2026-05-16 18:27:28,690 - connectors.embedding_client - WARNING - Превышение длины контекста, уменьшаю до 256 токенов (попытка 1/3)
+2026-05-16 18:27:30,778 - memory.qdrant_memory - INFO - store: text='##ько раздроблена, смешана, но и термически обрабо...', vector_size=1024, first_5=[0.002997902, -0.0012844922, -0.048613146, 0.03401407, -0.003255363]
+2026-05-16 18:27:30,796 - httpx - INFO - HTTP Request: PUT http://10.160.68.222:6333/collections/zora_memory/points?wait=true "HTTP/1.1 200 OK"
+2026-05-16 18:27:30,797 - memory.qdrant_memory - INFO - store: Точка сохранена с ID: 904ce6c4-8260-483d-b9e3-50470845da24
+2026-05-16 18:27:32,923 - memory.qdrant_memory - INFO - store: text=', ячмень, жмых из кукурузного зародыша, жмых подсо...', vector_size=1024, first_5=[0.009849519, -0.008450515, -0.033963535, 0.044150542, 0.0375064]
+2026-05-16 18:27:32,938 - httpx - INFO - HTTP Request: PUT http://10.160.68.222:6333/collections/zora_memory/points?wait=true "HTTP/1.1 200 OK"
+2026-05-16 18:27:32,938 - memory.qdrant_memory - INFO - store: Точка сохранена с ID: 9e92cf6c-9b9d-4b20-810b-c76a6eaec010
+2026-05-16 18:27:35,038 - memory.qdrant_memory - INFO - store: text='##оими силами в соответствии с рекомендациями вете...', vector_size=1024, first_5=[0.0009064846, 0.007700243, -0.042388055, 0.059207756, 0.021427916]
+2026-05-16 18:27:35,048 - httpx - INFO - HTTP Request: PUT http://10.160.68.222:6333/collections/zora_memory/points?wait=true "HTTP/1.1 200 OK"
+2026-05-16 18:27:35,049 - memory.qdrant_memory - INFO - store: Точка сохранена с ID: aa0b93c6-bbb0-40d3-9e71-94ee4042b213
+2026-05-16 18:27:37,132 - connectors.embedding_client - WARNING - Превышение длины контекста, уменьшаю до 256 токенов (попытка 1/3)
+2026-05-16 18:27:39,245 - memory.qdrant_memory - INFO - store: text='##у, правильному развитию на всех возрастных этапа...', vector_size=1024, first_5=[0.009544838, 0.0001902061, -0.0570084, 0.041761115, 0.013114037]
+2026-05-16 18:27:39,255 - httpx - INFO - HTTP Request: PUT http://10.160.68.222:6333/collections/zora_memory/points?wait=true "HTTP/1.1 200 OK"
+2026-05-16 18:27:39,256 - memory.qdrant_memory - INFO - store: Точка сохранена с ID: aac66452-0a54-4d3e-8e06-7be9f14bf590
+2026-05-16 18:27:41,346 - connectors.embedding_client - WARNING - Превышение длины контекста, уменьшаю до 256 токенов (попытка 1/3)
+2026-05-16 18:27:43,445 - memory.qdrant_memory - INFO - store: text='подробнее. комбикорм - концентрат ( маркер — буква...', vector_size=1024, first_5=[0.017327985, -0.019577822, -0.010460365, 0.019428583, 0.026155535]
+2026-05-16 18:27:43,456 - httpx - INFO - HTTP Request: PUT http://10.160.68.222:6333/collections/zora_memory/points?wait=true "HTTP/1.1 200 OK"
+2026-05-16 18:27:43,456 - memory.qdrant_memory - INFO - store: Точка сохранена с ID: 422ee74d-8b79-4ded-9142-8af876113d5b
+2026-05-16 18:27:45,574 - memory.qdrant_memory - INFO - store: text='##тательных, минеральных и биологически активных э...', vector_size=1024, first_5=[0.009326157, 0.01832913, -0.047557622, 0.05063333, 0.016013265]
+2026-05-16 18:27:45,590 - httpx - INFO - HTTP Request: PUT http://10.160.68.222:6333/collections/zora_memory/points?wait=true "HTTP/1.1 200 OK"
+2026-05-16 18:27:45,590 - memory.qdrant_memory - INFO - store: Точка сохранена с ID: 25711db7-cf03-4e15-8088-3fbc7337b9dc
+2026-05-16 18:27:47,729 - memory.qdrant_memory - INFO - store: text='##рых наименованиях бвмк содержатся кормовые антиб...', vector_size=1024, first_5=[-0.00028189475, 0.011247267, -0.022584451, 0.04109549, 0.009723977]
+2026-05-16 18:27:47,745 - httpx - INFO - HTTP Request: PUT http://10.160.68.222:6333/collections/zora_memory/points?wait=true "HTTP/1.1 200 OK"
+2026-05-16 18:27:47,745 - memory.qdrant_memory - INFO - store: Точка сохранена с ID: ffe56b46-9889-4bc6-9ae9-a324dee1c02c
+2026-05-16 18:27:49,816 - connectors.embedding_client - WARNING - Превышение длины контекста, уменьшаю до 256 токенов (попытка 1/3)
+2026-05-16 18:27:51,931 - memory.qdrant_memory - INFO - store: text='##личныи состав в зависимости от своего предназнач...', vector_size=1024, first_5=[0.011823152, -0.0020900874, 0.027504874, 0.041355982, -0.0060000764]
+2026-05-16 18:27:51,938 - httpx - INFO - HTTP Request: PUT http://10.160.68.222:6333/collections/zora_memory/points?wait=true "HTTP/1.1 200 OK"
+2026-05-16 18:27:51,939 - memory.qdrant_memory - INFO - store: Точка сохранена с ID: db1c179d-bce8-4d36-bf32-bb055c3a485e
+2026-05-16 18:27:54,058 - memory.qdrant_memory - INFO - store: text='##затели комбикорма оказывают влияние : влажность ...', vector_size=1024, first_5=[0.0031877938, 0.0038273043, -0.008743883, 0.056271724, -0.0073658666]
+2026-05-16 18:27:54,064 - httpx - INFO - HTTP Request: PUT http://10.160.68.222:6333/collections/zora_memory/points?wait=true "HTTP/1.1 200 OK"
+2026-05-16 18:27:54,065 - memory.qdrant_memory - INFO - store: Точка сохранена с ID: 2559ad9a-35c2-4e67-bd11-8d8b5a5ee68e
+2026-05-16 18:27:56,151 - connectors.embedding_client - WARNING - Превышение длины контекста, уменьшаю до 256 токенов (попытка 1/3)
+2026-05-16 18:27:58,267 - memory.qdrant_memory - INFO - store: text='##оизводства комбикорм проходит тест на соответств...', vector_size=1024, first_5=[-0.00048387924, -0.008674052, -0.034768034, 0.029497785, 0.019303255]
+2026-05-16 18:27:58,282 - httpx - INFO - HTTP Request: PUT http://10.160.68.222:6333/collections/zora_memory/points?wait=true "HTTP/1.1 200 OK"
+2026-05-16 18:27:58,283 - memory.qdrant_memory - INFO - store: Точка сохранена с ID: c91244c4-8663-4829-8ab9-15e0e1391299
+2026-05-16 18:28:00,374 - connectors.embedding_client - WARNING - Превышение длины контекста, уменьшаю до 256 токенов (попытка 1/3)
+2026-05-16 18:28:02,493 - memory.qdrant_memory - INFO - store: text='##льного рациона — питательная ценность и количест...', vector_size=1024, first_5=[-0.001384439, 0.013708212, -0.0336818, 0.06744856, 0.023105279]
+2026-05-16 18:28:02,501 - httpx - INFO - HTTP Request: PUT http://10.160.68.222:6333/collections/zora_memory/points?wait=true "HTTP/1.1 200 OK"
+2026-05-16 18:28:02,501 - memory.qdrant_memory - INFO - store: Точка сохранена с ID: f2be8b1c-9865-4a76-878c-0e80cf920918
+2026-05-16 18:28:04,629 - memory.qdrant_memory - INFO - store: text='##и комбикорм для свинеи — это специальная сбаланс...', vector_size=1024, first_5=[-0.009731174, -0.015473522, -0.018497486, 0.0492899, 0.0033006736]
+2026-05-16 18:28:04,639 - httpx - INFO - HTTP Request: PUT http://10.160.68.222:6333/collections/zora_memory/points?wait=true "HTTP/1.1 200 OK"
+2026-05-16 18:28:04,640 - memory.qdrant_memory - INFO - store: Точка сохранена с ID: 305501be-fd34-485f-ab99-033556ae5bac
+2026-05-16 18:28:06,783 - memory.qdrant_memory - INFO - store: text='##оксидант, пробиотик, премикс витаминныи и фермен...', vector_size=1024, first_5=[-0.005245927, -0.0063194195, -0.012560248, 0.03666711, 0.028767304]
+2026-05-16 18:28:06,802 - httpx - INFO - HTTP Request: PUT http://10.160.68.222:6333/collections/zora_memory/points?wait=true "HTTP/1.1 200 OK"
+2026-05-16 18:28:06,802 - memory.qdrant_memory - INFO - store: Точка сохранена с ID: 683aef0f-500b-4476-be97-1af99957d1f4
+2026-05-16 18:28:08,942 - memory.qdrant_memory - INFO - store: text='##тиц играет правильно подобранныи минеральныи сос...', vector_size=1024, first_5=[-0.0008656445, -0.0117147025, 0.03658301, 0.041510787, 0.033691783]
+2026-05-16 18:28:08,957 - httpx - INFO - HTTP Request: PUT http://10.160.68.222:6333/collections/zora_memory/points?wait=true "HTTP/1.1 200 OK"
+2026-05-16 18:28:08,958 - memory.qdrant_memory - INFO - store: Точка сохранена с ID: 29319e2d-4586-4cf1-a6c8-cffbb313454b
+2026-05-16 18:28:11,090 - memory.qdrant_memory - INFO - store: text='##разом, правильно подобранная пропорция всех пита...', vector_size=1024, first_5=[0.004381043, 0.0014451651, -0.032413222, 0.044293873, 2.7123292e-06]
+2026-05-16 18:28:11,101 - httpx - INFO - HTTP Request: PUT http://10.160.68.222:6333/collections/zora_memory/points?wait=true "HTTP/1.1 200 OK"
+2026-05-16 18:28:11,101 - memory.qdrant_memory - INFO - store: Точка сохранена с ID: 9e669aeb-6bcc-45e8-89c2-982e22cbc8ef
+2026-05-16 18:28:13,248 - memory.qdrant_memory - INFO - store: text='##ериод животное нуждается в разном количестве бел...', vector_size=1024, first_5=[0.00023557567, 0.019823987, -0.029724305, 0.035496503, -0.013607156]
+2026-05-16 18:28:13,258 - httpx - INFO - HTTP Request: PUT http://10.160.68.222:6333/collections/zora_memory/points?wait=true "HTTP/1.1 200 OK"
+2026-05-16 18:28:13,258 - memory.qdrant_memory - INFO - store: Точка сохранена с ID: d01e90d9-ad33-4f79-8a0e-83006b9f0042
+2026-05-16 18:28:15,361 - connectors.embedding_client - WARNING - Превышение длины контекста, уменьшаю до 256 токенов (попытка 1/3)
+2026-05-16 18:28:17,472 - memory.qdrant_memory - INFO - store: text='кормление ( в качестве дополнения к основному раци...', vector_size=1024, first_5=[0.0072961585, -0.048422016, -0.010670392, 0.016362803, -0.017705247]
+2026-05-16 18:28:17,478 - httpx - INFO - HTTP Request: PUT http://10.160.68.222:6333/collections/zora_memory/points?wait=true "HTTP/1.1 200 OK"
+2026-05-16 18:28:17,479 - memory.qdrant_memory - INFO - store: Точка сохранена с ID: ff9a5235-51f7-49f2-aab7-4fc29fb63183
+2026-05-16 18:28:19,601 - memory.qdrant_memory - INFO - store: text='##ет, запах, размер гранул, масса примеси, влажнос...', vector_size=1024, first_5=[0.02770159, -0.00034985176, -0.019257966, 0.040210016, 0.019830145]
+2026-05-16 18:28:19,611 - httpx - INFO - HTTP Request: PUT http://10.160.68.222:6333/collections/zora_memory/points?wait=true "HTTP/1.1 200 OK"
+2026-05-16 18:28:19,612 - memory.qdrant_memory - INFO - store: Точка сохранена с ID: fa6f01b2-7366-420a-8216-97b14779f259
+2026-05-16 18:28:21,764 - memory.qdrant_memory - INFO - store: text='##олю, которая не должна превышать : у крс — 14 % ...', vector_size=1024, first_5=[0.0073908237, 0.003630969, -0.03227308, 0.035929285, 0.0070839943]
+2026-05-16 18:28:21,774 - httpx - INFO - HTTP Request: PUT http://10.160.68.222:6333/collections/zora_memory/points?wait=true "HTTP/1.1 200 OK"
+2026-05-16 18:28:21,775 - memory.qdrant_memory - INFO - store: Точка сохранена с ID: 05780a0f-ea2d-4f7c-9317-b5ecf7d9c397
+2026-05-16 18:28:23,898 - memory.qdrant_memory - INFO - store: text='##т. возможно его нахождение в специальных емкостя...', vector_size=1024, first_5=[0.0021887983, 0.015566365, -0.05086366, 0.07794918, 0.003262175]
+2026-05-16 18:28:23,914 - httpx - INFO - HTTP Request: PUT http://10.160.68.222:6333/collections/zora_memory/points?wait=true "HTTP/1.1 200 OK"
+2026-05-16 18:28:23,915 - memory.qdrant_memory - INFO - store: Точка сохранена с ID: 595988ec-5d1b-4df1-8379-4148faae6917
+2026-05-16 18:28:26,055 - memory.qdrant_memory - INFO - store: text='##ьным путем отечественных и зарубежных лаборатори...', vector_size=1024, first_5=[0.018508742, 0.008787675, -0.039346814, 0.023731774, 0.0014865721]
+2026-05-16 18:28:26,071 - httpx - INFO - HTTP Request: PUT http://10.160.68.222:6333/collections/zora_memory/points?wait=true "HTTP/1.1 200 OK"
+2026-05-16 18:28:26,071 - memory.qdrant_memory - INFO - store: Точка сохранена с ID: 3e9b729c-cf21-4459-8034-64e9a1c3ac9b
+2026-05-16 18:28:28,218 - memory.qdrant_memory - INFO - store: text='##ависимости от ситуативнои потребности животного....', vector_size=1024, first_5=[0.021868113, 0.019290237, 0.012775304, 0.050550777, 0.02107119]
+2026-05-16 18:28:28,234 - httpx - INFO - HTTP Request: PUT http://10.160.68.222:6333/collections/zora_memory/points?wait=true "HTTP/1.1 200 OK"
+2026-05-16 18:28:28,235 - memory.qdrant_memory - INFO - store: Точка сохранена с ID: e8925865-43b3-4c2f-aac5-fec75c83574b
+2026-05-16 18:28:30,375 - memory.qdrant_memory - INFO - store: text='##ии, в результате которых были выявлены оптимальн...', vector_size=1024, first_5=[0.008184276, -0.021680975, -0.018767718, 0.045480244, 0.018684587]
+2026-05-16 18:28:30,391 - httpx - INFO - HTTP Request: PUT http://10.160.68.222:6333/collections/zora_memory/points?wait=true "HTTP/1.1 200 OK"
+2026-05-16 18:28:30,391 - memory.qdrant_memory - INFO - store: Точка сохранена с ID: 85f32393-7084-4906-b30a-e72ec49f4b82
+2026-05-16 18:28:32,459 - connectors.embedding_client - WARNING - Превышение длины контекста, уменьшаю до 256 токенов (попытка 1/3)
+2026-05-16 18:28:34,557 - memory.qdrant_memory - INFO - store: text='здоровье людеи, которые впоследствии будут употреб...', vector_size=1024, first_5=[-0.0061050025, -0.013887778, -0.03409728, 0.02467823, -0.012510237]
+2026-05-16 18:28:34,567 - httpx - INFO - HTTP Request: PUT http://10.160.68.222:6333/collections/zora_memory/points?wait=true "HTTP/1.1 200 OK"
+2026-05-16 18:28:34,567 - memory.qdrant_memory - INFO - store: Точка сохранена с ID: c15f75ee-cab4-4c36-8589-09469ccb20e1
+2026-05-16 18:28:36,672 - memory.qdrant_memory - INFO - store: text='##бинированныи корм — это высокотехнологичныи прод...', vector_size=1024, first_5=[0.010560521, 0.02570575, -0.03694791, 0.037554305, 0.008044948]
+2026-05-16 18:28:36,687 - httpx - INFO - HTTP Request: PUT http://10.160.68.222:6333/collections/zora_memory/points?wait=true "HTTP/1.1 200 OK"
+2026-05-16 18:28:36,688 - memory.qdrant_memory - INFO - store: Точка сохранена с ID: 3c73d14b-06ec-4872-8a16-a6201c77ac81
+2026-05-16 18:28:37,197 - ZORA.Collector.Ukorona - INFO -   Обработка: https://www.ukorona.ru/articles/chem-kormit-gusej/
+2026-05-16 18:28:41,890 - memory.qdrant_memory - INFO - store: text='статьи регионы чем кормить гусеи : особенности рац...', vector_size=1024, first_5=[0.001259103, 3.088414e-05, -0.012426227, 0.05260062, -0.020962605]
+2026-05-16 18:28:41,907 - httpx - INFO - HTTP Request: PUT http://10.160.68.222:6333/collections/zora_memory/points?wait=true "HTTP/1.1 200 OK"
+2026-05-16 18:28:41,907 - memory.qdrant_memory - INFO - store: Точка сохранена с ID: 27dfde09-fea2-4242-9023-a497737189dd
+2026-05-16 18:28:44,036 - memory.qdrant_memory - INFO - store: text='##одукты лучше добавить, а какие ограничить или во...', vector_size=1024, first_5=[-0.003352086, 0.012413912, -0.00977324, 0.04411508, -0.014336528]
+2026-05-16 18:28:44,052 - httpx - INFO - HTTP Request: PUT http://10.160.68.222:6333/collections/zora_memory/points?wait=true "HTTP/1.1 200 OK"
+2026-05-16 18:28:44,052 - memory.qdrant_memory - INFO - store: Точка сохранена с ID: fec91c83-6ff7-466d-be08-e36959e1898c
+2026-05-16 18:28:46,186 - memory.qdrant_memory - INFO - store: text='##олочную сыворотку, обрат, рыбную муку, дрожжи и ...', vector_size=1024, first_5=[0.02338977, 0.01648282, -0.036308605, 0.048885196, 0.011299927]
+2026-05-16 18:28:46,201 - httpx - INFO - HTTP Request: PUT http://10.160.68.222:6333/collections/zora_memory/points?wait=true "HTTP/1.1 200 OK"
+2026-05-16 18:28:46,202 - memory.qdrant_memory - INFO - store: Точка сохранена с ID: 26b9e50c-3aee-462b-a1f1-02c3a7713a6c
+2026-05-16 18:28:48,347 - memory.qdrant_memory - INFO - store: text='мышечнои, раз в неделю гусеи кормят только зеленью...', vector_size=1024, first_5=[0.025994632, 0.0004902807, -0.0037101833, 0.017777784, -0.013693367]
+2026-05-16 18:28:48,362 - httpx - INFO - HTTP Request: PUT http://10.160.68.222:6333/collections/zora_memory/points?wait=true "HTTP/1.1 200 OK"
+2026-05-16 18:28:48,362 - memory.qdrant_memory - INFO - store: Точка сохранена с ID: 46a9dfa8-77b2-404f-a6fa-8c99f1c93e5f
+2026-05-16 18:28:50,486 - memory.qdrant_memory - INFO - store: text='##зяиств предпочтительнее влажныи или комбинирован...', vector_size=1024, first_5=[-0.006028334, 0.011674549, -0.034299076, 0.039560515, -0.02215839]
+2026-05-16 18:28:50,495 - httpx - INFO - HTTP Request: PUT http://10.160.68.222:6333/collections/zora_memory/points?wait=true "HTTP/1.1 200 OK"
+2026-05-16 18:28:50,496 - memory.qdrant_memory - INFO - store: Точка сохранена с ID: 7fbae305-3ff1-4bdc-b8ae-7af4dd6b893b
+2026-05-16 18:28:52,603 - memory.qdrant_memory - INFO - store: text='только сухого корма высок риск закупорки кишечника...', vector_size=1024, first_5=[0.011744589, 0.010898574, -0.0042318236, 0.008190908, -0.017154023]
+2026-05-16 18:28:52,611 - httpx - INFO - HTTP Request: PUT http://10.160.68.222:6333/collections/zora_memory/points?wait=true "HTTP/1.1 200 OK"
+2026-05-16 18:28:52,611 - memory.qdrant_memory - INFO - store: Точка сохранена с ID: 69e1f368-f2f0-4957-9dc7-6a659039cd50
+2026-05-16 18:28:54,767 - memory.qdrant_memory - INFO - store: text='##овление таких смесеи достаточно трудоемкии проце...', vector_size=1024, first_5=[0.00405727, -0.012211399, -0.026406303, 0.05242843, -0.0054354747]
+2026-05-16 18:28:54,776 - httpx - INFO - HTTP Request: PUT http://10.160.68.222:6333/collections/zora_memory/points?wait=true "HTTP/1.1 200 OK"
+2026-05-16 18:28:54,777 - memory.qdrant_memory - INFO - store: Точка сохранена с ID: f1e81945-31a1-4709-83da-02d6761fc518
+2026-05-16 18:28:56,885 - memory.qdrant_memory - INFO - store: text='##тиц необходимо обеспечить чистои питьевои водои....', vector_size=1024, first_5=[0.0027116332, 0.0038143774, 0.049370255, 0.045475338, 0.00433031]
+2026-05-16 18:28:56,901 - httpx - INFO - HTTP Request: PUT http://10.160.68.222:6333/collections/zora_memory/points?wait=true "HTTP/1.1 200 OK"
+2026-05-16 18:28:56,901 - memory.qdrant_memory - INFO - store: Точка сохранена с ID: 649f8923-0282-4251-affc-f3125eeb5b83
+2026-05-16 18:28:59,039 - memory.qdrant_memory - INFO - store: text='##слотами, необходимыми для нормального роста птиц...', vector_size=1024, first_5=[0.026017373, 0.019664165, -0.011600715, 0.04299178, 0.0047095385]
+2026-05-16 18:28:59,055 - httpx - INFO - HTTP Request: PUT http://10.160.68.222:6333/collections/zora_memory/points?wait=true "HTTP/1.1 200 OK"
+2026-05-16 18:28:59,056 - memory.qdrant_memory - INFO - store: Точка сохранена с ID: 1cb57de9-e0d9-4c0b-a93a-57a80f3cc5d9
+2026-05-16 18:29:01,167 - memory.qdrant_memory - INFO - store: text='##ьном откорме перед яицекладкои сроком не менее 3...', vector_size=1024, first_5=[0.009217664, -0.011631904, 0.0012514369, 0.052332535, -0.015558393]
+2026-05-16 18:29:01,178 - httpx - INFO - HTTP Request: PUT http://10.160.68.222:6333/collections/zora_memory/points?wait=true "HTTP/1.1 200 OK"
+2026-05-16 18:29:01,178 - memory.qdrant_memory - INFO - store: Точка сохранена с ID: f8080b2d-7daa-4849-bb70-6a6d460a3886
+2026-05-16 18:29:03,316 - memory.qdrant_memory - INFO - store: text='##орожником, тысячелистником, клевером, люцернои. ...', vector_size=1024, first_5=[0.002565622, 0.029824326, -0.021097537, 0.04020493, -0.015345975]
+2026-05-16 18:29:03,324 - httpx - INFO - HTTP Request: PUT http://10.160.68.222:6333/collections/zora_memory/points?wait=true "HTTP/1.1 200 OK"
+2026-05-16 18:29:03,325 - memory.qdrant_memory - INFO - store: Точка сохранена с ID: f8f5fadc-a5de-476a-b490-1d03fbd97294
+2026-05-16 18:29:05,480 - memory.qdrant_memory - INFO - store: text='##ием зерновых : овса, ячменя, пшеницы, ржи, кукур...', vector_size=1024, first_5=[0.0060931044, -0.01944614, 0.008976467, 0.03778321, -0.009626435]
+2026-05-16 18:29:05,488 - httpx - INFO - HTTP Request: PUT http://10.160.68.222:6333/collections/zora_memory/points?wait=true "HTTP/1.1 200 OK"
+2026-05-16 18:29:05,489 - memory.qdrant_memory - INFO - store: Точка сохранена с ID: 4f1416b6-b63f-47ee-be1b-ed1c4c77a193
+2026-05-16 18:29:07,647 - memory.qdrant_memory - INFO - store: text='##ериод основу рациона составляют зерновые : ячмен...', vector_size=1024, first_5=[-0.0011074019, -0.008920224, -0.05135886, 0.05688592, -0.021260047]
+2026-05-16 18:29:07,657 - httpx - INFO - HTTP Request: PUT http://10.160.68.222:6333/collections/zora_memory/points?wait=true "HTTP/1.1 200 OK"
+2026-05-16 18:29:07,658 - memory.qdrant_memory - INFO - store: Точка сохранена с ID: 9e3e0878-0a96-4e93-be69-0b10683c5d4d
+2026-05-16 18:29:09,790 - memory.qdrant_memory - INFO - store: text='##мунитет гусеи, способствует увеличению количеств...', vector_size=1024, first_5=[0.0034241746, -0.006917558, -0.018523432, 0.045387607, -0.0014757476]
+2026-05-16 18:29:09,799 - httpx - INFO - HTTP Request: PUT http://10.160.68.222:6333/collections/zora_memory/points?wait=true "HTTP/1.1 200 OK"
+2026-05-16 18:29:09,800 - memory.qdrant_memory - INFO - store: Точка сохранена с ID: 9bb67f57-116d-46da-b7d6-f20e80938361
+2026-05-16 18:29:11,951 - memory.qdrant_memory - INFO - store: text='##о его не рекомендуется давать в большом количест...', vector_size=1024, first_5=[0.026356183, 0.021021055, -0.04027165, 0.05176737, -0.011422115]
+2026-05-16 18:29:11,961 - httpx - INFO - HTTP Request: PUT http://10.160.68.222:6333/collections/zora_memory/points?wait=true "HTTP/1.1 200 OK"
+2026-05-16 18:29:11,961 - memory.qdrant_memory - INFO - store: Точка сохранена с ID: 7179262c-5b0d-4ee1-91dc-c92596d0e27e
+2026-05-16 18:29:14,097 - memory.qdrant_memory - INFO - store: text='##али достаточно калории во время кормления в птич...', vector_size=1024, first_5=[0.013695838, 0.008955011, -0.0150382295, 0.03647121, 0.007960509]
+2026-05-16 18:29:14,107 - httpx - INFO - HTTP Request: PUT http://10.160.68.222:6333/collections/zora_memory/points?wait=true "HTTP/1.1 200 OK"
+2026-05-16 18:29:14,107 - memory.qdrant_memory - INFO - store: Точка сохранена с ID: 0f51a5ee-4805-4fac-8f8e-1133061681a4
+2026-05-16 18:29:16,232 - memory.qdrant_memory - INFO - store: text='##ем все ингредиенты необходимо тщательно проверят...', vector_size=1024, first_5=[0.014555726, -0.00012169519, -0.016676938, 0.04996845, -0.013097784]
+2026-05-16 18:29:16,240 - httpx - INFO - HTTP Request: PUT http://10.160.68.222:6333/collections/zora_memory/points?wait=true "HTTP/1.1 200 OK"
+2026-05-16 18:29:16,240 - memory.qdrant_memory - INFO - store: Точка сохранена с ID: 921d9a87-e139-42f7-b305-0854114e2266
+2026-05-16 18:29:18,386 - memory.qdrant_memory - INFO - store: text='##ытная пища с высоким содержанием витаминов и мин...', vector_size=1024, first_5=[0.04549252, 0.015796712, 0.00036620264, 0.045030903, 0.01329176]
+2026-05-16 18:29:18,402 - httpx - INFO - HTTP Request: PUT http://10.160.68.222:6333/collections/zora_memory/points?wait=true "HTTP/1.1 200 OK"
+2026-05-16 18:29:18,402 - memory.qdrant_memory - INFO - store: Точка сохранена с ID: 5db0dda7-560b-4f67-b579-014d9945c23f
+2026-05-16 18:29:20,533 - memory.qdrant_memory - INFO - store: text='##ьного возраста в корм добавляют кашу из пшеницы ...', vector_size=1024, first_5=[0.010289021, -0.0038728232, 4.1512038e-05, 0.0059677176, -0.013301545]
+2026-05-16 18:29:20,542 - httpx - INFO - HTTP Request: PUT http://10.160.68.222:6333/collections/zora_memory/points?wait=true "HTTP/1.1 200 OK"
+2026-05-16 18:29:20,543 - memory.qdrant_memory - INFO - store: Точка сохранена с ID: 99838809-b780-47fe-b5c9-f6b7e7ace059
+2026-05-16 18:29:22,664 - memory.qdrant_memory - INFO - store: text=', вареныи картофель, чтобы они получали в достаточ...', vector_size=1024, first_5=[0.023394676, -0.013182192, 0.02085788, 0.038522426, -0.020641368]
+2026-05-16 18:29:22,679 - httpx - INFO - HTTP Request: PUT http://10.160.68.222:6333/collections/zora_memory/points?wait=true "HTTP/1.1 200 OK"
+2026-05-16 18:29:22,680 - memory.qdrant_memory - INFO - store: Точка сохранена с ID: 9022ab3d-11df-459d-88c4-99b565111f23
+2026-05-16 18:29:24,817 - memory.qdrant_memory - INFO - store: text='постоянно должна быть еда и достаточное количество...', vector_size=1024, first_5=[-0.0014333882, 0.0062162667, 0.0028675813, 0.06599046, -0.017488824]
+2026-05-16 18:29:24,832 - httpx - INFO - HTTP Request: PUT http://10.160.68.222:6333/collections/zora_memory/points?wait=true "HTTP/1.1 200 OK"
+2026-05-16 18:29:24,833 - memory.qdrant_memory - INFO - store: Точка сохранена с ID: bd91cbb6-010d-4f37-bdcb-7443881ff137
+2026-05-16 18:29:26,955 - memory.qdrant_memory - INFO - store: text='рациона для гусеи различного возраста - сложная за...', vector_size=1024, first_5=[-0.0063005364, 0.008906602, -0.018177483, 0.028909447, 0.017087743]
+2026-05-16 18:29:26,975 - httpx - INFO - HTTP Request: PUT http://10.160.68.222:6333/collections/zora_memory/points?wait=true "HTTP/1.1 200 OK"
+2026-05-16 18:29:26,975 - memory.qdrant_memory - INFO - store: Точка сохранена с ID: 9f771b60-0a08-41e4-82d0-071589c73dcf
+2026-05-16 18:29:27,321 - ZORA.Collector.Ukorona - INFO -   Обработка: https://www.ukorona.ru/articles/premiksy-vidy-proizvodstvo-sostav/
+2026-05-16 18:29:32,220 - connectors.embedding_client - WARNING - Превышение длины контекста, уменьшаю до 256 токенов (попытка 1/3)
+2026-05-16 18:29:34,343 - memory.qdrant_memory - INFO - store: text='статьи регионы премиксы — виды, производство, сост...', vector_size=1024, first_5=[-0.011390349, -0.007755467, -0.0048154243, 0.033006273, -0.0067341654]
+2026-05-16 18:29:34,355 - httpx - INFO - HTTP Request: PUT http://10.160.68.222:6333/collections/zora_memory/points?wait=true "HTTP/1.1 200 OK"
+2026-05-16 18:29:34,355 - memory.qdrant_memory - INFO - store: Точка сохранена с ID: cf6daeca-ac15-4d44-bfef-99021694f92e
+2026-05-16 18:29:36,489 - memory.qdrant_memory - INFO - store: text='##авляются с задачеи обеспечения потребностеи скот...', vector_size=1024, first_5=[0.006605063, 0.006898307, -0.014056341, 0.03879081, -0.015755842]
+2026-05-16 18:29:36,500 - httpx - INFO - HTTP Request: PUT http://10.160.68.222:6333/collections/zora_memory/points?wait=true "HTTP/1.1 200 OK"
+2026-05-16 18:29:36,501 - memory.qdrant_memory - INFO - store: Точка сохранена с ID: 4fda6af4-cf72-4f4a-8096-08230c819e8a
+2026-05-16 18:29:38,664 - memory.qdrant_memory - INFO - store: text='##чественных и вкусовых показателеи мяса, яиц, мол...', vector_size=1024, first_5=[0.004746125, -0.010544671, 0.0029382894, 0.05424471, -0.0077623506]
+2026-05-16 18:29:38,675 - httpx - INFO - HTTP Request: PUT http://10.160.68.222:6333/collections/zora_memory/points?wait=true "HTTP/1.1 200 OK"
+2026-05-16 18:29:38,675 - memory.qdrant_memory - INFO - store: Точка сохранена с ID: 6131c000-4261-4f78-8d08-99c0f3d17f6f
+2026-05-16 18:29:40,800 - memory.qdrant_memory - INFO - store: text='##редохранения от наиболее распространенных болезн...', vector_size=1024, first_5=[0.0060195155, -0.0035105597, -0.025566595, 0.036160413, 0.0001497301]
+2026-05-16 18:29:40,808 - httpx - INFO - HTTP Request: PUT http://10.160.68.222:6333/collections/zora_memory/points?wait=true "HTTP/1.1 200 OK"
+2026-05-16 18:29:40,809 - memory.qdrant_memory - INFO - store: Точка сохранена с ID: 2f5ea8d2-5f7a-4755-bd13-260aa151f554
+2026-05-16 18:29:42,936 - memory.qdrant_memory - INFO - store: text='##ение функционирования всех физиологических систе...', vector_size=1024, first_5=[0.009441135, 0.012990245, -0.04168614, 0.03468781, -0.008225864]
+2026-05-16 18:29:42,943 - httpx - INFO - HTTP Request: PUT http://10.160.68.222:6333/collections/zora_memory/points?wait=true "HTTP/1.1 200 OK"
+2026-05-16 18:29:42,943 - memory.qdrant_memory - INFO - store: Точка сохранена с ID: dd0ab469-35cf-4e65-af67-ec2633304bcb
+2026-05-16 18:29:45,034 - connectors.embedding_client - WARNING - Превышение длины контекста, уменьшаю до 256 токенов (попытка 1/3)
+2026-05-16 18:29:47,146 - memory.qdrant_memory - INFO - store: text='##лу – prae ( предварительно ) и misceo ( « микс »...', vector_size=1024, first_5=[0.008869577, 0.026334453, -0.0026427296, 0.040393185, -0.019265333]
+2026-05-16 18:29:47,156 - httpx - INFO - HTTP Request: PUT http://10.160.68.222:6333/collections/zora_memory/points?wait=true "HTTP/1.1 200 OK"
+2026-05-16 18:29:47,157 - memory.qdrant_memory - INFO - store: Точка сохранена с ID: b8720ab1-cc34-4ae9-a70c-fe27ead39183
+2026-05-16 18:29:49,239 - connectors.embedding_client - WARNING - Превышение длины контекста, уменьшаю до 256 токенов (попытка 1/3)
+2026-05-16 18:29:51,346 - memory.qdrant_memory - INFO - store: text='##ныи витаминныи препарат, тем самым избегая недос...', vector_size=1024, first_5=[0.0021258078, -0.005419282, 0.0025536248, 0.035437144, -0.00055345247]
+2026-05-16 18:29:51,357 - httpx - INFO - HTTP Request: PUT http://10.160.68.222:6333/collections/zora_memory/points?wait=true "HTTP/1.1 200 OK"
+2026-05-16 18:29:51,357 - memory.qdrant_memory - INFO - store: Точка сохранена с ID: f939c31a-c0c6-4ced-86a7-e19d2e18ba91
+2026-05-16 18:29:53,497 - memory.qdrant_memory - INFO - store: text='##атуральные ароматизаторы, повышающие привлекател...', vector_size=1024, first_5=[0.0050000297, -0.010822155, -0.01625374, 0.025656957, 0.030047096]
+2026-05-16 18:29:53,507 - httpx - INFO - HTTP Request: PUT http://10.160.68.222:6333/collections/zora_memory/points?wait=true "HTTP/1.1 200 OK"
+2026-05-16 18:29:53,508 - memory.qdrant_memory - INFO - store: Точка сохранена с ID: fb6bd89c-fb95-4866-a10b-b9142b5e6e5b
+2026-05-16 18:29:55,654 - memory.qdrant_memory - INFO - store: text='##снащенные в том числе высокоточными автоматическ...', vector_size=1024, first_5=[-0.014356497, 0.006346546, -0.054595042, 0.07013512, 0.0039046302]
+2026-05-16 18:29:55,664 - httpx - INFO - HTTP Request: PUT http://10.160.68.222:6333/collections/zora_memory/points?wait=true "HTTP/1.1 200 OK"
+2026-05-16 18:29:55,665 - memory.qdrant_memory - INFO - store: Точка сохранена с ID: da2884ce-709e-4d0f-9242-7e6a3e8185f0
+2026-05-16 18:29:57,761 - connectors.embedding_client - WARNING - Превышение длины контекста, уменьшаю до 256 токенов (попытка 1/3)
+2026-05-16 18:29:59,858 - memory.qdrant_memory - INFO - store: text='##тов и жесткого контроля каждого этапа производст...', vector_size=1024, first_5=[-0.015949104, -0.0051614237, -0.04021012, 0.058940772, -0.007281617]
+2026-05-16 18:29:59,866 - httpx - INFO - HTTP Request: PUT http://10.160.68.222:6333/collections/zora_memory/points?wait=true "HTTP/1.1 200 OK"
+2026-05-16 18:29:59,866 - memory.qdrant_memory - INFO - store: Точка сохранена с ID: e9517a8d-66cf-4701-9742-e2583af94996
+2026-05-16 18:30:01,950 - connectors.embedding_client - WARNING - Превышение длины контекста, уменьшаю до 256 токенов (попытка 1/3)
+2026-05-16 18:30:04,052 - memory.qdrant_memory - INFO - store: text='##скаются высококачественные премиксы, которые мож...', vector_size=1024, first_5=[0.012242884, 0.0004309498, -0.01826192, 0.08333404, 0.0060137925]
+2026-05-16 18:30:04,062 - httpx - INFO - HTTP Request: PUT http://10.160.68.222:6333/collections/zora_memory/points?wait=true "HTTP/1.1 200 OK"
+2026-05-16 18:30:04,062 - memory.qdrant_memory - INFO - store: Точка сохранена с ID: a1706056-7c09-4bcc-a321-cc2deabc7393
+2026-05-16 18:30:06,195 - memory.qdrant_memory - INFO - store: text='а также расклев яиц, преждевременные линьки и рахи...', vector_size=1024, first_5=[0.006795853, 0.0058901366, -0.026876464, 0.02190327, -0.0036602684]
+2026-05-16 18:30:06,204 - httpx - INFO - HTTP Request: PUT http://10.160.68.222:6333/collections/zora_memory/points?wait=true "HTTP/1.1 200 OK"
+2026-05-16 18:30:06,204 - memory.qdrant_memory - INFO - store: Точка сохранена с ID: 49bb9e59-9602-4c68-9e64-f04541278ff2
+2026-05-16 18:30:08,296 - memory.qdrant_memory - INFO - store: text='352750, россия, краснодарскии краи, станица брюхов...', vector_size=1024, first_5=[-0.029928267, -0.0028116396, -0.04669726, 0.046666395, -0.029336583]
+2026-05-16 18:30:08,306 - httpx - INFO - HTTP Request: PUT http://10.160.68.222:6333/collections/zora_memory/points?wait=true "HTTP/1.1 200 OK"
+2026-05-16 18:30:08,307 - memory.qdrant_memory - INFO - store: Точка сохранена с ID: 196a3fc5-7156-41f4-aee5-320f6f62f158
+2026-05-16 18:30:08,647 - ZORA.Collector.Ukorona - INFO -   Обработка: https://www.ukorona.ru/articles/pitatelnost-kormov-elementy-perevarivaemost-i-otsenka/
+2026-05-16 18:30:13,344 - memory.qdrant_memory - INFO - store: text='статьи регионы питательность кормов - питательные ...', vector_size=1024, first_5=[-0.013332801, -0.0013388172, -0.021801, 0.0422233, -0.007139588]
+2026-05-16 18:30:13,356 - httpx - INFO - HTTP Request: PUT http://10.160.68.222:6333/collections/zora_memory/points?wait=true "HTTP/1.1 200 OK"
+2026-05-16 18:30:13,356 - memory.qdrant_memory - INFO - store: Точка сохранена с ID: e72ee2a2-8dbc-4e20-9fc9-af4c52cb76c4
+2026-05-16 18:30:15,505 - memory.qdrant_memory - INFO - store: text='##ляющие кормовои смеси, а также их процентное сод...', vector_size=1024, first_5=[0.0077429353, 0.019430185, -0.04106951, 0.032446407, -0.0019180174]
+2026-05-16 18:30:15,520 - httpx - INFO - HTTP Request: PUT http://10.160.68.222:6333/collections/zora_memory/points?wait=true "HTTP/1.1 200 OK"
+2026-05-16 18:30:15,521 - memory.qdrant_memory - INFO - store: Точка сохранена с ID: b6e0f6b0-1e4f-43c7-a01c-13bef5ce22b7
+2026-05-16 18:30:17,605 - connectors.embedding_client - WARNING - Превышение длины контекста, уменьшаю до 256 токенов (попытка 1/3)
+2026-05-16 18:30:19,718 - memory.qdrant_memory - INFO - store: text='##се, сеннаже, клубнеплодах, барде, отходах от пер...', vector_size=1024, first_5=[0.009741411, -0.0024457125, -0.022192236, 0.055890743, 0.002954928]
+2026-05-16 18:30:19,728 - httpx - INFO - HTTP Request: PUT http://10.160.68.222:6333/collections/zora_memory/points?wait=true "HTTP/1.1 200 OK"
+2026-05-16 18:30:19,729 - memory.qdrant_memory - INFO - store: Точка сохранена с ID: 41116550-1d8b-40e7-adbd-66b4afe40181
+2026-05-16 18:30:21,867 - memory.qdrant_memory - INFO - store: text='##роветворения. иод нужен для работы щитовиднои же...', vector_size=1024, first_5=[0.01912066, 0.0006644174, -0.03885271, 0.037016075, -0.0070297583]
+2026-05-16 18:30:21,877 - httpx - INFO - HTTP Request: PUT http://10.160.68.222:6333/collections/zora_memory/points?wait=true "HTTP/1.1 200 OK"
+2026-05-16 18:30:21,877 - memory.qdrant_memory - INFO - store: Точка сохранена с ID: daffd42d-2370-4be3-9017-f127441542f3
+2026-05-16 18:30:23,964 - connectors.embedding_client - WARNING - Превышение длины контекста, уменьшаю до 256 токенов (попытка 1/3)
+2026-05-16 18:30:26,061 - memory.qdrant_memory - INFO - store: text='с концентрированными кормами, а коровы – с более г...', vector_size=1024, first_5=[-0.0012203476, -0.012209565, -0.0072035757, 0.024207212, -0.010773668]
+2026-05-16 18:30:26,068 - httpx - INFO - HTTP Request: PUT http://10.160.68.222:6333/collections/zora_memory/points?wait=true "HTTP/1.1 200 OK"
+2026-05-16 18:30:26,068 - memory.qdrant_memory - INFO - store: Точка сохранена с ID: 4116470e-0705-4f24-906b-5520fc94e8c8
+2026-05-16 18:30:28,176 - memory.qdrant_memory - INFO - store: text='##оотложения, по которым определяется энергетическ...', vector_size=1024, first_5=[0.0014498311, 0.03171223, -0.04581441, 0.04486288, -0.0031478908]
+2026-05-16 18:30:28,182 - httpx - INFO - HTTP Request: PUT http://10.160.68.222:6333/collections/zora_memory/points?wait=true "HTTP/1.1 200 OK"
+2026-05-16 18:30:28,183 - memory.qdrant_memory - INFO - store: Точка сохранена с ID: d7d5ff5f-2ff0-4a74-8402-3b66f36cbddd
+2026-05-16 18:30:30,659 - memory.qdrant_memory - INFO - store: text='Питательность кормов - питательные элементы, перев...', vector_size=1024, first_5=[0.011408838, -0.03822193, 0.014007398, 0.033151567, -0.006786409]
+2026-05-16 18:30:30,675 - httpx - INFO - HTTP Request: PUT http://10.160.68.222:6333/collections/zora_memory/points?wait=true "HTTP/1.1 200 OK"
+2026-05-16 18:30:30,676 - memory.qdrant_memory - INFO - store: Точка сохранена с ID: 58d9e50a-7f12-42c2-bce8-a324f1b999fa
+2026-05-16 18:30:30,787 - ZORA.Collector.Ukorona - INFO -   Обработка: https://www.ukorona.ru/articles/chem-kormit-tsyplyat-broylerov/
+2026-05-16 18:30:35,250 - connectors.embedding_client - WARNING - Превышение длины контекста, уменьшаю до 256 токенов (попытка 1/3)
+2026-05-16 18:30:37,343 - memory.qdrant_memory - INFO - store: text='статьи регионы чем кормить броилеров для набора ве...', vector_size=1024, first_5=[0.03880016, -0.01653545, -0.03410607, 0.040328976, 0.007805953]
+2026-05-16 18:30:37,375 - httpx - INFO - HTTP Request: PUT http://10.160.68.222:6333/collections/zora_memory/points?wait=true "HTTP/1.1 200 OK"
+2026-05-16 18:30:37,376 - memory.qdrant_memory - INFO - store: Точка сохранена с ID: 099a07d1-dc27-4419-8eb4-8c9a7b095d1a
+2026-05-16 18:30:39,467 - connectors.embedding_client - WARNING - Превышение длины контекста, уменьшаю до 256 токенов (попытка 1/3)
+2026-05-16 18:30:41,582 - memory.qdrant_memory - INFO - store: text='##х. гибридные кроссы разводят на крупных птицефаб...', vector_size=1024, first_5=[0.016211405, -0.033556227, 0.007924591, 0.06814166, 0.008943464]
+2026-05-16 18:30:41,592 - httpx - INFO - HTTP Request: PUT http://10.160.68.222:6333/collections/zora_memory/points?wait=true "HTTP/1.1 200 OK"
+2026-05-16 18:30:41,593 - memory.qdrant_memory - INFO - store: Точка сохранена с ID: 3171d67e-33ec-494b-8fe7-852d10bc0172
+2026-05-16 18:30:43,668 - connectors.embedding_client - WARNING - Превышение длины контекста, уменьшаю до 256 токенов (попытка 1/3)
+2026-05-16 18:30:45,763 - memory.qdrant_memory - INFO - store: text='##и практикои доказано, что лучшее использование п...', vector_size=1024, first_5=[-0.004396325, -0.0014326968, -0.023847941, 0.056748718, 0.0026250381]
+2026-05-16 18:30:45,773 - httpx - INFO - HTTP Request: PUT http://10.160.68.222:6333/collections/zora_memory/points?wait=true "HTTP/1.1 200 OK"
+2026-05-16 18:30:45,774 - memory.qdrant_memory - INFO - store: Точка сохранена с ID: 9d4bcdb4-d0eb-4fd0-a3b1-477f37f30559
+2026-05-16 18:30:47,918 - memory.qdrant_memory - INFO - store: text='днеи от 15 до 28 днеи от 29 до 45 днеи бмвк чем не...', vector_size=1024, first_5=[0.032094877, -0.012870029, -0.013770348, 0.05521111, -0.011476244]
+2026-05-16 18:30:47,927 - httpx - INFO - HTTP Request: PUT http://10.160.68.222:6333/collections/zora_memory/points?wait=true "HTTP/1.1 200 OK"
+2026-05-16 18:30:47,927 - memory.qdrant_memory - INFO - store: Точка сохранена с ID: 383b513b-2cf3-4a2d-b809-57018f5a99b3
+2026-05-16 18:30:50,050 - memory.qdrant_memory - INFO - store: text='##я использовать белково - витаминно - минеральные...', vector_size=1024, first_5=[0.005690217, 0.01589474, -0.014366954, 0.058853235, 0.002072053]
+2026-05-16 18:30:50,057 - httpx - INFO - HTTP Request: PUT http://10.160.68.222:6333/collections/zora_memory/points?wait=true "HTTP/1.1 200 OK"
+2026-05-16 18:30:50,057 - memory.qdrant_memory - INFO - store: Точка сохранена с ID: 4996c43a-9ba8-4863-9f22-979346d6df7c
+2026-05-16 18:30:52,133 - connectors.embedding_client - WARNING - Превышение длины контекста, уменьшаю до 256 токенов (попытка 1/3)
+2026-05-16 18:30:54,238 - memory.qdrant_memory - INFO - store: text='##орм : « старт » — питательная крупка для птенцов...', vector_size=1024, first_5=[0.009863234, 0.007457173, 0.0019079295, 0.057501696, 0.0022976687]
+2026-05-16 18:30:54,248 - httpx - INFO - HTTP Request: PUT http://10.160.68.222:6333/collections/zora_memory/points?wait=true "HTTP/1.1 200 OK"
+2026-05-16 18:30:54,249 - memory.qdrant_memory - INFO - store: Точка сохранена с ID: 60ed1865-cba5-4e83-b149-38f9afb250c9
+2026-05-16 18:30:56,384 - memory.qdrant_memory - INFO - store: text='##иятных факторов, о которых уже говорилось выше, ...', vector_size=1024, first_5=[0.005528383, -0.011771375, -0.019184673, 0.050181307, 0.026590517]
+2026-05-16 18:30:56,393 - httpx - INFO - HTTP Request: PUT http://10.160.68.222:6333/collections/zora_memory/points?wait=true "HTTP/1.1 200 OK"
+2026-05-16 18:30:56,394 - memory.qdrant_memory - INFO - store: Точка сохранена с ID: 679ed06f-5273-43ca-a82e-c57280b080dd
+2026-05-16 18:30:58,558 - memory.qdrant_memory - INFO - store: text='##рсальнои комбинация качественного комбикорма и б...', vector_size=1024, first_5=[0.014071781, 0.009456568, -0.024116728, 0.030581517, 0.032894142]
+2026-05-16 18:30:58,568 - httpx - INFO - HTTP Request: PUT http://10.160.68.222:6333/collections/zora_memory/points?wait=true "HTTP/1.1 200 OK"
+2026-05-16 18:30:58,568 - memory.qdrant_memory - INFO - store: Точка сохранена с ID: c1c3e0f2-6964-4df0-a540-9599491a56ca
+2026-05-16 18:31:00,716 - memory.qdrant_memory - INFO - store: text='##у, сыворотку, творог. главное условие – их свеже...', vector_size=1024, first_5=[0.020093327, 0.020242538, -0.023138374, 0.05137648, 0.025434414]
+2026-05-16 18:31:00,726 - httpx - INFO - HTTP Request: PUT http://10.160.68.222:6333/collections/zora_memory/points?wait=true "HTTP/1.1 200 OK"
+2026-05-16 18:31:00,727 - memory.qdrant_memory - INFO - store: Точка сохранена с ID: d88b5bc9-ca7f-4272-999d-92dea80215c0
+2026-05-16 18:31:02,808 - connectors.embedding_client - WARNING - Превышение длины контекста, уменьшаю до 256 токенов (попытка 1/3)
+2026-05-16 18:31:04,925 - memory.qdrant_memory - INFO - store: text='##комендуется включать в рацион уже с 3 дня выращи...', vector_size=1024, first_5=[0.020062238, 0.026030894, -0.01607275, 0.055260725, -0.021945497]
+2026-05-16 18:31:04,935 - httpx - INFO - HTTP Request: PUT http://10.160.68.222:6333/collections/zora_memory/points?wait=true "HTTP/1.1 200 OK"
+2026-05-16 18:31:04,935 - memory.qdrant_memory - INFO - store: Точка сохранена с ID: 14095e08-1061-4f36-9dc3-f509c7b21d9e
+2026-05-16 18:31:07,083 - memory.qdrant_memory - INFO - store: text='##ние своими руками из продуктов, которые есть под...', vector_size=1024, first_5=[-0.01315625, 0.0037957141, -0.03258393, 0.053060137, -0.010399281]
+2026-05-16 18:31:07,099 - httpx - INFO - HTTP Request: PUT http://10.160.68.222:6333/collections/zora_memory/points?wait=true "HTTP/1.1 200 OK"
+2026-05-16 18:31:07,099 - memory.qdrant_memory - INFO - store: Точка сохранена с ID: a27c89dc-e53a-4b44-b5e5-7a733c5755c4
+2026-05-16 18:31:09,219 - memory.qdrant_memory - INFO - store: text='##сления птицы комбикорм подбирается индивидуально...', vector_size=1024, first_5=[0.025215449, 0.008245471, -0.03141865, 0.054555897, 0.022583315]
+2026-05-16 18:31:09,227 - httpx - INFO - HTTP Request: PUT http://10.160.68.222:6333/collections/zora_memory/points?wait=true "HTTP/1.1 200 OK"
+2026-05-16 18:31:09,228 - memory.qdrant_memory - INFO - store: Точка сохранена с ID: 89830d67-e5a5-470c-b806-cc316c12fab5
+2026-05-16 18:31:11,373 - memory.qdrant_memory - INFO - store: text='##иться со схемои кормления броилеров от нашего за...', vector_size=1024, first_5=[0.048179194, -0.019647257, -0.014237648, 0.059197847, 0.004151886]
+2026-05-16 18:31:11,381 - httpx - INFO - HTTP Request: PUT http://10.160.68.222:6333/collections/zora_memory/points?wait=true "HTTP/1.1 200 OK"
+2026-05-16 18:31:11,381 - memory.qdrant_memory - INFO - store: Точка сохранена с ID: 94a24ee4-6bf5-4b99-abbb-9c2cf27a9a18
+2026-05-16 18:31:13,479 - connectors.embedding_client - WARNING - Превышение длины контекста, уменьшаю до 256 токенов (попытка 1/3)
+2026-05-16 18:31:15,596 - memory.qdrant_memory - INFO - store: text='##ована научно - исследовательскими институтами пт...', vector_size=1024, first_5=[-0.012587133, -0.010548992, -0.023280915, 0.012698576, 0.0053409385]
+2026-05-16 18:31:15,614 - httpx - INFO - HTTP Request: PUT http://10.160.68.222:6333/collections/zora_memory/points?wait=true "HTTP/1.1 200 OK"
+2026-05-16 18:31:15,615 - memory.qdrant_memory - INFO - store: Точка сохранена с ID: a76f1964-7cfa-4983-a881-816d997c87ad
+2026-05-16 18:31:17,705 - connectors.embedding_client - WARNING - Превышение длины контекста, уменьшаю до 256 токенов (попытка 1/3)
+2026-05-16 18:31:19,834 - memory.qdrant_memory - INFO - store: text='##сследования доказали, что конечная масса тушки н...', vector_size=1024, first_5=[-0.012237653, 0.022411617, -0.04467187, 0.05300151, -0.014564825]
+2026-05-16 18:31:19,844 - httpx - INFO - HTTP Request: PUT http://10.160.68.222:6333/collections/zora_memory/points?wait=true "HTTP/1.1 200 OK"
+2026-05-16 18:31:19,844 - memory.qdrant_memory - INFO - store: Точка сохранена с ID: af68de0a-77eb-45cd-90e8-8c7d299a8896
+2026-05-16 18:31:21,911 - connectors.embedding_client - WARNING - Превышение длины контекста, уменьшаю до 256 токенов (попытка 1/3)
+2026-05-16 18:31:24,032 - memory.qdrant_memory - INFO - store: text='##ее сбалансированныи состав для раскрытия генетич...', vector_size=1024, first_5=[0.0065023736, 0.016954605, -0.020518038, 0.06617685, 0.005954842]
+2026-05-16 18:31:24,042 - httpx - INFO - HTTP Request: PUT http://10.160.68.222:6333/collections/zora_memory/points?wait=true "HTTP/1.1 200 OK"
+2026-05-16 18:31:24,042 - memory.qdrant_memory - INFO - store: Точка сохранена с ID: 39341ebd-b5d0-4190-b5c3-6f9c491a0bae
+2026-05-16 18:31:26,180 - memory.qdrant_memory - INFO - store: text='##ариванию и усвоению, что помогает развивать пище...', vector_size=1024, first_5=[0.022274965, 0.01530307, -0.017429026, 0.0551218, 0.006200519]
+2026-05-16 18:31:26,189 - httpx - INFO - HTTP Request: PUT http://10.160.68.222:6333/collections/zora_memory/points?wait=true "HTTP/1.1 200 OK"
+2026-05-16 18:31:26,190 - memory.qdrant_memory - INFO - store: Точка сохранена с ID: 36889bdc-b76a-4cdc-9612-2e05796fec6d
+2026-05-16 18:31:28,258 - connectors.embedding_client - WARNING - Превышение длины контекста, уменьшаю до 256 токенов (попытка 1/3)
+2026-05-16 18:31:30,356 - memory.qdrant_memory - INFO - store: text='##в, но не превысить нормы, чтобы не вызвать ожире...', vector_size=1024, first_5=[0.025586497, 0.019946678, 0.0035840464, 0.032573685, -0.020088933]
+2026-05-16 18:31:30,366 - httpx - INFO - HTTP Request: PUT http://10.160.68.222:6333/collections/zora_memory/points?wait=true "HTTP/1.1 200 OK"
+2026-05-16 18:31:30,366 - memory.qdrant_memory - INFO - store: Точка сохранена с ID: 3a2df3f8-f475-4a95-98c3-be865eca1547
+2026-05-16 18:31:32,428 - connectors.embedding_client - WARNING - Превышение длины контекста, уменьшаю до 256 токенов (попытка 1/3)
+2026-05-16 18:31:34,537 - memory.qdrant_memory - INFO - store: text='##и популярностью пользуется белково - витаминно -...', vector_size=1024, first_5=[0.017264778, -0.0010748577, -0.03128855, 0.056080732, 0.015470034]
+2026-05-16 18:31:34,553 - httpx - INFO - HTTP Request: PUT http://10.160.68.222:6333/collections/zora_memory/points?wait=true "HTTP/1.1 200 OK"
+2026-05-16 18:31:34,554 - memory.qdrant_memory - INFO - store: Точка сохранена с ID: c17a30b2-52cd-4528-82a8-e0fd7239adfb
+2026-05-16 18:31:36,683 - memory.qdrant_memory - INFO - store: text='; снижает затраты корма на единицу продукции ; бал...', vector_size=1024, first_5=[-0.0037790763, -0.02098741, -0.026183965, 0.055295408, -0.000738296]
+2026-05-16 18:31:36,693 - httpx - INFO - HTTP Request: PUT http://10.160.68.222:6333/collections/zora_memory/points?wait=true "HTTP/1.1 200 OK"
+2026-05-16 18:31:36,694 - memory.qdrant_memory - INFO - store: Точка сохранена с ID: 8e59f5e3-8df7-4320-9f5a-8afd4ed00c4e
+2026-05-16 18:31:38,836 - memory.qdrant_memory - INFO - store: text='рекомендуется уже с первых днеи жизни давать комби...', vector_size=1024, first_5=[-0.009103076, 0.017998673, -0.010542864, 0.059975833, 0.00024433987]
+2026-05-16 18:31:38,851 - httpx - INFO - HTTP Request: PUT http://10.160.68.222:6333/collections/zora_memory/points?wait=true "HTTP/1.1 200 OK"
+2026-05-16 18:31:38,852 - memory.qdrant_memory - INFO - store: Точка сохранена с ID: 249ae6ac-ab4d-4bd1-a64c-2c499f125f8b
+2026-05-16 18:31:40,991 - memory.qdrant_memory - INFO - store: text='##де, поэтому они готовы попробовать все в зоне их...', vector_size=1024, first_5=[0.008112801, -0.0018178857, -0.020681573, 0.0501283, -0.011412823]
+2026-05-16 18:31:41,007 - httpx - INFO - HTTP Request: PUT http://10.160.68.222:6333/collections/zora_memory/points?wait=true "HTTP/1.1 200 OK"
+2026-05-16 18:31:41,007 - memory.qdrant_memory - INFO - store: Точка сохранена с ID: e846a104-cdfc-443b-963a-b92f4c50c82a
+2026-05-16 18:31:43,148 - memory.qdrant_memory - INFO - store: text='##отреблении птица наращивает жировую массу, значи...', vector_size=1024, first_5=[0.01819668, 0.017743891, 0.020647977, 0.04683752, -0.0068085124]
+2026-05-16 18:31:43,159 - httpx - INFO - HTTP Request: PUT http://10.160.68.222:6333/collections/zora_memory/points?wait=true "HTTP/1.1 200 OK"
+2026-05-16 18:31:43,160 - memory.qdrant_memory - INFO - store: Точка сохранена с ID: f69bc9cf-ca3d-4105-9284-5cafffd0589b
+2026-05-16 18:31:45,301 - memory.qdrant_memory - INFO - store: text='##ольшеи части зависит скорость прироста веса, вку...', vector_size=1024, first_5=[0.009992987, 0.020546075, -0.020022113, 0.05917493, 0.007300417]
+2026-05-16 18:31:45,317 - httpx - INFO - HTTP Request: PUT http://10.160.68.222:6333/collections/zora_memory/points?wait=true "HTTP/1.1 200 OK"
+2026-05-16 18:31:45,317 - memory.qdrant_memory - INFO - store: Точка сохранена с ID: ed6c5b73-89af-470e-b1f3-01a65ea637cc
+2026-05-16 18:31:45,817 - ZORA.Collector.Ukorona - INFO -   Обработка: https://www.ukorona.ru/articles/sovety-po-perekhodu-molochnykh-telyat-na-kombikorm/
+2026-05-16 18:31:50,481 - memory.qdrant_memory - INFO - store: text='статьи регионы советы по переходу молочных телят н...', vector_size=1024, first_5=[0.020280281, 0.011065111, -0.022144487, 0.044734433, -0.0002419222]
+2026-05-16 18:31:50,520 - httpx - INFO - HTTP Request: PUT http://10.160.68.222:6333/collections/zora_memory/points?wait=true "HTTP/1.1 200 OK"
+2026-05-16 18:31:50,521 - memory.qdrant_memory - INFO - store: Точка сохранена с ID: a8729995-8a48-4292-95be-fde77bd219aa
+2026-05-16 18:31:52,652 - memory.qdrant_memory - INFO - store: text='##веннои необходимостью к жидкому корму, но чем ра...', vector_size=1024, first_5=[-0.010614712, 0.004131055, -0.008425296, 0.04308129, 0.0088113835]
+2026-05-16 18:31:52,667 - httpx - INFO - HTTP Request: PUT http://10.160.68.222:6333/collections/zora_memory/points?wait=true "HTTP/1.1 200 OK"
+2026-05-16 18:31:52,667 - memory.qdrant_memory - INFO - store: Точка сохранена с ID: dd3b73e6-c566-4d8c-96b7-29da35b2f81a
+2026-05-16 18:31:54,792 - memory.qdrant_memory - INFO - store: text='##рехода с одного вида кормления на совершенно дру...', vector_size=1024, first_5=[0.011027642, -0.011168814, -0.017997878, 0.04319682, -0.0038139173]
+2026-05-16 18:31:54,807 - httpx - INFO - HTTP Request: PUT http://10.160.68.222:6333/collections/zora_memory/points?wait=true "HTTP/1.1 200 OK"
+2026-05-16 18:31:54,808 - memory.qdrant_memory - INFO - store: Точка сохранена с ID: 2f81288c-65da-4e35-8d89-95d4df0a82fb
+2026-05-16 18:31:56,928 - memory.qdrant_memory - INFO - store: text='##ваите в молоко стартерные комбикорма для более р...', vector_size=1024, first_5=[0.022066833, 0.01859745, -0.041984804, 0.03671983, -0.02164899]
+2026-05-16 18:31:56,936 - httpx - INFO - HTTP Request: PUT http://10.160.68.222:6333/collections/zora_memory/points?wait=true "HTTP/1.1 200 OK"
+2026-05-16 18:31:56,936 - memory.qdrant_memory - INFO - store: Точка сохранена с ID: 3625a918-de05-4709-849b-9c87696c0aa6
+2026-05-16 18:31:59,053 - memory.qdrant_memory - INFO - store: text='##корма, так облегчается его переваривание и усвое...', vector_size=1024, first_5=[0.025919877, 0.016451977, -0.059709385, 0.059793316, 0.014887735]
+2026-05-16 18:31:59,068 - httpx - INFO - HTTP Request: PUT http://10.160.68.222:6333/collections/zora_memory/points?wait=true "HTTP/1.1 200 OK"
+2026-05-16 18:31:59,069 - memory.qdrant_memory - INFO - store: Точка сохранена с ID: 266ff726-0515-41da-87b3-d091c120d9b3
+2026-05-16 18:31:59,599 - ZORA.Collector.Ukorona - INFO -   Обработка: https://www.ukorona.ru/articles/kombikorm-dlya-perepelov-raznovidnosti-osobennosti-prigotovleniya-i-kormleniya/
+2026-05-16 18:32:04,993 - memory.qdrant_memory - INFO - store: text='статьи регионы комбикорм для перепелов : виды и но...', vector_size=1024, first_5=[0.011897128, 0.013092389, -0.012913078, 0.03966911, -0.0031938541]
+2026-05-16 18:32:05,023 - httpx - INFO - HTTP Request: PUT http://10.160.68.222:6333/collections/zora_memory/points?wait=true "HTTP/1.1 200 OK"
+2026-05-16 18:32:05,024 - memory.qdrant_memory - INFO - store: Точка сохранена с ID: 970ecb31-05e2-466b-9b54-df27698aec9a
+2026-05-16 18:32:07,157 - memory.qdrant_memory - INFO - store: text='##ход к птицеводству требует использования исключи...', vector_size=1024, first_5=[0.0019046869, 0.010506527, -0.026814582, 0.050471902, 0.013714508]
+2026-05-16 18:32:07,168 - httpx - INFO - HTTP Request: PUT http://10.160.68.222:6333/collections/zora_memory/points?wait=true "HTTP/1.1 200 OK"
+2026-05-16 18:32:07,168 - memory.qdrant_memory - INFO - store: Точка сохранена с ID: 6f69e723-c7d8-47bf-bbbf-aa0844d61008
+2026-05-16 18:32:09,313 - memory.qdrant_memory - INFO - store: text='##кроэлементы и витамины в определенном соотношени...', vector_size=1024, first_5=[0.04840998, -0.00024983945, -0.019218469, 0.039271332, -0.006862537]
+2026-05-16 18:32:09,322 - httpx - INFO - HTTP Request: PUT http://10.160.68.222:6333/collections/zora_memory/points?wait=true "HTTP/1.1 200 OK"
+2026-05-16 18:32:09,323 - memory.qdrant_memory - INFO - store: Точка сохранена с ID: 357759fc-1c1b-42a1-8079-c7039a4f1ff8
+2026-05-16 18:32:11,459 - memory.qdrant_memory - INFO - store: text='данная норма должна соблюдаться в течение второго ...', vector_size=1024, first_5=[0.0039334088, -0.0049059344, 0.0030175212, 0.03442418, -0.0026161592]
+2026-05-16 18:32:11,471 - httpx - INFO - HTTP Request: PUT http://10.160.68.222:6333/collections/zora_memory/points?wait=true "HTTP/1.1 200 OK"
+2026-05-16 18:32:11,471 - memory.qdrant_memory - INFO - store: Точка сохранена с ID: 2b1ad2bf-9b1c-4647-8f2e-f1c832686d72
+2026-05-16 18:32:13,607 - memory.qdrant_memory - INFO - store: text='##ледующие растения : кукуруза. просо. ячмень. пше...', vector_size=1024, first_5=[-0.0067769205, -0.009433322, -0.024926774, 0.03413178, -0.0005440389]
+2026-05-16 18:32:13,616 - httpx - INFO - HTTP Request: PUT http://10.160.68.222:6333/collections/zora_memory/points?wait=true "HTTP/1.1 200 OK"
+2026-05-16 18:32:13,616 - memory.qdrant_memory - INFO - store: Точка сохранена с ID: 86437674-bd42-4e51-804d-1f024682fcb7
+2026-05-16 18:32:15,720 - connectors.embedding_client - WARNING - Превышение длины контекста, уменьшаю до 256 токенов (попытка 1/3)
+2026-05-16 18:32:17,819 - memory.qdrant_memory - INFO - store: text='##и или подсолнечника – насыщены витаминами группы...', vector_size=1024, first_5=[0.01502411, 0.0024396922, -0.011531856, 0.04972582, 0.026437838]
+2026-05-16 18:32:17,830 - httpx - INFO - HTTP Request: PUT http://10.160.68.222:6333/collections/zora_memory/points?wait=true "HTTP/1.1 200 OK"
+2026-05-16 18:32:17,830 - memory.qdrant_memory - INFO - store: Точка сохранена с ID: 10ddd0a2-414f-42d3-b4e5-29a0ef0cb619
+2026-05-16 18:32:19,974 - memory.qdrant_memory - INFO - store: text='##ьными потребностями выращивания перепелов на опр...', vector_size=1024, first_5=[0.023675641, 0.01817275, -0.03251232, 0.059699085, -0.0031802785]
+2026-05-16 18:32:19,984 - httpx - INFO - HTTP Request: PUT http://10.160.68.222:6333/collections/zora_memory/points?wait=true "HTTP/1.1 200 OK"
+2026-05-16 18:32:19,984 - memory.qdrant_memory - INFO - store: Точка сохранена с ID: f8317497-b32c-465a-8fff-8db76c734afd
+2026-05-16 18:32:22,106 - memory.qdrant_memory - INFO - store: text='##омия времени при составлении рациона питания и п...', vector_size=1024, first_5=[0.008060411, 0.02377877, -0.018170534, 0.05812433, -0.0067670094]
+2026-05-16 18:32:22,113 - httpx - INFO - HTTP Request: PUT http://10.160.68.222:6333/collections/zora_memory/points?wait=true "HTTP/1.1 200 OK"
+2026-05-16 18:32:22,113 - memory.qdrant_memory - INFO - store: Точка сохранена с ID: e64d01d5-de6a-4ecb-aec5-4229a68e1e80
+2026-05-16 18:32:24,213 - connectors.embedding_client - WARNING - Превышение длины контекста, уменьшаю до 256 токенов (попытка 1/3)
+2026-05-16 18:32:26,321 - memory.qdrant_memory - INFO - store: text='), а также ее возраст, ведь на каждом этапе развит...', vector_size=1024, first_5=[-0.016746454, 0.024137823, -0.019345094, 0.06168935, -0.0044135028]
+2026-05-16 18:32:26,337 - httpx - INFO - HTTP Request: PUT http://10.160.68.222:6333/collections/zora_memory/points?wait=true "HTTP/1.1 200 OK"
+2026-05-16 18:32:26,338 - memory.qdrant_memory - INFO - store: Точка сохранена с ID: d4e4b0d5-28c3-4426-9a7e-71d8510e137a
+2026-05-16 18:32:28,478 - memory.qdrant_memory - INFO - store: text='##ставе содержатся только натуральные ингредиенты ...', vector_size=1024, first_5=[0.013144832, 0.0129535, -0.022504512, 0.063343346, 0.007437049]
+2026-05-16 18:32:28,489 - httpx - INFO - HTTP Request: PUT http://10.160.68.222:6333/collections/zora_memory/points?wait=true "HTTP/1.1 200 OK"
+2026-05-16 18:32:28,490 - memory.qdrant_memory - INFO - store: Точка сохранена с ID: 8eda3791-065e-4ad9-851a-80fd0af5f576
+2026-05-16 18:32:30,629 - memory.qdrant_memory - INFO - store: text='##оторых зависит полноценное развитие всех органов...', vector_size=1024, first_5=[0.009759841, 0.010778078, -0.022313215, 0.04511835, 0.019207763]
+2026-05-16 18:32:30,647 - httpx - INFO - HTTP Request: PUT http://10.160.68.222:6333/collections/zora_memory/points?wait=true "HTTP/1.1 200 OK"
+2026-05-16 18:32:30,647 - memory.qdrant_memory - INFO - store: Точка сохранена с ID: f46c04d9-eafd-44ab-a928-a1ab2f390100
+2026-05-16 18:32:32,738 - memory.qdrant_memory - INFO - store: text='352750, россия, краснодарскии краи, станица брюхов...', vector_size=1024, first_5=[-0.029928267, -0.0028116396, -0.04669726, 0.046666395, -0.029336583]
+2026-05-16 18:32:32,765 - httpx - INFO - HTTP Request: PUT http://10.160.68.222:6333/collections/zora_memory/points?wait=true "HTTP/1.1 200 OK"
+2026-05-16 18:32:32,766 - memory.qdrant_memory - INFO - store: Точка сохранена с ID: 79ce0a7b-c123-4389-bf8d-64f243520946
+2026-05-16 18:32:35,073 - memory.qdrant_memory - INFO - store: text='Комбикорм для перепелов: виды и нормы кормления...', vector_size=1024, first_5=[0.021060564, 0.008035172, 0.026121324, 0.027850682, -0.018343369]
+2026-05-16 18:32:35,079 - httpx - INFO - HTTP Request: PUT http://10.160.68.222:6333/collections/zora_memory/points?wait=true "HTTP/1.1 200 OK"
+2026-05-16 18:32:35,080 - memory.qdrant_memory - INFO - store: Точка сохранена с ID: acc2dbe3-be18-429f-8790-183d83249b20
+2026-05-16 18:32:35,193 - ZORA.Collector.Ukorona - INFO -   Обработка: https://www.ukorona.ru/articles/norma-kombikorma-dlya-kur-nesushek-v-sutki-dlya-zdorovya-i-produktivnosti/
+2026-05-16 18:32:39,990 - memory.qdrant_memory - INFO - store: text='статьи регионы норма комбикорма для кур - несушек ...', vector_size=1024, first_5=[0.0031502014, 0.009285032, 0.0039823656, 0.013097918, -0.027391156]
+2026-05-16 18:32:40,016 - httpx - INFO - HTTP Request: PUT http://10.160.68.222:6333/collections/zora_memory/points?wait=true "HTTP/1.1 200 OK"
+2026-05-16 18:32:40,016 - memory.qdrant_memory - INFO - store: Точка сохранена с ID: 993fd713-a032-4e1a-9098-befb9d5e65ab
+2026-05-16 18:32:42,100 - connectors.embedding_client - WARNING - Превышение длины контекста, уменьшаю до 256 токенов (попытка 1/3)
+2026-05-16 18:32:44,217 - memory.qdrant_memory - INFO - store: text='##о курице - несушке в день, и от чего зависит его...', vector_size=1024, first_5=[0.013406457, 0.0063939174, 0.004735786, -0.004597523, -0.017266799]
+2026-05-16 18:32:44,230 - httpx - INFO - HTTP Request: PUT http://10.160.68.222:6333/collections/zora_memory/points?wait=true "HTTP/1.1 200 OK"
+2026-05-16 18:32:44,231 - memory.qdrant_memory - INFO - store: Точка сохранена с ID: 5906400b-b80f-4a03-bf1a-7364a66cac7b
+2026-05-16 18:32:46,376 - memory.qdrant_memory - INFO - store: text='##о добиться идеального соотношения необходимых ко...', vector_size=1024, first_5=[-0.011634497, 0.003669155, -0.027327614, 0.038441274, 0.011653582]
+2026-05-16 18:32:46,392 - httpx - INFO - HTTP Request: PUT http://10.160.68.222:6333/collections/zora_memory/points?wait=true "HTTP/1.1 200 OK"
+2026-05-16 18:32:46,393 - memory.qdrant_memory - INFO - store: Точка сохранена с ID: 7a704488-998d-4afa-85e9-af20eb90591c
+2026-05-16 18:32:48,540 - memory.qdrant_memory - INFO - store: text='##о корма съедает курица - несушка в день, краине ...', vector_size=1024, first_5=[-0.015229681, 0.024912741, -0.0059670922, 0.025890226, -0.020002449]
+2026-05-16 18:32:48,548 - httpx - INFO - HTTP Request: PUT http://10.160.68.222:6333/collections/zora_memory/points?wait=true "HTTP/1.1 200 OK"
+2026-05-16 18:32:48,548 - memory.qdrant_memory - INFO - store: Точка сохранена с ID: c778c2e8-8d6c-456d-b299-934d0ffb1bc4
+2026-05-16 18:32:50,655 - memory.qdrant_memory - INFO - store: text='##оэтому в корме обязательно должен присутствовать...', vector_size=1024, first_5=[0.017362287, -0.0074699176, -0.00938376, 0.034916937, 0.0010569313]
+2026-05-16 18:32:50,666 - httpx - INFO - HTTP Request: PUT http://10.160.68.222:6333/collections/zora_memory/points?wait=true "HTTP/1.1 200 OK"
+2026-05-16 18:32:50,667 - memory.qdrant_memory - INFO - store: Точка сохранена с ID: 5e5ea6d0-0989-4520-b42b-38e4cccd7371
+2026-05-16 18:32:52,734 - connectors.embedding_client - WARNING - Превышение длины контекста, уменьшаю до 256 токенов (попытка 1/3)
+2026-05-16 18:32:54,834 - memory.qdrant_memory - INFO - store: text='##тся использовать более калорииныи комбикорм ( по...', vector_size=1024, first_5=[0.004090651, 0.01044487, -0.00029750206, 0.04816591, 0.001020316]
+2026-05-16 18:32:54,844 - httpx - INFO - HTTP Request: PUT http://10.160.68.222:6333/collections/zora_memory/points?wait=true "HTTP/1.1 200 OK"
+2026-05-16 18:32:54,844 - memory.qdrant_memory - INFO - store: Точка сохранена с ID: ab2e5fb4-4a96-4198-a6cd-21527ff98d21
+2026-05-16 18:32:57,010 - memory.qdrant_memory - INFO - store: text='в этом случае имеют одинаковые последствия – сниже...', vector_size=1024, first_5=[-0.015773537, 0.00905372, -0.014678874, 0.03272978, -0.030142413]
+2026-05-16 18:32:57,017 - httpx - INFO - HTTP Request: PUT http://10.160.68.222:6333/collections/zora_memory/points?wait=true "HTTP/1.1 200 OK"
+2026-05-16 18:32:57,018 - memory.qdrant_memory - INFO - store: Точка сохранена с ID: f4606284-aa8b-4912-8411-edb6272c091b
+2026-05-16 18:32:59,132 - memory.qdrant_memory - INFO - store: text='##кости с песком или ракушечником можно не огранич...', vector_size=1024, first_5=[0.013684324, 0.022080481, -0.0062240874, 0.02070013, -0.013185303]
+2026-05-16 18:32:59,143 - httpx - INFO - HTTP Request: PUT http://10.160.68.222:6333/collections/zora_memory/points?wait=true "HTTP/1.1 200 OK"
+2026-05-16 18:32:59,144 - memory.qdrant_memory - INFO - store: Точка сохранена с ID: 59627eb1-28c4-4493-82c7-45fcdd2a59c0
+2026-05-16 18:33:01,274 - memory.qdrant_memory - INFO - store: text='корма давать курам - несушкам в день, мы ответили,...', vector_size=1024, first_5=[0.007523987, 0.012677652, -0.0481415, 0.00016614998, -0.007022614]
+2026-05-16 18:33:01,284 - httpx - INFO - HTTP Request: PUT http://10.160.68.222:6333/collections/zora_memory/points?wait=true "HTTP/1.1 200 OK"
+2026-05-16 18:33:01,284 - memory.qdrant_memory - INFO - store: Точка сохранена с ID: 2e390fa5-13c0-42cf-ae5f-655f49f79d30
+2026-05-16 18:33:03,592 - memory.qdrant_memory - INFO - store: text='Норма комбикорма для кур-несушек в сутки для здоро...', vector_size=1024, first_5=[0.010385237, 0.0006184891, 0.00036658498, -0.0065803407, -0.040993117]
+2026-05-16 18:33:03,598 - httpx - INFO - HTTP Request: PUT http://10.160.68.222:6333/collections/zora_memory/points?wait=true "HTTP/1.1 200 OK"
+2026-05-16 18:33:03,600 - memory.qdrant_memory - INFO - store: Точка сохранена с ID: a992a35f-b4d0-43db-868c-bf0fe223d2b6
+2026-05-16 18:33:03,712 - ZORA.Collector.Ukorona - INFO -   Обработка: https://www.ukorona.ru/catalog/kombikorm/kombikorm-dlya-ptits/dlya-kur-nesushek/rost-eco-pk-4/
+2026-05-16 18:33:08,141 - memory.qdrant_memory - INFO - store: text='полнорационныи комбикорм для молодняка кур в возра...', vector_size=1024, first_5=[0.01776874, 0.0027816365, 0.004212951, 0.017122544, -0.013054453]
+2026-05-16 18:33:08,148 - httpx - INFO - HTTP Request: PUT http://10.160.68.222:6333/collections/zora_memory/points?wait=true "HTTP/1.1 200 OK"
+2026-05-16 18:33:08,148 - memory.qdrant_memory - INFO - store: Точка сохранена с ID: 10cb5f65-52f5-4a94-8212-853b9b934057
+2026-05-16 18:33:10,268 - memory.qdrant_memory - INFO - store: text='##нем на одну голову гр / день за весь период на о...', vector_size=1024, first_5=[0.01053762, -0.009830436, -0.007693726, 0.027189786, -0.00572019]
+2026-05-16 18:33:10,279 - httpx - INFO - HTTP Request: PUT http://10.160.68.222:6333/collections/zora_memory/points?wait=true "HTTP/1.1 200 OK"
+2026-05-16 18:33:10,279 - memory.qdrant_memory - INFO - store: Точка сохранена с ID: 4e868c4c-08a3-444b-9034-2b018dc2627d
+2026-05-16 18:33:12,364 - connectors.embedding_client - WARNING - Превышение длины контекста, уменьшаю до 256 токенов (попытка 1/3)
+2026-05-16 18:33:14,487 - memory.qdrant_memory - INFO - store: text='##ль и старше 17 - 19 °с - только при выдерживании...', vector_size=1024, first_5=[-0.004633638, 0.018700454, -0.0023171671, -0.002723977, -0.030248161]
+2026-05-16 18:33:14,496 - httpx - INFO - HTTP Request: PUT http://10.160.68.222:6333/collections/zora_memory/points?wait=true "HTTP/1.1 200 OK"
+2026-05-16 18:33:14,497 - memory.qdrant_memory - INFO - store: Точка сохранена с ID: e06ee079-8684-4052-99ae-082237b59d0d
+2026-05-16 18:33:16,630 - memory.qdrant_memory - INFO - store: text='##аминно - минеральныи, соль поваренная, аминокисл...', vector_size=1024, first_5=[-0.006177265, -0.01732665, -0.011702849, 0.038642235, 0.031642742]
+2026-05-16 18:33:16,641 - httpx - INFO - HTTP Request: PUT http://10.160.68.222:6333/collections/zora_memory/points?wait=true "HTTP/1.1 200 OK"
+2026-05-16 18:33:16,641 - memory.qdrant_memory - INFO - store: Точка сохранена с ID: 35f2ba9e-261b-45d0-8aa3-1a3fc46f35b2
+2026-05-16 18:33:18,743 - memory.qdrant_memory - INFO - store: text='##го характеристик. это не является недостатком то...', vector_size=1024, first_5=[0.015608902, -0.00078043825, 0.01494322, 0.00035749527, 0.004823473]
+2026-05-16 18:33:18,750 - httpx - INFO - HTTP Request: PUT http://10.160.68.222:6333/collections/zora_memory/points?wait=true "HTTP/1.1 200 OK"
+2026-05-16 18:33:18,751 - memory.qdrant_memory - INFO - store: Точка сохранена с ID: 66b87885-2b6b-4729-90f5-938eaa12c79a
+2026-05-16 18:33:20,870 - memory.qdrant_memory - INFO - store: text='2, 5 мм ) ( пк - 3 ) полнорационныи кoмбикорм для ...', vector_size=1024, first_5=[0.010502713, 0.0024588448, 0.031176278, 0.013240235, -0.020151805]
+2026-05-16 18:33:20,881 - httpx - INFO - HTTP Request: PUT http://10.160.68.222:6333/collections/zora_memory/points?wait=true "HTTP/1.1 200 OK"
+2026-05-16 18:33:20,881 - memory.qdrant_memory - INFO - store: Точка сохранена с ID: 4764ab0a-998c-4cf3-8dd2-d77b8dbb9ada
+2026-05-16 18:33:23,017 - memory.qdrant_memory - INFO - store: text='##еспечивает сбалансированное развитие без риска о...', vector_size=1024, first_5=[-0.015799176, 0.00068405375, -0.029733703, 0.059682976, -0.0012106812]
+2026-05-16 18:33:23,028 - httpx - INFO - HTTP Request: PUT http://10.160.68.222:6333/collections/zora_memory/points?wait=true "HTTP/1.1 200 OK"
+2026-05-16 18:33:23,029 - memory.qdrant_memory - INFO - store: Точка сохранена с ID: 33f94494-d546-43ad-bda5-f2510465dbd8
+2026-05-16 18:33:25,131 - memory.qdrant_memory - INFO - store: text='##ства для птицы здоровое развитие костяка и муску...', vector_size=1024, first_5=[-0.033979256, -0.0073266104, -0.0140301315, 0.037300758, 0.0040700375]
+2026-05-16 18:33:25,137 - httpx - INFO - HTTP Request: PUT http://10.160.68.222:6333/collections/zora_memory/points?wait=true "HTTP/1.1 200 OK"
+2026-05-16 18:33:25,138 - memory.qdrant_memory - INFO - store: Точка сохранена с ID: cad813a0-1795-4538-957f-6dcd0869a95f
+2026-05-16 18:33:25,410 - ZORA.Collector.Ukorona - INFO -     Индексирую PDF: https://www.ukorona.ru/upload/shema/26/REKOMENDATSII-PO-KORMLENIIU-NESUSHKI.pdf
+2026-05-16 18:33:28,900 - memory.qdrant_memory - INFO - store: text='0 - 3 / uni0434 / uni0435 / uni043d / uni044c 30 -...', vector_size=1024, first_5=[0.013582274, -0.03176005, 0.013992002, -0.0114615485, -0.033880953]
+2026-05-16 18:33:28,909 - httpx - INFO - HTTP Request: PUT http://10.160.68.222:6333/collections/zora_memory/points?wait=true "HTTP/1.1 200 OK"
+2026-05-16 18:33:28,910 - memory.qdrant_memory - INFO - store: Точка сохранена с ID: 69919f4b-a8ac-4e2c-9b09-2478dfda1e59
+2026-05-16 18:33:30,984 - connectors.embedding_client - WARNING - Превышение длины контекста, уменьшаю до 256 токенов (попытка 1/3)
+2026-05-16 18:33:33,122 - memory.qdrant_memory - INFO - store: text='##i0418 / uni042e / uni041d / uni0415 / uni0421 / ...', vector_size=1024, first_5=[0.0062982445, -0.018144134, 0.031154491, 0.008997046, -0.029810304]
+2026-05-16 18:33:33,139 - httpx - INFO - HTTP Request: PUT http://10.160.68.222:6333/collections/zora_memory/points?wait=true "HTTP/1.1 200 OK"
+2026-05-16 18:33:33,140 - memory.qdrant_memory - INFO - store: Точка сохранена с ID: 53eaa07f-5241-48dd-9904-79592bf2fb94
+2026-05-16 18:33:35,221 - connectors.embedding_client - WARNING - Превышение длины контекста, уменьшаю до 256 токенов (попытка 1/3)
+2026-05-16 18:33:37,327 - memory.qdrant_memory - INFO - store: text='##2 / uni043e / uni0439 / uni0432 / uni043e / uni0...', vector_size=1024, first_5=[0.014435398, -0.00807527, 0.0300998, 0.009927196, -0.03963281]
+2026-05-16 18:33:37,343 - httpx - INFO - HTTP Request: PUT http://10.160.68.222:6333/collections/zora_memory/points?wait=true "HTTP/1.1 200 OK"
+2026-05-16 18:33:37,343 - memory.qdrant_memory - INFO - store: Точка сохранена с ID: 3293bd7d-dd5f-4af8-b663-42d55bca7b01
+2026-05-16 18:33:39,436 - memory.qdrant_memory - INFO - store: text='uni0433 / uni0443 / uni043b / uni044f / uni0440 / ...', vector_size=1024, first_5=[0.005470949, -0.01388694, 0.02625293, -0.009653175, -0.029277552]
+2026-05-16 18:33:39,442 - httpx - INFO - HTTP Request: PUT http://10.160.68.222:6333/collections/zora_memory/points?wait=true "HTTP/1.1 200 OK"
+2026-05-16 18:33:39,443 - memory.qdrant_memory - INFO - store: Точка сохранена с ID: ec3a825d-ea26-4ec4-80b9-5802da99b1cd
+2026-05-16 18:33:41,659 - memory.qdrant_memory - INFO - store: text='Полнорационный комбикорм для молодняка кур в возра...', vector_size=1024, first_5=[-0.013126027, -0.006356086, -0.0102364635, 0.019229067, -0.0036570302]
+2026-05-16 18:33:41,669 - httpx - INFO - HTTP Request: PUT http://10.160.68.222:6333/collections/zora_memory/points?wait=true "HTTP/1.1 200 OK"
+2026-05-16 18:33:41,670 - memory.qdrant_memory - INFO - store: Точка сохранена с ID: ef348b2d-55f0-48f9-86f1-243dee9f7131
