@@ -14,6 +14,7 @@ import hashlib
 import re
 import gc
 import sqlite3
+import asyncio
 from datetime import datetime
 from pathlib import Path
 from typing import Dict, Any, List, Optional, Generator, Tuple
@@ -301,13 +302,14 @@ class ParserAgent(BaseAgent):
         self.logger.info("Запуск построения карты ИТС")
 
         try:
-            from collectors.its_collector import build_sitemap
-            result = build_sitemap()
+            from collectors.its_collector import ITSCollector
+            collector = ITSCollector()
+            result = collector._build_sitemap()
             return self._log_result("its_sitemap", result.get("success", False),
-                f"Карта ИТС: {result.get('sections', 0)} разделов, {result.get('articles', 0)} статей",
+                f"Карта ИТС: {result.get('articles', 0)} статей",
                 data=result)
         except ImportError as e:
-            return self._log_result("its_sitemap", False, f"Модуль collectors.its_collector не найден: {e}")
+            return self._log_result("its_sitemap", False, f"Модуль ITSCollector не найден: {e}")
         except Exception as e:
             self.logger.error(f"Ошибка построения карты ИТС: {e}")
             return self._log_result("its_sitemap", False, f"Ошибка: {str(e)}")
@@ -317,7 +319,7 @@ class ParserAgent(BaseAgent):
         Парсит статьи ИТС 1С.
 
         Args:
-            sections: (игнорируется, оставлен для совместимости)
+            sections: Фильтр по разделу ИТС (например ["ka", "buh", "prog", "calendar"])
             limit: Максимальное количество статей
 
         Returns:
@@ -327,31 +329,43 @@ class ParserAgent(BaseAgent):
         self.logger.info("Запуск парсинга ИТС")
 
         try:
-            from collectors.its_collector import run as run_its
-            # Новый коллектор поддерживает progress_callback
-            result = run_its(limit=limit, progress_callback=self.update_progress)
-            articles = result.get('articles_processed', 0)
-            chunks = result.get('chunks_indexed', 0)
-            self.finish_operation(True, f"Обработано {articles} статей, {chunks} чанков")
-            return self._log_result("its", result.get("success", False),
+            from collectors.its_collector import ITSCollector
+            collector = ITSCollector()
+
+            # Формируем параметры для коллектора
+            params = {}
+            if limit is not None:
+                params["limit"] = limit
+            if sections and len(sections) > 0:
+                params["section"] = sections[0]  # берём первый раздел
+
+            # Запускаем асинхронный run коллектора в синхронном контексте
+            result = asyncio.run(collector.run(params=params))
+
+            articles = result.get("items_processed", 0)
+            chunks = result.get("chunks_added", 0)
+            success = result.get("success", False)
+
+            self.finish_operation(success, f"Обработано {articles} статей, {chunks} чанков")
+            return self._log_result("its", success,
                 f"ИТС: обработано {articles} статей, "
                 f"проиндексировано {chunks} чанков",
                 data=result)
         except ImportError as e:
             self.finish_operation(False, f"Модуль не найден: {e}")
-            return self._log_result("its", False, f"Модуль collectors.its_collector не найден: {e}")
+            return self._log_result("its", False, f"Модуль ITSCollector не найден: {e}")
         except Exception as e:
             self.logger.error(f"Ошибка парсинга ИТС: {e}")
             self.finish_operation(False, f"Ошибка: {str(e)}")
             return self._log_result("its", False, f"Ошибка: {str(e)}")
 
     # ======================================================================
-    # Коллектор Ukorona
+    # Коллектор Ukorona (переработан)
     # ======================================================================
 
     def parse_ukorona(self, limit: Optional[int] = None) -> Dict[str, Any]:
         """
-        Парсит сайт ukorona.ru.
+        Парсит сайт ukorona.ru с использованием нового UkoronaCollector.
 
         Args:
             limit: Максимальное количество страниц
@@ -363,19 +377,24 @@ class ParserAgent(BaseAgent):
         self.logger.info("Запуск парсинга ukorona.ru")
 
         try:
-            from collectors.ukorona_collector import run as run_ukorona
-            # Новый коллектор поддерживает progress_callback
-            result = run_ukorona(limit=limit, progress_callback=self.update_progress)
-            pages = result.get('pages_processed', 0)
-            items = result.get('items_indexed', 0)
-            self.finish_operation(True, f"Обработано {pages} страниц, {items} записей")
-            return self._log_result("ukorona", result.get("success", False),
+            from collectors.ukorona_collector import UkoronaCollector
+            collector = UkoronaCollector(config={})
+
+            # Запускаем асинхронный run коллектора в синхронном контексте
+            result = asyncio.run(collector.run(params={"limit": limit}))
+
+            pages = result.get("items_processed", 0)
+            items = result.get("chunks_added", 0)
+            success = result.get("success", False)
+
+            self.finish_operation(success, f"Обработано {pages} страниц, {items} записей")
+            return self._log_result("ukorona", success,
                 f"Ukorona: обработано {pages} страниц, "
                 f"проиндексировано {items} записей",
                 data=result)
         except ImportError as e:
-            self.finish_operation(False, f"Модуль не найден: {e}")
-            return self._log_result("ukorona", False, f"Модуль collectors.ukorona_collector не найден: {e}")
+            self.finish_operation(False, f"Модуль UkoronaCollector не найден: {e}")
+            return self._log_result("ukorona", False, f"Модуль UkoronaCollector не найден: {e}")
         except Exception as e:
             self.logger.error(f"Ошибка парсинга ukorona: {e}")
             self.finish_operation(False, f"Ошибка: {str(e)}")
