@@ -1,0 +1,140 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  body {
+    background-color: #0B111E;
+    color: #FFFFFF;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    min-height: 100vh;
+  }
+
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: #1A2536;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: #2A3A4E;
+    border-radius: 3px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: #3A4A5E;
+  }
+}
+
+@layer components {
+  .card {
+    background-color: #131B2A;
+    border: 1px solid #2A3A4E;
+    border-radius: 16px;
+    padding: 16px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
+  }
+
+  .card-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+
+  .card-header h3 {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #FFFFFF;
+  }
+
+  .metric-value {
+    font-size: 1.125rem;
+    font-weight: 700;
+    color: #3B82F6;
+  }
+
+  .metric-label {
+    font-size: 0.75rem;
+    color: #6B7280;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .status-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    display: inline-block;
+  }
+
+  .status-dot.healthy {
+    background-color: #22C55E;
+    box-shadow: 0 0 6px #22C55E;
+  }
+
+  .status-dot.degraded {
+    background-color: #F59E0B;
+    box-shadow: 0 0 6px #F59E0B;
+  }
+
+  .status-dot.down {
+    background-color: #EF4444;
+    box-shadow: 0 0 6px #EF4444;
+  }
+
+  .btn {
+    padding: 8px 16px;
+    border-radius: 9999px;
+    font-weight: 600;
+    font-size: 0.875rem;
+    transition: all 0.2s ease;
+    cursor: pointer;
+    border: 1px solid;
+  }
+
+  .btn-primary {
+    background-color: #3B82F6;
+    color: #0B111E;
+    border-color: #3B82F6;
+  }
+
+  .btn-primary:hover {
+    background-color: #60A5FA;
+    transform: translateY(-2px);
+  }
+
+  .btn-ghost {
+    background-color: #1E2A3A;
+    color: #6B7280;
+    border-color: #2A3A4E;
+  }
+
+  .btn-ghost:hover {
+    background-color: #2A3A4E;
+    color: #FFFFFF;
+  }
+
+  .progress-bar {
+    height: 4px;
+    background-color: #1F2A3C;
+    border-radius: 9999px;
+    overflow: hidden;
+  }
+
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(to right, #3B82F6, #60A5FA);
+    border-radius: 9999px;
+    transition: all 0.5s ease;
+  }
+}

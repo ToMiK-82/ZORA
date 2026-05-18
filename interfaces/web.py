@@ -119,13 +119,24 @@ async def modern_chat():
 
 @app.get("/dashboard", response_class=HTMLResponse)
 async def dashboard_page():
-    """Дашборд мониторинга (управление агентами, метрики, логи)."""
-    dashboard_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "monitoring", "templates", "dashboard.html")
-    if not os.path.exists(dashboard_path):
-        return HTMLResponse(content="<h1>Ошибка: dashboard.html не найден</h1>", status_code=404)
-    with open(dashboard_path, "r", encoding="utf-8") as f:
-        html_content = f.read()
-    return HTMLResponse(content=html_content)
+    """Редирект на новый дашборд v2 (React)."""
+    from starlette.responses import RedirectResponse
+    return RedirectResponse(url="/dashboard/v2")
+
+# Раздача статики React-дашборда v2
+dashboard_v2_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "dashboard_v2", "dist")
+if os.path.exists(dashboard_v2_dir):
+    app.mount("/dashboard/assets", StaticFiles(directory=os.path.join(dashboard_v2_dir, "assets")), name="dashboard_v2_assets")
+
+    @app.get("/dashboard/v2", response_class=HTMLResponse)
+    async def dashboard_v2_page():
+        """Дашборд v2 (React)."""
+        index_path = os.path.join(dashboard_v2_dir, "index.html")
+        if not os.path.exists(index_path):
+            return HTMLResponse(content="<h1>Ошибка: dashboard v2 не собран</h1>", status_code=404)
+        with open(index_path, "r", encoding="utf-8") as f:
+            html_content = f.read()
+        return HTMLResponse(content=html_content)
 
 @app.get("/user", response_class=HTMLResponse)
 async def user_chat():
@@ -1186,6 +1197,166 @@ async def inspector_autofix():
         return {"success": False, "error": str(e)}
 
 # ======================================================================
+# Эндпоинты для Дашборда v2 (React)
+# ======================================================================
+
+@app.get("/api/system/graph")
+async def system_graph():
+    """Возвращает граф компонентов системы для дашборда v2."""
+    try:
+        nodes = [
+            {"id": "orchestrator", "label": "Оркестратор", "type": "service", "status": "healthy" if ORCHESTRATOR_AVAILABLE else "down"},
+            {"id": "web_ui", "label": "Веб-интерфейс", "type": "service", "status": "healthy"},
+            {"id": "qdrant", "label": "Qdrant (Memory)", "type": "database", "status": "healthy" if MEMORY_AVAILABLE else "down"},
+            {"id": "ollama", "label": "Ollama LLM", "type": "external", "status": "healthy"},
+            {"id": "docker", "label": "Docker", "type": "external", "status": "healthy"},
+        ]
+        # Проверка Ollama
+        try:
+            import httpx
+            async with httpx.AsyncClient(timeout=2.0) as client:
+                r = await client.get("http://localhost:11434/api/tags")
+                nodes[3]["status"] = "healthy" if r.status_code == 200 else "down"
+        except:
+            nodes[3]["status"] = "down"
+        # Проверка Docker
+        try:
+            import subprocess
+            result = subprocess.run(['docker', 'info'], capture_output=True, text=True, timeout=3)
+            nodes[4]["status"] = "healthy" if result.returncode == 0 else "down"
+        except:
+            nodes[4]["status"] = "down"
+
+        edges = [
+            {"source": "orchestrator", "target": "web_ui", "label": "HTTP"},
+            {"source": "orchestrator", "target": "qdrant", "label": "gRPC"},
+            {"source": "orchestrator", "target": "ollama", "label": "HTTP"},
+            {"source": "orchestrator", "target": "docker", "label": "Docker SDK"},
+        ]
+        return {"nodes": nodes, "edges": edges}
+    except Exception as e:
+        logger.error(f"Ошибка получения графа системы: {e}")
+        return {"nodes": [], "edges": []}
+
+
+@app.get("/api/filesystem/graph")
+async def filesystem_graph():
+    """Возвращает граф файловой системы для дашборда v2."""
+    try:
+        import os
+        project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        nodes = []
+        edges = []
+        # Собираем .py файлы
+        for root, dirs, files in os.walk(project_root):
+            # Пропускаем скрытые и виртуальные окружения
+            dirs[:] = [d for d in dirs if not d.startswith('.') and d not in ('__pycache__', 'node_modules', 'venv', '.venv')]
+            for f in files:
+                if f.endswith('.py'):
+                    full_path = os.path.join(root, f)
+                    rel_path = os.path.relpath(full_path, project_root)
+                    size_kb = os.path.getsize(full_path) / 1024
+                    last_mod = os.path.getmtime(full_path)
+                    # Определяем статус
+                    status = "indexed_used"
+                    if "tools" in rel_path or "connectors" in rel_path:
+                        status = "indexed_used"
+                    elif "agents" in rel_path:
+                        status = "indexed_used"
+                    elif "monitoring" in rel_path:
+                        status = "indexed_unused"
+                    else:
+                        status = "not_indexed"
+                    nodes.append({
+                        "id": rel_path,
+                        "label": f,
+                        "type": "file",
+                        "size_kb": round(size_kb, 1),
+                        "last_modified": datetime.fromtimestamp(last_mod).isoformat(),
+                        "status": status,
+                        "chunks_count": 0,
+                        "used_by_agents": [],
+                        "last_indexed": None,
+                        "dependencies": [],
+                    })
+                    if len(nodes) > 200:
+                        break
+            if len(nodes) > 200:
+                break
+        return {"nodes": nodes, "edges": edges}
+    except Exception as e:
+        logger.error(f"Ошибка получения графа файлов: {e}")
+        return {"nodes": [], "edges": []}
+
+
+@app.get("/api/datapipeline")
+async def data_pipeline():
+    """Возвращает статус конвейера данных для дашборда v2."""
+    try:
+        sources = [
+            {
+                "name": "1C OData",
+                "status": "idle",
+                "throughput_chunks_per_hour": 0,
+                "queue_size": 0,
+                "last_run": datetime.now().isoformat(),
+                "error_rate": 0,
+            },
+            {
+                "name": "ITS Parser",
+                "status": "idle",
+                "throughput_chunks_per_hour": 0,
+                "queue_size": 0,
+                "last_run": datetime.now().isoformat(),
+                "error_rate": 0,
+            },
+            {
+                "name": "File Indexer",
+                "status": "idle",
+                "throughput_chunks_per_hour": 0,
+                "queue_size": 0,
+                "last_run": datetime.now().isoformat(),
+                "error_rate": 0,
+            },
+        ]
+        # Пытаемся получить реальные статусы из парсера
+        try:
+            agent = _get_parser_agent()
+            progress = agent.get_progress()
+            if progress and progress.get("is_running"):
+                sources[1]["status"] = "active"
+        except:
+            pass
+        return {"sources": sources}
+    except Exception as e:
+        logger.error(f"Ошибка получения конвейера данных: {e}")
+        return {"sources": []}
+
+
+@app.get("/api/metrics")
+async def metrics_history(limit: int = 100):
+    """Возвращает историю метрик для графиков дашборда v2."""
+    try:
+        import psutil
+        # Генерируем тестовые данные на основе текущих метрик
+        import random
+        now = datetime.now()
+        metrics_list = []
+        for i in range(min(limit, 60)):
+            ts = now.timestamp() - (limit - i) * 60
+            metrics_list.append({
+                "timestamp": datetime.fromtimestamp(ts).isoformat(),
+                "cpu_percent": psutil.cpu_percent(interval=None) + random.uniform(-5, 5),
+                "memory_percent": psutil.virtual_memory().percent + random.uniform(-3, 3),
+                "disk_percent": psutil.disk_usage('/').percent,
+            })
+        return {"metrics": metrics_list}
+    except Exception as e:
+        logger.error(f"Ошибка получения истории метрик: {e}")
+        return {"metrics": []}
+
+
+# ======================================================================
 # Эндпоинты RAG Evaluation
 # ======================================================================
 
@@ -1201,16 +1372,32 @@ async def get_rag_metrics():
         return {"success": False, "error": str(e)}
 
 @app.post("/api/rag/evaluate")
-async def run_rag_evaluation():
-    """Запускает оценку RAG в фоне через Inspector."""
+async def run_rag_evaluation(
+    evaluate_faithfulness: bool = False,
+    faithfulness_sample_size: int = 50,
+    ci: bool = False
+):
+    """
+    Запускает оценку RAG в фоне через Inspector.
+
+    Query-параметры:
+        evaluate_faithfulness (bool): Оценивать faithfulness (по умолч. false).
+        faithfulness_sample_size (int): Размер выборки для faithfulness (по умолч. 50).
+        ci (bool): CI-режим (маленькая выборка + проверка порога, по умолч. false).
+    """
     try:
         from agents.inspector import get_inspector
         inspector = get_inspector()
-        result = inspector.run_rag_evaluation_async()
+        result = inspector.run_rag_evaluation_async(
+            evaluate_faithfulness=evaluate_faithfulness,
+            faithfulness_sample_size=faithfulness_sample_size if evaluate_faithfulness else None,
+            ci=ci
+        )
         return result
     except Exception as e:
         logger.error(f"Ошибка запуска оценки RAG: {e}")
         return {"success": False, "error": str(e)}
+
 
 @app.post("/api/rag/generate_dataset")
 async def generate_rag_dataset():

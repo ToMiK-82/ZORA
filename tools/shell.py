@@ -1,45 +1,41 @@
 """
-Утилита для выполнения shell команд.
+Утилиты для выполнения shell-команд.
 """
 
-import subprocess
 import logging
+import subprocess
 import sys
 
 logger = logging.getLogger(__name__)
 
-def _decode_output(bytes_output: bytes) -> str:
-    """Декодирует вывод команды с учётом кодовой страницы Windows."""
-    if not bytes_output:
-        return ''
-    # Сначала пробуем UTF-8
-    try:
-        return bytes_output.decode('utf-8')
-    except UnicodeDecodeError:
-        # Если не вышло, пробуем cp866 (кодовая страница консоли Windows по умолчанию)
-        try:
-            return bytes_output.decode('cp866')
-        except UnicodeDecodeError:
-            # В крайнем случае заменяем ошибки
-            return bytes_output.decode('utf-8', errors='replace')
 
-def run_command(cmd: str) -> str:
+def run_command(command: str, timeout: int = 60) -> str:
     """
-    Выполняет shell команду и возвращает результат в UTF-8.
+    Выполняет shell-команду и возвращает её вывод.
+    
+    Args:
+        command: Команда для выполнения
+        timeout: Таймаут в секундах
+        
+    Returns:
+        stdout + stderr команды
     """
     try:
-        # Запускаем команду, получаем вывод в байтах
         result = subprocess.run(
-            cmd,
+            command,
             shell=True,
             capture_output=True,
-            timeout=30
+            text=True,
+            timeout=timeout
         )
-        # Декодируем stdout и stderr с учётом кодировки
-        stdout = _decode_output(result.stdout)
-        stderr = _decode_output(result.stderr)
-        return f"STDOUT:\n{stdout}\nSTDERR:\n{stderr}"
+        output = result.stdout
+        if result.stderr:
+            output += f"\nSTDERR:\n{result.stderr}"
+        if result.returncode != 0:
+            output += f"\nExit code: {result.returncode}"
+        return output
     except subprocess.TimeoutExpired:
-        return "Ошибка: команда выполнялась слишком долго (таймаут 30 секунд)"
+        return f"Command timed out after {timeout}s"
     except Exception as e:
-        return f"Ошибка: {str(e)}"
+        logger.error(f"Shell command error: {e}")
+        return f"Error: {str(e)}"

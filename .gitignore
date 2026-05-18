@@ -16,6 +16,18 @@ venv/
 # Logs
 logs/
 *.log
+*.txt
+
+# Test artifacts
+test_*.py
+test_*.txt
+simple_web_search.py
+clear_memory.py
+final_check.py
+create_collection.json
+create_ft_index.json
+run_generate_dataset.py
+deployment_config.json
 
 # IDE
 .vscode/
@@ -42,3 +54,4 @@ data/dialogues/*.json
 
 # Monitoring
 monitoring/__pycache__/
+monitoring/monitor_log.json

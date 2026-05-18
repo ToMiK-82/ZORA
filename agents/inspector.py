@@ -504,25 +504,42 @@ class AgentInspector:
             logger.error(f"Ошибка получения метрик RAG: {e}")
             return {"success": False, "error": str(e)}
 
-    def run_rag_evaluation_async(self, dataset_path: Optional[str] = None, k_list: Optional[List[int]] = None) -> Dict[str, Any]:
+    def run_rag_evaluation_async(
+        self,
+        dataset_path: Optional[str] = None,
+        k_list: Optional[List[int]] = None,
+        evaluate_faithfulness: bool = False,
+        faithfulness_sample_size: Optional[int] = 50,
+        ci: bool = False
+    ) -> Dict[str, Any]:
         """
         Запускает оценку RAG в фоновом потоке (не блокирует API).
 
         Args:
             dataset_path: Путь к датасету.
             k_list: Список k для метрик.
+            evaluate_faithfulness: Если True, оценивать faithfulness.
+            faithfulness_sample_size: Размер выборки для faithfulness (по умолч. 50).
+            ci: Если True, CI-режим (маленькая выборка + проверка порога).
 
         Returns:
             Словарь с результатом запуска.
         """
         try:
             from tools.rag_evaluator import run_evaluation_async as _run_async
-            return _run_async(dataset_path=dataset_path, k_list=k_list)
+            return _run_async(
+                dataset_path=dataset_path,
+                k_list=k_list,
+                evaluate_faithfulness=evaluate_faithfulness,
+                faithfulness_sample_size=faithfulness_sample_size,
+                ci=ci
+            )
         except ImportError as e:
             return {"success": False, "error": f"Модуль rag_evaluator не найден: {e}"}
         except Exception as e:
             logger.error(f"Ошибка запуска RAG оценки: {e}")
             return {"success": False, "error": str(e)}
+
 
     # ========== Генерация тестового датасета для RAG ==========
 
