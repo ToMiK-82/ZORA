@@ -168,7 +168,59 @@ export interface WsAlert {
   };
 }
 
-export type WsMessage = WsSystemResources | WsAgentStatus | WsAlert;
+export interface WsExecutionTrace {
+  type: 'execution_trace';
+  event: 'execution_trace' | 'trace_step' | 'trace_completed';
+  data: {
+    run_id: string;
+    query?: string;
+    steps?: Array<{ agent: string; timestamp: number; detail: string }>;
+    started_at?: number;
+    completed_at?: number;
+    status?: string;
+    result?: string;
+  };
+}
+
+export type WsMessage = WsSystemResources | WsAgentStatus | WsAlert | WsExecutionTrace;
+
+// ===== Agents Graph (Trace) =====
+export interface AgentGraphNode {
+  id: string;
+  label: string;
+  type: 'orchestrator' | 'agent' | 'user' | 'developer';
+  status: 'healthy' | 'down' | 'idle' | 'running';
+  current_task?: string | null;
+  description?: string;
+  metrics?: Record<string, number>;
+  used_files?: string[];
+}
+
+export interface AgentGraphEdge {
+  source: string;
+  target: string;
+  label: string;
+}
+
+export interface TraceStep {
+  agent: string;
+  timestamp: number;
+  detail: string;
+}
+
+export interface TraceData {
+  run_id: string;
+  query: string;
+  steps: string[];
+  started_at: number;
+}
+
+export interface AgentGraphResponse {
+  nodes: AgentGraphNode[];
+  edges: AgentGraphEdge[];
+  active_traces: TraceData[];
+  recent_traces: TraceData[];
+}
 
 // ===== Layout =====
 export interface WidgetLayout {
@@ -180,3 +232,5 @@ export interface WidgetLayout {
   minW?: number;
   minH?: number;
 }
+
+

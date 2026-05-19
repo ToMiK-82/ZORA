@@ -103,6 +103,16 @@ except ImportError as e:
     TELEGRAM_HANDLER_AVAILABLE = False
     logger.warning(f"⚠️ Telegram обработчик не найден: {e}")
 
+# Импортируем реестр агентов для эндпоинта /api/system/graph
+try:
+    from core.agent_registry import AGENT_REGISTRY
+    AGENT_REGISTRY_AVAILABLE = True
+except Exception as e:
+    AGENT_REGISTRY = {}
+    AGENT_REGISTRY_AVAILABLE = False
+    logger.warning(f"⚠️ Реестр агентов не загружен: {e}")
+
+
 # ======================================================================
 # ТРИ ОСНОВНЫХ HTML-ЭНДПОИНТА
 # ======================================================================
@@ -1096,6 +1106,165 @@ async def system_stats():
         logger.error(f"Ошибка получения статистики: {e}")
         return {"ram_percent": 0, "vram_percent": 0}
 
+@app.get("/api/system/graph")
+async def system_graph():
+    """Возвращает граф компонентов системы для дашборда v2."""
+    import asyncio
+    import subprocess
+    import httpx
+
+    nodes = []
+    edges = []
+
+    async def check_qdrant():
+        """Проверяет Qdrant и возвращает статус и количество векторов."""
+        try:
+            async with httpx.AsyncClient(timeout=3) as client:
+                r = await client.get("http://localhost:6333/collections")
+                if r.status_code == 200:
+                    try:
+                        r2 = await client.get("http://localhost:6333/collections/zora")
+                        if r2.status_code == 200:
+                            data = r2.json()
+                            return "healthy", data.get("result", {}).get("vectors_count", 0)
+                    except:
+                        pass
+                    return "healthy", 0
+        except httpx.TimeoutException:
+            return "degraded", 0
+        except:
+            pass
+        return "down", 0
+
+    async def check_ollama():
+        """Проверяет Ollama и возвращает статус и количество моделей."""
+        try:
+            async with httpx.AsyncClient(timeout=3) as client:
+                r = await client.get("http://localhost:11434/api/tags")
+                if r.status_code == 200:
+                    models = r.json().get("models", [])
+                    return "healthy", len(models)
+        except httpx.TimeoutException:
+            return "degraded", 0
+        except:
+            pass
+        return "down", 0
+
+    async def check_postgres():
+        """Проверяет PostgreSQL."""
+        try:
+            import asyncpg
+            conn = await asyncpg.connect(
+                host=os.getenv("PGHOST", "localhost"),
+                port=int(os.getenv("PGPORT", "5432")),
+                database=os.getenv("PGDATABASE", "zora"),
+                user=os.getenv("PGUSER", "postgres"),
+                password=os.getenv("PGPASSWORD", "postgres"),
+                timeout=2
+            )
+            await conn.close()
+            return "healthy"
+        except ImportError:
+            logger.warning("PostgreSQL: asyncpg не установлен")
+            return "degraded"
+        except Exception:
+            logger.warning("PostgreSQL check failed", exc_info=True)
+            return "degraded"
+
+    # Запускаем все проверки параллельно
+    qdrant_task = asyncio.create_task(check_qdrant())
+    ollama_task = asyncio.create_task(check_ollama())
+    pg_task = asyncio.create_task(check_postgres())
+
+    # 1. Orchestrator
+    orch_status = "healthy" if ORCHESTRATOR_AVAILABLE else "down"
+    nodes.append({
+        "id": "orchestrator",
+        "label": "Оркестратор",
+        "type": "service",
+        "status": orch_status,
+        "metrics": {"agents": len(AGENT_REGISTRY) if ORCHESTRATOR_AVAILABLE else 0}
+    })
+
+    # 2. Qdrant
+    qdrant_status, qdrant_vectors = await qdrant_task
+    nodes.append({
+        "id": "qdrant",
+        "label": "Qdrant",
+        "type": "database",
+        "status": qdrant_status,
+        "metrics": {"vectors": qdrant_vectors}
+    })
+
+    # 3. Ollama
+    ollama_status, ollama_models = await ollama_task
+    nodes.append({
+        "id": "ollama",
+        "label": "Ollama",
+        "type": "service",
+        "status": ollama_status,
+        "metrics": {"models": ollama_models}
+    })
+
+    # 4. DeepSeek API
+    deepseek_key = os.getenv("DEEPSEEK_API_KEY", "")
+    deepseek_status = "healthy" if deepseek_key else "down"
+    nodes.append({
+        "id": "deepseek",
+        "label": "DeepSeek",
+        "type": "external",
+        "status": deepseek_status,
+        "metrics": {"api_key": len(deepseek_key) if deepseek_key else 0}
+    })
+
+    # 5. PostgreSQL
+    pg_status = await pg_task
+    nodes.append({
+        "id": "postgres",
+        "label": "PostgreSQL",
+        "type": "database",
+        "status": pg_status,
+        "metrics": {}
+    })
+
+    # 6. Web UI (сам сервер — всегда healthy)
+    nodes.append({
+        "id": "web_ui",
+        "label": "Web UI",
+        "type": "service",
+        "status": "healthy",
+        "metrics": {"port": 8002}
+    })
+
+    # 7. Docker
+    docker_status = "down"
+    try:
+        r = await asyncio.get_event_loop().run_in_executor(
+            None, lambda: subprocess.run(["docker", "info"], capture_output=True, text=True, timeout=3)
+        )
+        docker_status = "healthy" if r.returncode == 0 else "down"
+    except:
+        pass
+    nodes.append({
+        "id": "docker",
+        "label": "Docker",
+        "type": "service",
+        "status": docker_status,
+        "metrics": {}
+    })
+
+    # Рёбра графа (связи между компонентами)
+    edges = [
+        {"source": "orchestrator", "target": "qdrant", "label": "векторный поиск"},
+        {"source": "orchestrator", "target": "ollama", "label": "LLM"},
+        {"source": "orchestrator", "target": "deepseek", "label": "LLM API"},
+        {"source": "orchestrator", "target": "postgres", "label": "история"},
+        {"source": "web_ui", "target": "orchestrator", "label": "API"},
+        {"source": "docker", "target": "qdrant", "label": "контейнер"},
+    ]
+
+    return {"nodes": nodes, "edges": edges}
+
 # ======================================================================
 # Эндпоинты Инспектора (Supervisor)
 # ======================================================================
@@ -1200,89 +1369,113 @@ async def inspector_autofix():
 # Эндпоинты для Дашборда v2 (React)
 # ======================================================================
 
-@app.get("/api/system/graph")
-async def system_graph():
-    """Возвращает граф компонентов системы для дашборда v2."""
-    try:
-        nodes = [
-            {"id": "orchestrator", "label": "Оркестратор", "type": "service", "status": "healthy" if ORCHESTRATOR_AVAILABLE else "down"},
-            {"id": "web_ui", "label": "Веб-интерфейс", "type": "service", "status": "healthy"},
-            {"id": "qdrant", "label": "Qdrant (Memory)", "type": "database", "status": "healthy" if MEMORY_AVAILABLE else "down"},
-            {"id": "ollama", "label": "Ollama LLM", "type": "external", "status": "healthy"},
-            {"id": "docker", "label": "Docker", "type": "external", "status": "healthy"},
-        ]
-        # Проверка Ollama
-        try:
-            import httpx
-            async with httpx.AsyncClient(timeout=2.0) as client:
-                r = await client.get("http://localhost:11434/api/tags")
-                nodes[3]["status"] = "healthy" if r.status_code == 200 else "down"
-        except:
-            nodes[3]["status"] = "down"
-        # Проверка Docker
-        try:
-            import subprocess
-            result = subprocess.run(['docker', 'info'], capture_output=True, text=True, timeout=3)
-            nodes[4]["status"] = "healthy" if result.returncode == 0 else "down"
-        except:
-            nodes[4]["status"] = "down"
-
-        edges = [
-            {"source": "orchestrator", "target": "web_ui", "label": "HTTP"},
-            {"source": "orchestrator", "target": "qdrant", "label": "gRPC"},
-            {"source": "orchestrator", "target": "ollama", "label": "HTTP"},
-            {"source": "orchestrator", "target": "docker", "label": "Docker SDK"},
-        ]
-        return {"nodes": nodes, "edges": edges}
-    except Exception as e:
-        logger.error(f"Ошибка получения графа системы: {e}")
-        return {"nodes": [], "edges": []}
-
-
 @app.get("/api/filesystem/graph")
 async def filesystem_graph():
-    """Возвращает граф файловой системы для дашборда v2."""
+    """Возвращает граф файловой системы для дашборда v2 с 4 статусами."""
     try:
         import os
         project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
         nodes = []
         edges = []
+
+        # Пытаемся получить информацию о проиндексированных файлах из Qdrant
+        indexed_files = {}  # rel_path -> {chunks_count, last_indexed, used_by_agents}
+        try:
+            if MEMORY_AVAILABLE and _memory is not None:
+                # Получаем все точки из Qdrant (с пагинацией)
+                from qdrant_client import models
+                all_points = []
+                next_offset = None
+                while True:
+                    result = _memory.client.scroll(
+                        collection_name=_memory.collection_name,
+                        limit=1000,
+                        offset=next_offset,
+                        with_payload=True,
+                    )
+                    points, next_offset = result
+                    for p in points:
+                        payload = p.payload or {}
+                        source_path = payload.get("source_path") or payload.get("path", "")
+                        if source_path:
+                            rel = os.path.relpath(source_path, project_root) if os.path.isabs(source_path) else source_path
+                            if rel not in indexed_files:
+                                indexed_files[rel] = {
+                                    "chunks_count": 0,
+                                    "last_indexed": None,
+                                    "used_by_agents": set(),
+                                }
+                            indexed_files[rel]["chunks_count"] += 1
+                            ts = payload.get("timestamp") or payload.get("indexed_at")
+                            if ts:
+                                try:
+                                    if isinstance(ts, (int, float)):
+                                        ts_dt = datetime.fromtimestamp(ts)
+                                    else:
+                                        ts_dt = datetime.fromisoformat(str(ts))
+                                    if indexed_files[rel]["last_indexed"] is None or ts_dt > indexed_files[rel]["last_indexed"]:
+                                        indexed_files[rel]["last_indexed"] = ts_dt
+                                except:
+                                    pass
+                            # Кто использовал этот чанк
+                            agent = payload.get("agent") or payload.get("used_by")
+                            if agent:
+                                indexed_files[rel]["used_by_agents"].add(str(agent))
+                    if next_offset is None:
+                        break
+        except Exception as e:
+            logger.warning(f"Не удалось получить данные из Qdrant: {e}")
+
         # Собираем .py файлы
         for root, dirs, files in os.walk(project_root):
             # Пропускаем скрытые и виртуальные окружения
-            dirs[:] = [d for d in dirs if not d.startswith('.') and d not in ('__pycache__', 'node_modules', 'venv', '.venv')]
+            dirs[:] = [d for d in dirs if not d.startswith('.') and d not in ('__pycache__', 'node_modules', 'venv', '.venv', 'dist', 'build')]
             for f in files:
                 if f.endswith('.py'):
                     full_path = os.path.join(root, f)
                     rel_path = os.path.relpath(full_path, project_root)
                     size_kb = os.path.getsize(full_path) / 1024
-                    last_mod = os.path.getmtime(full_path)
-                    # Определяем статус
-                    status = "indexed_used"
-                    if "tools" in rel_path or "connectors" in rel_path:
-                        status = "indexed_used"
-                    elif "agents" in rel_path:
-                        status = "indexed_used"
-                    elif "monitoring" in rel_path:
-                        status = "indexed_unused"
+                    last_mod_ts = os.path.getmtime(full_path)
+                    last_mod_dt = datetime.fromtimestamp(last_mod_ts)
+
+                    # Определяем статус на основе данных из Qdrant
+                    file_info = indexed_files.get(rel_path)
+                    if file_info:
+                        chunks_count = file_info["chunks_count"]
+                        last_indexed = file_info["last_indexed"]
+                        used_by = list(file_info["used_by_agents"])
+
+                        # Проверяем stale: файл изменён после последней индексации
+                        if last_indexed and last_mod_dt > last_indexed:
+                            status = "stale"
+                        elif len(used_by) > 0:
+                            status = "indexed_used"
+                        else:
+                            status = "indexed_unused"
                     else:
+                        # Файл не найден в Qdrant
                         status = "not_indexed"
+                        chunks_count = 0
+                        used_by = []
+                        last_indexed = None
+
                     nodes.append({
                         "id": rel_path,
                         "label": f,
                         "type": "file",
                         "size_kb": round(size_kb, 1),
-                        "last_modified": datetime.fromtimestamp(last_mod).isoformat(),
+                        "last_modified": last_mod_dt.isoformat(),
                         "status": status,
-                        "chunks_count": 0,
-                        "used_by_agents": [],
-                        "last_indexed": None,
+                        "chunks_count": chunks_count,
+                        "used_by_agents": used_by,
+                        "last_indexed": last_indexed.isoformat() if last_indexed else None,
                         "dependencies": [],
                     })
                     if len(nodes) > 200:
                         break
             if len(nodes) > 200:
                 break
+
         return {"nodes": nodes, "edges": edges}
     except Exception as e:
         logger.error(f"Ошибка получения графа файлов: {e}")
@@ -1609,11 +1802,184 @@ async def api_git_status():
         return {"success": False, "error": str(e)}
 
 # ======================================================================
-# Эндпоинт для получения статуса конкретного агента
+# Эндпоинты для графа агентов и статуса конкретного агента
 # ======================================================================
+
+@app.get("/api/knowledge_graph")
+async def knowledge_graph():
+    """Возвращает граф связей агентов с файлами (звёздная система)."""
+    try:
+        nodes = []
+        edges = []
+        seen_agents = set()
+        seen_files = set()
+
+        # Получаем данные из Qdrant
+        if MEMORY_AVAILABLE and _memory is not None:
+            from qdrant_client import models
+            all_points = []
+            next_offset = None
+            while True:
+                result = _memory.client.scroll(
+                    collection_name=_memory.collection_name,
+                    limit=1000,
+                    offset=next_offset,
+                    with_payload=True,
+                )
+                points, next_offset = result
+                for p in points:
+                    payload = p.payload or {}
+                    agent = payload.get("agent") or payload.get("used_by")
+                    source_path = payload.get("source_path") or payload.get("path", "")
+                    if agent and source_path:
+                        agent_id = f"agent:{agent}"
+                        file_id = f"file:{source_path}"
+                        if agent_id not in seen_agents:
+                            seen_agents.add(agent_id)
+                            nodes.append({
+                                "id": agent_id,
+                                "label": str(agent),
+                                "type": "agent",
+                            })
+                        if file_id not in seen_files:
+                            seen_files.add(file_id)
+                            nodes.append({
+                                "id": file_id,
+                                "label": str(source_path).split("/").pop() or str(source_path),
+                                "type": "file",
+                            })
+                        edges.append({
+                            "source": agent_id,
+                            "target": file_id,
+                            "type": "uses",
+                        })
+                if next_offset is None:
+                    break
+
+        return {"nodes": nodes, "edges": edges}
+    except Exception as e:
+        logger.error(f"Ошибка получения knowledge graph: {e}")
+        return {"nodes": [], "edges": []}
+
+
+@app.get("/api/agents/graph")
+async def agents_graph(history: str = ""):
+    """Возвращает граф агентов с активными трассами для дашборда v2.
+    
+    Query-параметры:
+        history (str): "1h" или "today" — подгрузить исторические трассы за период.
+    """
+    try:
+        from core.orchestrator import trace_handler
+        from core.agent_registry import get_all_agents_info
+        
+        # Получаем информацию о всех агентах
+        agents_info = get_all_agents_info()
+        # get_all_agents_info может вернуть как список, так и словарь
+        if isinstance(agents_info, list):
+            agents_dict = {a.get("role", ""): a for a in agents_info}
+        else:
+            agents_dict = agents_info
+        nodes = []
+        
+        # Узел оркестратора
+        active_traces = trace_handler.get_active_traces()
+        orch_status = "healthy" if ORCHESTRATOR_AVAILABLE else "down"
+        nodes.append({
+            "id": "orchestrator",
+            "label": "Оркестратор",
+            "type": "orchestrator",
+            "status": orch_status,
+            "metrics": {"active_traces": len(active_traces), "total_agents": len(agents_dict)}
+        })
+        
+        # Узел User (всегда здоров)
+        nodes.append({
+            "id": "user",
+            "label": "Пользователь",
+            "type": "user",
+            "status": "healthy",
+            "metrics": {}
+        })
+        
+        # Узел Developer (всегда здоров, если оркестратор доступен)
+        nodes.append({
+            "id": "developer",
+            "label": "Разработчик",
+            "type": "developer",
+            "status": "healthy" if ORCHESTRATOR_AVAILABLE else "down",
+            "metrics": {}
+        })
+        
+        # Узлы агентов
+        for role, info in agents_dict.items():
+
+            agent_status = "idle"
+            current_task = None
+            if _orchestrator:
+                status_data = _orchestrator.get_agent_status(role)
+                agent_status = status_data.get("status", "idle")
+                current_task = status_data.get("current_task")
+            
+            # Проверяем, есть ли активная трасса для этого агента
+            is_active = any(
+                any(step.get("agent") == role for step in t.get("steps", []))
+                for t in active_traces
+            )
+            if is_active:
+                agent_status = "running"
+            
+            nodes.append({
+                "id": role,
+                "label": info.get("display_name", role),
+                "type": "agent",
+                "status": agent_status,
+                "current_task": current_task,
+                "description": info.get("description", ""),
+            })
+        
+        # Рёбра: User -> Developer -> Orchestrator -> агенты
+        edges = [
+            {"source": "user", "target": "developer", "label": "запрос"},
+            {"source": "developer", "target": "orchestrator", "label": "API"},
+        ]
+        edges += [{"source": "orchestrator", "target": role, "label": ""} for role in agents_dict.keys()]
+
+        
+        # Активные трассы
+        traces = []
+        for t in active_traces:
+            traces.append({
+                "run_id": t["run_id"],
+                "query": t["query"][:100],
+                "steps": [s["agent"] for s in t.get("steps", [])],
+                "started_at": t["started_at"],
+            })
+        
+        # Фильтрация recent_traces по параметру history
+        recent_traces = trace_handler.get_recent_traces(10)
+        if history:
+            now_ts = datetime.now().timestamp() * 1000  # ms
+            cutoff = now_ts - (3600_000 if history == "1h" else 86400_000)
+            recent_traces = [
+                t for t in recent_traces
+                if t.get("started_at", 0) >= cutoff
+            ]
+        
+        return {
+            "nodes": nodes,
+            "edges": edges,
+            "active_traces": traces,
+            "recent_traces": recent_traces,
+        }
+    except Exception as e:
+        logger.error(f"Ошибка получения графа агентов: {e}")
+        return {"nodes": [], "edges": [], "active_traces": [], "recent_traces": []}
+
 
 @app.get("/api/agents/{agent_name}")
 async def get_agent_status(agent_name: str):
+
     """Возвращает статус конкретного агента."""
     try:
         from core.agent_registry import get_agent_info
@@ -1901,6 +2267,162 @@ async def get_agent_logs(role: str, limit: int = 50):
     except Exception as e:
         logger.error(f"Ошибка получения логов для {role}: {e}")
         return {"success": False, "error": str(e)}
+
+# ======================================================================
+# WebSocket для дашборда v2 (телеметрия в реальном времени)
+# ======================================================================
+
+from fastapi import WebSocket, WebSocketDisconnect
+
+@app.websocket("/ws/telemetry")
+async def websocket_telemetry(websocket: WebSocket):
+    """
+    WebSocket-эндпоинт для потоковой передачи телеметрии дашборду v2.
+    Отправляет обновления ресурсов, статусов агентов, алертов и трейсов выполнения.
+    """
+    await websocket.accept()
+    logger.info("WebSocket /ws/telemetry: клиент подключён")
+
+    # Подписка на события трассировки от TraceHandler
+    from core.orchestrator import trace_handler
+
+    async def trace_callback(event: str, data: dict):
+        """Отправляет события трассировки клиенту."""
+        try:
+            msg = {
+                "type": "execution_trace",
+                "event": event,
+                "data": data,
+            }
+            await websocket.send_json(msg)
+        except Exception:
+            pass  # Если клиент отключился — игнорируем
+
+    trace_handler.subscribe(trace_callback)
+
+    try:
+        while True:
+            try:
+                # 1. Системные ресурсы
+                import psutil
+                import subprocess
+
+                cpu_percent = psutil.cpu_percent(interval=0.3)
+                mem = psutil.virtual_memory()
+                disk = psutil.disk_usage('/')
+
+                # GPU
+                gpu_percent = 0
+                gpu_memory_used = 0
+                gpu_memory_total = 0
+                try:
+                    result = subprocess.run(
+                        ['nvidia-smi', '--query-gpu=utilization.gpu,memory.used,memory.total', '--format=csv,noheader,nounits'],
+                        capture_output=True, text=True, timeout=3
+                    )
+                    if result.returncode == 0:
+                        parts = result.stdout.strip().split(',')
+                        if len(parts) >= 3:
+                            gpu_percent = float(parts[0].strip())
+                            gpu_memory_used = float(parts[1].strip()) / 1024
+                            gpu_memory_total = float(parts[2].strip()) / 1024
+                except:
+                    pass
+
+                resources_msg = {
+                    "type": "system_resources",
+                    "data": {
+                        "cpu_percent": cpu_percent,
+                        "memory_percent": mem.percent,
+                        "memory_used_gb": round(mem.used / (1024**3), 1),
+                        "memory_total_gb": round(mem.total / (1024**3), 1),
+                        "disk_percent": disk.percent,
+                        "disk_used_gb": round(disk.used / (1024**3), 1),
+                        "disk_total_gb": round(disk.total / (1024**3), 1),
+                        "gpu_percent": gpu_percent,
+                        "gpu_memory_used_gb": round(gpu_memory_used, 1),
+                        "gpu_memory_total_gb": round(gpu_memory_total, 1),
+                    }
+                }
+                await websocket.send_json(resources_msg)
+
+                # 2. Статусы агентов
+                try:
+                    from core.agent_registry import get_all_agents_info
+                    agents_info = get_all_agents_info()
+                    for agent_info in agents_info:
+                        role = agent_info.get("role", "")
+                        state = "idle"
+                        if ORCHESTRATOR_AVAILABLE and _orchestrator is not None:
+                            try:
+                                status = _orchestrator.get_agent_status(role)
+                                if status:
+                                    state = status.get("status", "idle")
+                            except:
+                                pass
+                        agent_msg = {
+                            "type": "agent_status",
+                            "data": {
+                                "agent": role,
+                                "state": state,
+                                "display_name": agent_info.get("display_name", role),
+                            }
+                        }
+                        await websocket.send_json(agent_msg)
+                except:
+                    pass
+
+                # 3. Алерты (проверка здоровья)
+                alerts = []
+                if mem.percent > 90:
+                    alerts.append({
+                        "severity": "critical",
+                        "message": f"Критическая загрузка RAM: {mem.percent}%",
+                        "timestamp": datetime.now().isoformat()
+                    })
+                elif mem.percent > 80:
+                    alerts.append({
+                        "severity": "warning",
+                        "message": f"Высокая загрузка RAM: {mem.percent}%",
+                        "timestamp": datetime.now().isoformat()
+                    })
+                if disk.percent > 90:
+                    alerts.append({
+                        "severity": "critical",
+                        "message": f"Критическая заполненность диска: {disk.percent}%",
+                        "timestamp": datetime.now().isoformat()
+                    })
+                if cpu_percent > 90:
+                    alerts.append({
+                        "severity": "warning",
+                        "message": f"Высокая загрузка CPU: {cpu_percent}%",
+                        "timestamp": datetime.now().isoformat()
+                    })
+                for alert in alerts:
+                    await websocket.send_json({
+                        "type": "alert",
+                        "data": alert
+                    })
+
+                # Ожидание перед следующим обновлением
+                await asyncio.sleep(5)
+
+            except WebSocketDisconnect:
+                raise
+            except Exception as e:
+                logger.error(f"WebSocket ошибка при отправке: {e}")
+                await asyncio.sleep(5)
+
+    except WebSocketDisconnect:
+        logger.info("WebSocket /ws/telemetry: клиент отключён")
+    except Exception as e:
+        logger.error(f"WebSocket /ws/telemetry ошибка: {e}")
+    finally:
+        try:
+            await websocket.close()
+        except:
+            pass
+
 
 # ======================================================================
 # Запуск

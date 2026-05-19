@@ -6,8 +6,23 @@ Zendriver - Python-библиотека для работы с Chrome через
 import asyncio
 import logging
 import os
-import zendriver as zd
 from typing import List, Dict, Any, Optional
+
+# Ленивый импорт zendriver — модуль импортируется только при реальном вызове функций
+_zd = None
+
+def _get_zd():
+    """Ленивый импорт zendriver."""
+    global _zd
+    if _zd is None:
+        try:
+            import zendriver as zd
+            _zd = zd
+        except ImportError:
+            raise ImportError(
+                "Модуль zendriver не установлен. Установите: pip install zendriver"
+            )
+    return _zd
 
 logger = logging.getLogger(__name__)
 
@@ -19,6 +34,7 @@ async def _get_browser():
     """Получить или создать экземпляр браузера (синглтон)."""
     global _browser
     if _browser is None:
+        zd = _get_zd()
         # Пробуем найти Chrome в стандартных местах
         chrome_paths = [
             "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",

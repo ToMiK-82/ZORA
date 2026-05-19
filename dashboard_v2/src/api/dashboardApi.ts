@@ -7,7 +7,9 @@ import type {
   SystemGraphResponse,
   FileSystemGraphResponse,
   DataPipelineResponse,
+  AgentGraphResponse,
 } from '../types';
+
 
 const API_BASE = '/api';
 
@@ -74,3 +76,15 @@ export function getParsingStatus(): Promise<any> {
 export function getMetricsHistory(limit = 100): Promise<{ metrics: any[] }> {
   return fetchJson<{ metrics: any[] }>(`/metrics?limit=${limit}`);
 }
+
+// ===== Agents Graph =====
+export function getAgentsGraph(): Promise<AgentGraphResponse> {
+  return fetchJson<AgentGraphResponse>('/agents/graph');
+}
+
+// ===== Knowledge Graph (агент–файл) =====
+export function getKnowledgeGraph(): Promise<{ nodes: any[]; edges: any[] }> {
+  return fetchJson<{ nodes: any[]; edges: any[] }>('/knowledge_graph');
+}
+
+

@@ -1,10 +1,11 @@
 import React, { createContext, useContext, useEffect, useRef, useState, useCallback } from 'react';
-import type { WsMessage, WsSystemResources, WsAgentStatus, WsAlert } from '../types';
+import type { WsMessage, WsSystemResources, WsAgentStatus, WsAlert, WsExecutionTrace } from '../types';
 
 interface WebSocketState {
   resources: WsSystemResources['data'] | null;
   agentStatuses: Record<string, string>;
   alerts: WsAlert['data'][];
+  executionTraces: WsExecutionTrace['data'][];
   connected: boolean;
 }
 
@@ -16,6 +17,7 @@ const WebSocketContext = createContext<WebSocketContextValue>({
   resources: null,
   agentStatuses: {},
   alerts: [],
+  executionTraces: [],
   connected: false,
   lastUpdate: null,
 });
@@ -29,6 +31,7 @@ export function WebSocketProvider({ children }: { children: React.ReactNode }) {
     resources: null,
     agentStatuses: {},
     alerts: [],
+    executionTraces: [],
     connected: false,
   });
   const [lastUpdate, setLastUpdate] = useState<string | null>(null);
@@ -64,6 +67,11 @@ export function WebSocketProvider({ children }: { children: React.ReactNode }) {
                 return {
                   ...prev,
                   alerts: [...prev.alerts.slice(-49), msg.data],
+                };
+              case 'execution_trace':
+                return {
+                  ...prev,
+                  executionTraces: [...prev.executionTraces.slice(-99), msg.data],
                 };
               default:
                 return prev;

@@ -1,8 +1,18 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { getRagMetrics, getRagDatasetStats, runRagEvaluation } from '../api/dashboardApi';
 import { FiCpu, FiBarChart2 } from 'react-icons/fi';
+import { LineChart, Line, XAxis, YAxis, ResponsiveContainer, Tooltip, CartesianGrid } from 'recharts';
 import toast from 'react-hot-toast';
+
+interface HistoryPoint {
+  time: string;
+  faithfulness: number | null;
+  hitRate: number | null;
+}
+
+const HISTORY_KEY = 'zora-rag-metrics-history';
+const MAX_HISTORY = 50;
 
 export default function RagQualityPanel() {
   const { data: metrics, isLoading: mLoading } = useQuery({
@@ -16,6 +26,38 @@ export default function RagQualityPanel() {
     queryFn: getRagDatasetStats,
     refetchInterval: 60_000,
   });
+
+  const [history, setHistory] = useState<HistoryPoint[]>(() => {
+    try {
+      const saved = localStorage.getItem(HISTORY_KEY);
+      return saved ? JSON.parse(saved) : [];
+    } catch {
+      return [];
+    }
+  });
+
+  // Append new metrics to history
+  useEffect(() => {
+    if (!metrics?.timestamp) return;
+    const hitRate = metrics.hit_rate?.['@5'];
+    const faithfulness = metrics.faithfulness_mean;
+
+    setHistory((prev) => {
+      const last = prev[prev.length - 1];
+      // Avoid duplicates
+      if (last && last.time === new Date(metrics.timestamp!).toLocaleTimeString('ru-RU')) {
+        return prev;
+      }
+      const newPoint: HistoryPoint = {
+        time: new Date(metrics.timestamp!).toLocaleTimeString('ru-RU'),
+        faithfulness: faithfulness ?? null,
+        hitRate: hitRate ?? null,
+      };
+      const updated = [...prev, newPoint].slice(-MAX_HISTORY);
+      localStorage.setItem(HISTORY_KEY, JSON.stringify(updated));
+      return updated;
+    });
+  }, [metrics?.timestamp, metrics?.hit_rate, metrics?.faithfulness_mean]);
 
   const handleRunEvaluation = async () => {
     try {
@@ -52,27 +94,66 @@ export default function RagQualityPanel() {
         </button>
       </div>
 
-      <div className="grid grid-cols-4 gap-3 mb-3">
-        <div className="flex flex-col items-center p-2 bg-zora-bg rounded-xl">
+      {/* Metric Cards */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mb-3">
+        <div className="flex flex-col items-center p-2 bg-zora-bg rounded-xl min-w-0">
           <span className="metric-value">{hitRatePct}%</span>
-          <span className="metric-label">Hit Rate@5</span>
+          <span className="metric-label truncate w-full text-center" title="Hit Rate@5">Hit Rate@5</span>
           <span className={`text-xs mt-0.5 ${hitRate !== undefined && hitRate >= 0.85 ? 'text-zora-green' : 'text-zora-yellow'}`}>
             {hitRate !== undefined && hitRate >= 0.85 ? '✅ цель' : 'цель 85%'}
           </span>
         </div>
-        <div className="flex flex-col items-center p-2 bg-zora-bg rounded-xl">
+        <div className="flex flex-col items-center p-2 bg-zora-bg rounded-xl min-w-0">
           <span className="metric-value">{mrr !== undefined ? mrr.toFixed(3) : '—'}</span>
-          <span className="metric-label">MRR@5</span>
+          <span className="metric-label truncate w-full text-center" title="MRR@5">MRR@5</span>
         </div>
-        <div className="flex flex-col items-center p-2 bg-zora-bg rounded-xl">
+        <div className="flex flex-col items-center p-2 bg-zora-bg rounded-xl min-w-0">
           <span className="metric-value">{vectorsCount ?? '—'}</span>
-          <span className="metric-label">Векторов</span>
+          <span className="metric-label truncate w-full text-center" title="Векторов">Векторов</span>
         </div>
-        <div className="flex flex-col items-center p-2 bg-zora-bg rounded-xl">
+        <div className="flex flex-col items-center p-2 bg-zora-bg rounded-xl min-w-0">
           <span className="metric-value">{faithfulness !== undefined && faithfulness !== null ? faithfulness.toFixed(1) : '—'}</span>
-          <span className="metric-label">Faithfulness</span>
+          <span className="metric-label truncate w-full text-center" title="Faithfulness (верность контексту)">Faithfulness</span>
         </div>
       </div>
+
+      {/* Trend Chart */}
+      {history.length >= 2 && (
+        <div className="mb-3 p-2 bg-zora-bg rounded-xl" style={{ height: 100 }}>
+          <ResponsiveContainer width="100%" height="100%">
+            <LineChart data={history}>
+              <CartesianGrid strokeDasharray="3 3" stroke="#1A2536" />
+              <XAxis dataKey="time" tick={{ fill: '#6B7280', fontSize: 9 }} tickLine={false} />
+              <YAxis domain={[0, 5]} tick={{ fill: '#6B7280', fontSize: 9 }} tickLine={false} width={20} />
+              <Tooltip
+                contentStyle={{
+                  background: '#131B2A',
+                  border: '1px solid #2A3A4E',
+                  borderRadius: 12,
+                  fontSize: 12,
+                }}
+                labelStyle={{ color: '#A0B3CC' }}
+              />
+              <Line
+                type="monotone"
+                dataKey="faithfulness"
+                stroke="#FF8C42"
+                strokeWidth={2}
+                dot={false}
+                name="Faithfulness"
+              />
+              <Line
+                type="monotone"
+                dataKey="hitRate"
+                stroke="#3B82F6"
+                strokeWidth={2}
+                dot={false}
+                name="Hit Rate"
+              />
+            </LineChart>
+          </ResponsiveContainer>
+        </div>
+      )}
 
       {/* Dataset Stats */}
       <div className="flex gap-4 text-xs text-zora-muted">

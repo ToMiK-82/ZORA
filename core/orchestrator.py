@@ -6,6 +6,11 @@
 
 import logging
 import hashlib
+import uuid
+import time
+import asyncio
+from collections import deque
+from datetime import datetime
 from typing import Dict, Any, TypedDict, Annotated, List, Optional
 
 from langgraph.graph import StateGraph, END
@@ -19,6 +24,102 @@ except ImportError:
 from connectors.llm_client_distributed import generate_sync as llm_generate
 from core.model_selector import get_selector
 from core.agent_registry import discover_agents, get_agent_class, get_all_agents_info, AGENT_REGISTRY
+
+
+# ============================================================
+# TraceHandler — трассировка выполнения цепочек агентов
+# ============================================================
+class TraceHandler:
+    """Хранит и управляет трассами выполнения запросов через оркестратор."""
+
+    def __init__(self, max_traces: int = 100):
+        self.traces: deque = deque(maxlen=max_traces)
+        self._active: Dict[str, dict] = {}
+        self._ws_callbacks: list = []
+
+    def subscribe(self, callback):
+        """Подписка на события трассировки (для WebSocket)."""
+        self._ws_callbacks.append(callback)
+
+    async def _notify(self, event: str, data: dict):
+        for cb in self._ws_callbacks:
+            try:
+                if asyncio.iscoroutinefunction(cb):
+                    await cb(event, data)
+                else:
+                    cb(event, data)
+            except Exception:
+                pass
+
+    def start_trace(self, query: str, interface: str = "user") -> str:
+        run_id = str(uuid.uuid4())[:8]
+        trace = {
+            "run_id": run_id,
+            "query": query,
+            "interface": interface,
+            "started_at": time.time(),
+            "completed_at": None,
+            "steps": [],
+            "result": None,
+            "status": "running",
+        }
+        self._active[run_id] = trace
+        self.traces.append(trace)
+        # Асинхронное уведомление (если есть event loop)
+        try:
+            loop = asyncio.get_event_loop()
+            if loop.is_running():
+                loop.create_task(self._notify("execution_trace", trace))
+        except RuntimeError:
+            pass
+        return run_id
+
+    def add_step(self, run_id: str, agent: str, detail: str = ""):
+        trace = self._active.get(run_id)
+        if trace is None:
+            return
+        step = {
+            "agent": agent,
+            "timestamp": time.time(),
+            "detail": detail,
+        }
+        trace["steps"].append(step)
+        try:
+            loop = asyncio.get_event_loop()
+            if loop.is_running():
+                loop.create_task(self._notify("trace_step", {"run_id": run_id, "step": step}))
+        except RuntimeError:
+            pass
+
+    def complete_trace(self, run_id: str, result: str = ""):
+        trace = self._active.pop(run_id, None)
+        if trace is None:
+            return
+        trace["completed_at"] = time.time()
+        trace["result"] = result
+        trace["status"] = "completed"
+        try:
+            loop = asyncio.get_event_loop()
+            if loop.is_running():
+                loop.create_task(self._notify("trace_completed", trace))
+        except RuntimeError:
+            pass
+
+    def get_active_traces(self) -> List[dict]:
+        return list(self._active.values())
+
+    def get_recent_traces(self, limit: int = 20) -> List[dict]:
+        return list(self.traces)[-limit:]
+
+    def get_trace(self, run_id: str) -> Optional[dict]:
+        for t in self.traces:
+            if t["run_id"] == run_id:
+                return t
+        return self._active.get(run_id)
+
+
+trace_handler = TraceHandler()
+# ============================================================
 
 
 def replace_value(old, new):
@@ -53,6 +154,43 @@ INTENT_TYPE_MAP = {
 }
 
 
+class AgentStatusTracker:
+    """Трекер статусов агентов в реальном времени."""
+
+    def __init__(self):
+        self._statuses: Dict[str, dict] = {}
+
+    def set_running(self, role: str, task: str = ""):
+        self._statuses[role] = {
+            "status": "running",
+            "current_task": task,
+            "last_activity": datetime.now().isoformat(),
+        }
+
+    def set_idle(self, role: str):
+        self._statuses[role] = {
+            "status": "idle",
+            "current_task": None,
+            "last_activity": datetime.now().isoformat(),
+        }
+
+    def set_error(self, role: str, error: str = ""):
+        self._statuses[role] = {
+            "status": "error",
+            "current_task": error,
+            "last_activity": datetime.now().isoformat(),
+        }
+
+    def get_status(self, role: str) -> dict:
+        return self._statuses.get(role, {"status": "idle", "current_task": None, "last_activity": None})
+
+    def get_all_statuses(self) -> Dict[str, dict]:
+        return dict(self._statuses)
+
+
+agent_status_tracker = AgentStatusTracker()
+
+
 class ZoraOrchestrator:
     """Оркестратор для управления агентами ZORA.
     Динамически строит граф на основе реестра агентов."""
@@ -74,10 +212,15 @@ class ZoraOrchestrator:
 
     def get_agent_status(self, role: str) -> dict:
         """Возвращает статус агента по его роли."""
+        # Сначала проверяем трекер
+        tracker_status = agent_status_tracker.get_status(role)
+        if tracker_status.get("status") != "idle":
+            return tracker_status
+        # Fallback на метод агента
         agent = self.agents.get(role)
         if agent and hasattr(agent, 'get_status'):
             return agent.get_status()
-        return {"status": "unknown", "current_task": None, "last_activity": None}
+        return tracker_status
 
     def _build_graph(self):
         """Строит граф LangGraph динамически на основе реестра агентов."""
@@ -357,11 +500,14 @@ class ZoraOrchestrator:
 
     def _call_agent(self, state: dict, role_value: str) -> dict:
         """Универсальный метод вызова любого агента по его роли."""
+        # Устанавливаем статус running
+        agent_status_tracker.set_running(role_value, state.get("query", "")[:100])
         try:
             agent = self._get_or_create_agent(role_value)
             if agent is None:
                 logging.warning(f"Агент для роли {role_value} не найден в реестре")
                 state["result"] = f"Агент для роли {role_value} не найден."
+                agent_status_tracker.set_idle(role_value)
                 return state
 
             result = agent.process(state)
@@ -374,14 +520,22 @@ class ZoraOrchestrator:
             if "reasoning" in result:
                 state["reasoning"] = result["reasoning"]
 
+            # Возвращаем в idle после успешного выполнения
+            agent_status_tracker.set_idle(role_value)
+
         except Exception as e:
             logging.error(f"Ошибка при вызове агента {role_value}: {e}")
             state["result"] = f"Ошибка в работе агента {role_value}: {str(e)}"
+            agent_status_tracker.set_error(role_value, str(e))
         return state
 
     def process(self, query: str, interface: str = "user", history: List[Dict] = None) -> Dict[str, Any]:
         if history is None:
             history = []
+        
+        # Стартуем трассировку
+        run_id = trace_handler.start_trace(query, interface)
+        
         initial_state = AgentState(
             query=query,
             agent_type="support",
@@ -393,6 +547,15 @@ class ZoraOrchestrator:
         )
         try:
             final_state = self.graph.invoke(initial_state)
+            
+            # Добавляем шаг с выбранным агентом
+            agent = final_state.get("agent_type", "support")
+            trace_handler.add_step(run_id, agent, "Обработка запроса")
+            
+            # Завершаем трассировку
+            result_text = final_state.get("result", "")
+            trace_handler.complete_trace(run_id, result_text[:200])
+
 
             reasoning = []
             context = final_state.get("context", "")

@@ -500,9 +500,13 @@ class ZoraLauncher:
     
     def _register_background_agents(self):
         """Регистрирует фоновых агентов в планировщике."""
-        from apscheduler.schedulers.asyncio import AsyncIOScheduler
-        
-        self.scheduler = AsyncIOScheduler()
+        try:
+            from apscheduler.schedulers.asyncio import AsyncIOScheduler
+            self.scheduler = AsyncIOScheduler()
+        except ImportError:
+            logger.warning("⚠️ apscheduler не установлен, фоновые агенты не будут запущены")
+            self.scheduler = None
+            return
         
         # Импортируем агентов (если они существуют)
         try:
