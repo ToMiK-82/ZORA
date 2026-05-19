@@ -44,7 +44,8 @@ export default function KnowledgeGraph() {
       },
     }));
 
-    const flowEdges: Edge[] = apiEdges.map((e: any, i: number) => ({
+    // Прямые связи: agent → file
+    const forwardEdges: Edge[] = apiEdges.map((e: any, i: number) => ({
       id: `kge-${i}`,
       source: e.source,
       target: e.target,
@@ -61,6 +62,30 @@ export default function KnowledgeGraph() {
       label: e.type || 'использует',
       labelStyle: { fill: '#6B7280', fontSize: 9 },
     }));
+
+    // Обратные связи: file → agent (кто использует этот файл)
+    const reverseEdges: Edge[] = apiEdges
+      .filter((e: any) => e.source.startsWith('agent:') || !e.source.startsWith('file:'))
+      .map((e: any, i: number) => ({
+        id: `kge-rev-${i}`,
+        source: e.target,
+        target: e.source,
+        animated: false,
+        style: {
+          stroke: '#22C55E',
+          strokeWidth: 1,
+          strokeDasharray: '2 4',
+          opacity: 0.6,
+        },
+        markerEnd: {
+          type: MarkerType.ArrowClosed,
+          color: '#22C55E',
+        },
+        label: 'используется агентом',
+        labelStyle: { fill: '#6B7280', fontSize: 8, opacity: 0.6 },
+      }));
+
+    const flowEdges = [...forwardEdges, ...reverseEdges];
 
     return { nodes: flowNodes, edges: flowEdges };
   }, [data]);

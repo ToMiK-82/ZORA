@@ -176,6 +176,7 @@ export default function AgentExecutionGraph() {
   const [showOnlyActive, setShowOnlyActive] = useState(false);
   const [liveTraces, setLiveTraces] = useState<WsExecutionTrace['data'][]>([]);
   const [timeRange, setTimeRange] = useState<TimeRange>('now');
+  const [viewMode, setViewMode] = useState<'graph' | 'table'>('graph');
 
   // Knowledge Graph (связи агент–файл)
   const { data: kgData } = useQuery({
@@ -195,7 +196,7 @@ export default function AgentExecutionGraph() {
     }
   }, [executionTraces]);
 
-  // Авто-исчезновение завершённых трасс через 5 секунд
+  // TTL: авто-исчезновение завершённых трасс через 5 секунд
   useEffect(() => {
     const completedIds = executionTraces
       .filter(t => t.status === 'completed' || (t as any).event === 'trace_completed')
@@ -206,6 +207,17 @@ export default function AgentExecutionGraph() {
     }, 5000);
     return () => clearTimeout(timer);
   }, [executionTraces]);
+
+  // TTL для исторических трасс: удаляем трассы старше 30 секунд
+  useEffect(() => {
+    if (liveTraces.length === 0) return;
+    const now = Date.now();
+    const ttl = 30_000; // 30 секунд
+    setLiveTraces(prev => prev.filter(t => {
+      const ts = t.started_at || t.steps?.[0]?.timestamp || 0;
+      return (now - ts) < ttl;
+    }));
+  }, [liveTraces.length > 0 && Date.now()]);
 
   // Определяем активных агентов из трейсов
   const activeAgentIds = useMemo(() => {
@@ -404,8 +416,29 @@ export default function AgentExecutionGraph() {
         </button>
       </div>
 
-      {/* Time Range Selector */}
-      <div className="flex gap-1 mb-3">
+      {/* View Mode Toggle + Time Range */}
+      <div className="flex gap-1 mb-3 items-center">
+        <button
+          onClick={() => setViewMode('graph')}
+          className={`px-2 py-1 rounded-lg text-xs border transition-colors ${
+            viewMode === 'graph'
+              ? 'bg-zora-accent/20 border-zora-accent text-zora-accent'
+              : 'bg-zora-bg border-zora-border text-zora-muted hover:text-white'
+          }`}
+        >
+          Граф
+        </button>
+        <button
+          onClick={() => setViewMode('table')}
+          className={`px-2 py-1 rounded-lg text-xs border transition-colors ${
+            viewMode === 'table'
+              ? 'bg-zora-accent/20 border-zora-accent text-zora-accent'
+              : 'bg-zora-bg border-zora-border text-zora-muted hover:text-white'
+          }`}
+        >
+          Таблица
+        </button>
+        <span className="w-px h-4 bg-zora-border mx-1" />
         {(['now', '1h', 'today'] as TimeRange[]).map((range) => (
           <button
             key={range}
@@ -421,34 +454,80 @@ export default function AgentExecutionGraph() {
         ))}
       </div>
 
-      {/* React Flow Graph */}
-      <div className="flex-1" style={{ minHeight: 0 }}>
-        <ReactFlow
-          nodes={nodes}
-          edges={edges}
-          onNodesChange={onNodesChange}
-          onEdgesChange={onEdgesChange}
-          onNodeClick={onNodeClick}
-          nodeTypes={nodeTypes}
-          fitView
-          attributionPosition="bottom-left"
-          proOptions={{ hideAttribution: true }}
-        >
-          <Background color="#1A2536" gap={20} />
-          <Controls className="!bg-zora-card !border-zora-border !rounded-xl" />
-          <MiniMap
-            style={{ background: '#0C111D', border: '1px solid #2A3A4E', borderRadius: 12 }}
-            nodeColor={(n) => {
-              const s = (n.data as unknown as AgentGraphNode)?.status;
-              return s === 'running'
-                ? '#FF8C42'
-                : s === 'idle' || s === 'healthy'
-                ? '#22C55E'
-                : '#EF4444';
-            }}
-          />
-        </ReactFlow>
-      </div>
+      {/* View: Graph or Table */}
+      {viewMode === 'graph' ? (
+        <div className="flex-1" style={{ minHeight: 0 }}>
+          <ReactFlow
+            nodes={nodes}
+            edges={edges}
+            onNodesChange={onNodesChange}
+            onEdgesChange={onEdgesChange}
+            onNodeClick={onNodeClick}
+            nodeTypes={nodeTypes}
+            fitView
+            attributionPosition="bottom-left"
+            proOptions={{ hideAttribution: true }}
+          >
+            <Background color="#1A2536" gap={20} />
+            <Controls className="!bg-zora-card !border-zora-border !rounded-xl" />
+            <MiniMap
+              style={{ background: '#0C111D', border: '1px solid #2A3A4E', borderRadius: 12 }}
+              nodeColor={(n) => {
+                const s = (n.data as unknown as AgentGraphNode)?.status;
+                return s === 'running'
+                  ? '#FF8C42'
+                  : s === 'idle' || s === 'healthy'
+                  ? '#22C55E'
+                  : '#EF4444';
+              }}
+            />
+          </ReactFlow>
+        </div>
+      ) : (
+        <div className="flex-1 overflow-auto" style={{ minHeight: 0 }}>
+          <table className="w-full text-xs">
+            <thead>
+              <tr className="text-zora-muted border-b border-zora-border">
+                <th className="text-left py-2 px-2">Агент</th>
+                <th className="text-left py-2 px-2">Статус</th>
+                <th className="text-left py-2 px-2">Тип</th>
+                <th className="text-right py-2 px-2">Трассы</th>
+              </tr>
+            </thead>
+            <tbody>
+              {(data?.nodes ?? []).map((n) => (
+                <tr
+                  key={n.id}
+                  onClick={() => setSelectedAgent((prev) => (prev?.id === n.id ? null : n))}
+                  className={`border-b border-zora-border/50 cursor-pointer transition-colors hover:bg-zora-bg/50 ${
+                    selectedAgent?.id === n.id ? 'bg-zora-accent/10' : ''
+                  }`}
+                >
+                  <td className="py-2 px-2 font-medium text-white">{n.label}</td>
+                  <td className="py-2 px-2">
+                    <span className={`inline-flex items-center gap-1 ${
+                      n.status === 'running' ? 'text-zora-accent' :
+                      n.status === 'idle' || n.status === 'healthy' ? 'text-zora-green' :
+                      'text-zora-red'
+                    }`}>
+                      <span className={`w-1.5 h-1.5 rounded-full ${
+                        n.status === 'running' ? 'bg-zora-accent' :
+                        n.status === 'idle' || n.status === 'healthy' ? 'bg-zora-green' :
+                        'bg-zora-red'
+                      }`} />
+                      {stateLabels[n.status] || n.status}
+                    </span>
+                  </td>
+                  <td className="py-2 px-2 text-zora-muted">{n.type}</td>
+                  <td className="py-2 px-2 text-right text-zora-muted">
+                    {n.metrics?.active_traces ?? 0}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
 
       {/* Active Traces Info */}
       {filteredTraces.length > 0 && (

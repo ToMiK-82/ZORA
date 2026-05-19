@@ -1155,17 +1155,23 @@ async def system_graph():
         try:
             import asyncpg
             conn = await asyncpg.connect(
-                host=os.getenv("PGHOST", "localhost"),
-                port=int(os.getenv("PGPORT", "5432")),
-                database=os.getenv("PGDATABASE", "zora"),
-                user=os.getenv("PGUSER", "postgres"),
-                password=os.getenv("PGPASSWORD", "postgres"),
+                host=os.getenv("POSTGRES_HOST", "localhost"),
+                port=int(os.getenv("POSTGRES_PORT", "5432")),
+                database=os.getenv("POSTGRES_DB", "zora"),
+                user=os.getenv("POSTGRES_USER", "zora"),
+                password=os.getenv("POSTGRES_PASSWORD", "zora"),
                 timeout=2
             )
             await conn.close()
             return "healthy"
         except ImportError:
             logger.warning("PostgreSQL: asyncpg не установлен")
+            return "degraded"
+        except asyncpg.exceptions.InvalidPasswordError:
+            logger.warning("PostgreSQL: неверный пароль")
+            return "degraded"
+        except asyncpg.exceptions.TimeoutError:
+            logger.warning("PostgreSQL: таймаут подключения")
             return "degraded"
         except Exception:
             logger.warning("PostgreSQL check failed", exc_info=True)
@@ -1853,6 +1859,12 @@ async def knowledge_graph():
                             "target": file_id,
                             "type": "uses",
                         })
+                        # Обратная связь: файл используется агентом
+                        edges.append({
+                            "source": file_id,
+                            "target": agent_id,
+                            "type": "used_by",
+                        })
                 if next_offset is None:
                     break
 
@@ -2398,6 +2410,41 @@ async def websocket_telemetry(websocket: WebSocket):
                         "message": f"Высокая загрузка CPU: {cpu_percent}%",
                         "timestamp": datetime.now().isoformat()
                     })
+                # Алерты по падениям сервисов
+                try:
+                    import httpx
+                    async with httpx.AsyncClient(timeout=2) as client:
+                        r = await client.get("http://localhost:11434/api/tags")
+                        if r.status_code != 200:
+                            alerts.append({
+                                "severity": "error",
+                                "message": "Ollama недоступен",
+                                "timestamp": datetime.now().isoformat()
+                            })
+                except:
+                    alerts.append({
+                        "severity": "error",
+                        "message": "Ollama недоступен",
+                        "timestamp": datetime.now().isoformat()
+                    })
+                if not MEMORY_AVAILABLE:
+                    alerts.append({
+                        "severity": "error",
+                        "message": "Qdrant (память) недоступен",
+                        "timestamp": datetime.now().isoformat()
+                    })
+                # Алерты по ошибкам агентов (из трекера статусов)
+                try:
+                    from core.orchestrator import agent_status_tracker
+                    for role, status in agent_status_tracker.get_all_statuses().items():
+                        if status.get("status") == "error":
+                            alerts.append({
+                                "severity": "error",
+                                "message": f"Агент {role}: {status.get('current_task', 'ошибка')}",
+                                "timestamp": datetime.now().isoformat()
+                            })
+                except:
+                    pass
                 for alert in alerts:
                     await websocket.send_json({
                         "type": "alert",
@@ -2405,7 +2452,7 @@ async def websocket_telemetry(websocket: WebSocket):
                     })
 
                 # Ожидание перед следующим обновлением
-                await asyncio.sleep(5)
+                await asyncio.sleep(2)
 
             except WebSocketDisconnect:
                 raise

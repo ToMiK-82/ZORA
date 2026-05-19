@@ -205,10 +205,39 @@ class ZoraMemory:
         )
         logger.info(f"🗑️ Удалены точки по фильтру: {filter_dict}")
 
+    def _update_used_by_agents(self, point_ids: List[str], agent: str):
+        """Обновляет поле used_by_agents в payload найденных точек."""
+        if not point_ids or not agent:
+            return
+        try:
+            # Получаем текущие payloads точек
+            points = self.client.retrieve(
+                collection_name=self.collection_name,
+                ids=point_ids,
+                with_payload=True,
+            )
+            for point in points:
+                payload = point.payload or {}
+                used_by = set(payload.get("used_by_agents", []) or [])
+                if agent not in used_by:
+                    used_by.add(agent)
+                    self.client.set_payload(
+                        collection_name=self.collection_name,
+                        payload={"used_by_agents": list(used_by)},
+                        points=[point.id],
+                    )
+        except Exception as e:
+            logger.warning(f"Не удалось обновить used_by_agents: {e}")
+
     def search(self, query: str, limit: int = 5, agent: Optional[str] = None,
                threshold: float = 0.0, types: Optional[List[str]] = None) -> List[Dict[str, Any]]:
         """Единый интерфейс поиска, делегирует в hybrid_search."""
-        return self.hybrid_search(query=query, types=types, limit=limit, score_threshold=threshold)
+        results = self.hybrid_search(query=query, types=types, limit=limit, score_threshold=threshold)
+        # Обновляем used_by_agents, если указан агент
+        if agent and results:
+            point_ids = [r["id"] for r in results]
+            self._update_used_by_agents(point_ids, agent)
+        return results
 
     def hybrid_search(self, query: str, types: Optional[List[str]] = None,
                       limit: int = 5, score_threshold: float = 0.0) -> List[Dict[str, Any]]:

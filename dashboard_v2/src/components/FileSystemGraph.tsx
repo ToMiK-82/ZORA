@@ -174,6 +174,8 @@ export default function FileSystemGraph() {
             colors={{ datum: 'data.color' }}
             borderColor={{ from: 'color', modifiers: [['darker', 0.3]] }}
             nodeOpacity={0.85}
+            motionConfig="gentle"
+            animate={true}
             label={(d) => {
               // Only show label if rectangle is big enough
               return d.width > 40 ? d.data.name : '';
@@ -186,9 +188,9 @@ export default function FileSystemGraph() {
               const n = node.data.node as FileSystemNode | undefined;
               if (!n) return <div />;
               return (
-                <div className="bg-zora-card border border-zora-border rounded-xl px-3 py-2 text-xs shadow-lg">
+                <div className="bg-zora-card border border-zora-border rounded-xl px-3 py-2 text-xs shadow-lg max-w-[250px]">
                   <div className="font-semibold text-white">{n.label}</div>
-                  <div className="text-zora-muted mt-0.5">{n.id}</div>
+                  <div className="text-zora-muted mt-0.5 truncate">{n.id}</div>
                   <div className="flex gap-2 mt-1">
                     <span className="text-zora-muted">{n.size_kb.toFixed(0)} KB</span>
                     <span className="text-zora-muted">{n.chunks_count} чанков</span>
@@ -200,6 +202,12 @@ export default function FileSystemGraph() {
                     />
                     <span className="text-zora-muted">{statusLabels[n.status]}</span>
                   </div>
+                  {n.used_by_agents && n.used_by_agents.length > 0 && (
+                    <div className="mt-1 pt-1 border-t border-zora-border/50">
+                      <span className="text-zora-muted">Агенты: </span>
+                      <span className="text-blue-400">{n.used_by_agents.join(', ')}</span>
+                    </div>
+                  )}
                 </div>
               );
             }}

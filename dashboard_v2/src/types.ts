@@ -164,7 +164,9 @@ export interface WsAlert {
   type: 'alert';
   data: {
     message: string;
-    severity: 'info' | 'warning' | 'error';
+    severity: 'info' | 'warning' | 'error' | 'critical' | 'success';
+    id?: number;
+    timestamp?: string;
   };
 }
 

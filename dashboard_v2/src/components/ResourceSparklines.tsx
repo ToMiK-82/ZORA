@@ -1,9 +1,9 @@
-import React, { useEffect, useState, useRef } from 'react';
-import { LineChart, Line, ResponsiveContainer } from 'recharts';
+import React, { useEffect, useState, useRef, useMemo } from 'react';
+import { LineChart, Line, ResponsiveContainer, Tooltip } from 'recharts';
 import { useWebSocket } from '../api/websocketProvider';
 import { useQuery } from '@tanstack/react-query';
 import { getHealth } from '../api/dashboardApi';
-import { FiCpu, FiMonitor, FiHardDrive, FiServer } from 'react-icons/fi';
+import { FiCpu, FiMonitor, FiHardDrive, FiServer, FiTrendingUp, FiTrendingDown } from 'react-icons/fi';
 
 interface SparklineProps {
   label: string;
@@ -17,15 +17,71 @@ interface SparklineProps {
 function Sparkline({ label, value, data, color, icon, unit = '%' }: SparklineProps) {
   const valColor = value > 90 ? 'text-zora-red' : value > 75 ? 'text-zora-yellow' : 'text-zora-green';
 
+  // Тренд: сравниваем последнее значение с предыдущим
+  const trend = useMemo(() => {
+    if (data.length < 2) return null;
+    const last = data[data.length - 1].v;
+    const prev = data[data.length - 2].v;
+    if (last > prev + 0.5) return 'up';
+    if (last < prev - 0.5) return 'down';
+    return 'stable';
+  }, [data]);
+
+  // Статистика: min, max, среднее
+  const stats = useMemo(() => {
+    if (data.length === 0) return null;
+    const vals = data.map(d => d.v);
+    return {
+      min: Math.min(...vals),
+      max: Math.max(...vals),
+      avg: vals.reduce((a, b) => a + b, 0) / vals.length,
+    };
+  }, [data]);
+
+  const CustomTooltip = ({ active, payload }: any) => {
+    if (active && payload && payload.length) {
+      return (
+        <div className="bg-zora-card border border-zora-border rounded-xl px-3 py-2 text-xs shadow-lg min-w-[140px]">
+          <div className="font-semibold text-white">{label}</div>
+          <div className="text-zora-muted mt-0.5">
+            Текущее: <span className="text-white font-medium">{payload[0].value.toFixed(1)}{unit}</span>
+          </div>
+          {stats && (
+            <>
+              <div className="text-zora-muted">
+                Мин: <span className="text-blue-400">{stats.min.toFixed(1)}{unit}</span>
+              </div>
+              <div className="text-zora-muted">
+                Макс: <span className="text-zora-red">{stats.max.toFixed(1)}{unit}</span>
+              </div>
+              <div className="text-zora-muted">
+                Среднее: <span className="text-zora-green">{stats.avg.toFixed(1)}{unit}</span>
+              </div>
+              <div className="mt-1 pt-1 border-t border-zora-border/50">
+                {trend === 'up' && <span className="text-zora-red">⬆ Растёт</span>}
+                {trend === 'down' && <span className="text-zora-green">⬇ Падает</span>}
+                {trend === 'stable' && <span className="text-zora-muted">→ Стабильно</span>}
+              </div>
+            </>
+          )}
+        </div>
+      );
+    }
+    return null;
+  };
+
   return (
     <div className="card flex flex-col">
       <div className="flex items-center gap-2 mb-2">
         <span className="text-zora-accent">{icon}</span>
         <span className="text-xs text-zora-muted font-medium">{label}</span>
+        {trend === 'up' && <FiTrendingUp className="text-zora-red text-xs ml-auto" />}
+        {trend === 'down' && <FiTrendingDown className="text-zora-green text-xs ml-auto" />}
       </div>
       <div className="h-12">
         <ResponsiveContainer width="100%" height="100%">
           <LineChart data={data}>
+            <Tooltip content={<CustomTooltip />} />
             <Line
               type="monotone"
               dataKey="v"

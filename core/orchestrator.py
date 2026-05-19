@@ -105,13 +105,38 @@ class TraceHandler:
         except RuntimeError:
             pass
 
+    def _cleanup_old_traces(self, max_age_seconds: int = 3600):
+        """Удаляет завершённые трассы старше max_age_seconds."""
+        now = time.time()
+        cutoff = now - max_age_seconds
+        # Очищаем deque от старых завершённых трасс
+        new_traces = deque(maxlen=self.traces.maxlen)
+        for t in self.traces:
+            completed = t.get("completed_at")
+            if completed and completed < cutoff:
+                continue  # пропускаем старые завершённые
+            new_traces.append(t)
+        self.traces = new_traces
+        # Очищаем активные, которые зависли (started_at слишком старые)
+        stale_active = [rid for rid, t in self._active.items()
+                        if t.get("started_at", 0) < cutoff and t.get("status") == "running"]
+        for rid in stale_active:
+            t = self._active.pop(rid, None)
+            if t:
+                t["status"] = "timed_out"
+                t["completed_at"] = now
+                self.traces.append(t)
+
     def get_active_traces(self) -> List[dict]:
+        self._cleanup_old_traces()
         return list(self._active.values())
 
     def get_recent_traces(self, limit: int = 20) -> List[dict]:
+        self._cleanup_old_traces()
         return list(self.traces)[-limit:]
 
     def get_trace(self, run_id: str) -> Optional[dict]:
+        self._cleanup_old_traces()
         for t in self.traces:
             if t["run_id"] == run_id:
                 return t
