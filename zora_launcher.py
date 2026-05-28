@@ -456,6 +456,51 @@ class ZoraLauncher:
         except Exception as e:
             logger.debug(f"  Не удалось открыть {url}: {e}")
     
+    async def start_dashboard_dev_server(self):
+        """Асинхронно запускает Vite dev-сервер дашборда (dashboard_v2)."""
+        dashboard_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'dashboard_v2')
+        if not os.path.exists(dashboard_dir):
+            logger.error("❌ Папка dashboard_v2 не найдена")
+            return False
+
+        # Проверяем, не запущен ли уже сервер дашборда (порт 5173)
+        from urllib.request import urlopen, Request
+        try:
+            req = Request("http://localhost:5173/dashboard/", headers={"User-Agent": "Mozilla/5.0"}, method="GET")
+            resp = urlopen(req, timeout=2)
+            logger.info("✅ Дашборд Vite dev-сервер уже запущен на http://localhost:5173/dashboard/")
+            return True
+        except Exception:
+            pass
+
+        logger.info("🚀 Запуск Vite dev-сервера дашборда...")
+        try:
+            def run_vite():
+                subprocess.run(
+                    ["npm.cmd", "run", "dev"],
+                    cwd=dashboard_dir,
+                    shell=True,
+                    stdout=subprocess.DEVNULL,
+                    stderr=subprocess.DEVNULL
+                )
+            thread = threading.Thread(target=run_vite, daemon=True)
+            thread.start()
+            # Ждём запуска
+            for _ in range(15):
+                await asyncio.sleep(1)
+                try:
+                    req = Request("http://localhost:5173/dashboard/", headers={"User-Agent": "Mozilla/5.0"}, method="GET")
+                    resp = urlopen(req, timeout=2)
+                    logger.info("✅ Vite dev-сервер дашборда запущен на http://localhost:5173/dashboard/")
+                    return True
+                except Exception:
+                    continue
+            logger.warning("⚠️ Vite dev-сервер не ответил за 15 секунд, но может запуститься позже")
+            return False
+        except Exception as e:
+            logger.error(f"❌ Ошибка запуска Vite dev-сервера: {e}")
+            return False
+
     async def open_browser(self):
         """Асинхронно открывает браузер с веб-интерфейсом.
         Запускает в отдельном потоке, чтобы не блокировать event loop.
@@ -559,7 +604,10 @@ class ZoraLauncher:
         
         # Дашборд мониторинга встроен в основной веб-интерфейс (порт 8002)
         logger.info("✅ Дашборд доступен по адресу http://localhost:8002/dashboard")
-        
+
+        # Запускаем Vite dev-сервер дашборда (dashboard_v2)
+        await self.start_dashboard_dev_server()
+
         # Запускаем планировщик фоновых агентов
         self._register_background_agents()
         

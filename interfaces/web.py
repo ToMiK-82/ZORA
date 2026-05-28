@@ -1119,22 +1119,19 @@ async def system_graph():
     async def check_qdrant():
         """Проверяет Qdrant и возвращает статус и количество векторов."""
         try:
+            from monitoring.system_monitor import get_qdrant_vectors_count
+            vectors = get_qdrant_vectors_count()
+            # Проверяем HTTP — жив ли Qdrant
             async with httpx.AsyncClient(timeout=3) as client:
                 r = await client.get("http://localhost:6333/collections")
                 if r.status_code == 200:
-                    try:
-                        r2 = await client.get("http://localhost:6333/collections/zora")
-                        if r2.status_code == 200:
-                            data = r2.json()
-                            return "healthy", data.get("result", {}).get("vectors_count", 0)
-                    except:
-                        pass
-                    return "healthy", 0
+                    return "healthy", max(vectors, 0)
         except httpx.TimeoutException:
             return "degraded", 0
         except:
             pass
         return "down", 0
+
 
     async def check_ollama():
         """Проверяет Ollama и возвращает статус и количество моделей."""
@@ -1170,11 +1167,8 @@ async def system_graph():
         except asyncpg.exceptions.InvalidPasswordError:
             logger.warning("PostgreSQL: неверный пароль")
             return "degraded"
-        except asyncpg.exceptions.TimeoutError:
-            logger.warning("PostgreSQL: таймаут подключения")
-            return "degraded"
-        except Exception:
-            logger.warning("PostgreSQL check failed", exc_info=True)
+        except (asyncio.TimeoutError, Exception):
+            logger.warning("PostgreSQL check failed (timeout or error)")
             return "degraded"
 
     # Запускаем все проверки параллельно
@@ -1259,6 +1253,54 @@ async def system_graph():
         "metrics": {}
     })
 
+    # 8. 1C OData
+    onec_status = "degraded"
+    onec_url = os.getenv("ONEC_ODATA_URL", "")
+    onec_user = os.getenv("ONEC_ODATA_USER", "")
+    onec_pass = os.getenv("ONEC_ODATA_PASSWORD", "")
+    if onec_url and onec_user and onec_pass:
+        try:
+            auth = httpx.BasicAuth(onec_user, onec_pass)
+            async with httpx.AsyncClient(timeout=3) as client:
+                r = await client.get(onec_url, auth=auth)
+                onec_status = "healthy" if 200 <= r.status_code < 300 else "degraded"
+        except:
+            onec_status = "degraded"
+    nodes.append({
+        "id": "1c_odata",
+        "label": "1C OData",
+        "type": "external",
+        "status": onec_status,
+        "metrics": {"url": len(onec_url) if onec_url else 0}
+    })
+
+    # 9. Telegram Bot
+    telegram_status = "healthy" if TELEGRAM_HANDLER_AVAILABLE else "down"
+    nodes.append({
+        "id": "telegram_bot",
+        "label": "Telegram Bot",
+        "type": "service",
+        "status": telegram_status,
+        "metrics": {}
+    })
+
+    # Позиции для сетки 3×3
+    initial_positions = {
+        "orchestrator": {"x": 250, "y": 0},
+        "deepseek": {"x": 500, "y": 0},
+        "docker": {"x": 0, "y": 0},
+        "qdrant": {"x": 0, "y": 150},
+        "ollama": {"x": 250, "y": 150},
+        "1c_odata": {"x": 500, "y": 150},
+        "postgres": {"x": 0, "y": 300},
+        "web_ui": {"x": 250, "y": 300},
+        "telegram_bot": {"x": 500, "y": 300},
+    }
+    for node in nodes:
+        pos = initial_positions.get(node["id"])
+        if pos:
+            node["position"] = pos
+
     # Рёбра графа (связи между компонентами)
     edges = [
         {"source": "orchestrator", "target": "qdrant", "label": "векторный поиск"},
@@ -1267,6 +1309,8 @@ async def system_graph():
         {"source": "orchestrator", "target": "postgres", "label": "история"},
         {"source": "web_ui", "target": "orchestrator", "label": "API"},
         {"source": "docker", "target": "qdrant", "label": "контейнер"},
+        {"source": "orchestrator", "target": "1c_odata", "label": "данные 1С"},
+        {"source": "orchestrator", "target": "telegram_bot", "label": "уведомления"},
     ]
 
     return {"nodes": nodes, "edges": edges}
@@ -1882,12 +1926,10 @@ async def agents_graph(history: str = ""):
         history (str): "1h" или "today" — подгрузить исторические трассы за период.
     """
     try:
-        from core.orchestrator import trace_handler
         from core.agent_registry import get_all_agents_info
         
         # Получаем информацию о всех агентах
         agents_info = get_all_agents_info()
-        # get_all_agents_info может вернуть как список, так и словарь
         if isinstance(agents_info, list):
             agents_dict = {a.get("role", ""): a for a in agents_info}
         else:
@@ -1895,17 +1937,15 @@ async def agents_graph(history: str = ""):
         nodes = []
         
         # Узел оркестратора
-        active_traces = trace_handler.get_active_traces()
-        orch_status = "healthy" if ORCHESTRATOR_AVAILABLE else "down"
         nodes.append({
             "id": "orchestrator",
             "label": "Оркестратор",
             "type": "orchestrator",
-            "status": orch_status,
-            "metrics": {"active_traces": len(active_traces), "total_agents": len(agents_dict)}
+            "status": "healthy" if ORCHESTRATOR_AVAILABLE else "down",
+            "metrics": {"active_traces": 0, "total_agents": len(agents_dict)}
         })
         
-        # Узел User (всегда здоров)
+        # Узел User
         nodes.append({
             "id": "user",
             "label": "Пользователь",
@@ -1914,32 +1954,27 @@ async def agents_graph(history: str = ""):
             "metrics": {}
         })
         
-        # Узел Developer (всегда здоров, если оркестратор доступен)
+        # Узел Ассистент (Ria)
         nodes.append({
             "id": "developer",
-            "label": "Разработчик",
+            "label": "Ассистент",
             "type": "developer",
             "status": "healthy" if ORCHESTRATOR_AVAILABLE else "down",
             "metrics": {}
         })
-        
-        # Узлы агентов
-        for role, info in agents_dict.items():
 
+        # Узлы агентов
+
+        for role, info in agents_dict.items():
             agent_status = "idle"
             current_task = None
             if _orchestrator:
-                status_data = _orchestrator.get_agent_status(role)
-                agent_status = status_data.get("status", "idle")
-                current_task = status_data.get("current_task")
-            
-            # Проверяем, есть ли активная трасса для этого агента
-            is_active = any(
-                any(step.get("agent") == role for step in t.get("steps", []))
-                for t in active_traces
-            )
-            if is_active:
-                agent_status = "running"
+                try:
+                    status_data = _orchestrator.get_agent_status(role)
+                    agent_status = status_data.get("status", "idle")
+                    current_task = status_data.get("current_task")
+                except Exception:
+                    pass  # остаётся idle
             
             nodes.append({
                 "id": role,
@@ -1950,28 +1985,37 @@ async def agents_graph(history: str = ""):
                 "description": info.get("description", ""),
             })
         
-        # Рёбра: User -> Developer -> Orchestrator -> агенты
+        # Рёбра
         edges = [
             {"source": "user", "target": "developer", "label": "запрос"},
             {"source": "developer", "target": "orchestrator", "label": "API"},
         ]
         edges += [{"source": "orchestrator", "target": role, "label": ""} for role in agents_dict.keys()]
-
         
-        # Активные трассы
-        traces = []
+        # Трассы: пытаемся получить из trace_handler, если он есть
+        active_traces = []
+        recent_traces = []
+        try:
+            from core.orchestrator import trace_handler
+            if trace_handler and hasattr(trace_handler, 'get_active_traces'):
+                active_traces = trace_handler.get_active_traces()
+                recent_traces = trace_handler.get_recent_traces(10)
+        except Exception:
+            pass  # трассировка ещё не настроена
+        
+        # Форматируем активные трассы
+        traces_list = []
         for t in active_traces:
-            traces.append({
+            traces_list.append({
                 "run_id": t["run_id"],
-                "query": t["query"][:100],
+                "query": t.get("query", "")[:100],
                 "steps": [s["agent"] for s in t.get("steps", [])],
-                "started_at": t["started_at"],
+                "started_at": t.get("started_at", ""),
             })
         
         # Фильтрация recent_traces по параметру history
-        recent_traces = trace_handler.get_recent_traces(10)
         if history:
-            now_ts = datetime.now().timestamp() * 1000  # ms
+            now_ts = datetime.now().timestamp() * 1000
             cutoff = now_ts - (3600_000 if history == "1h" else 86400_000)
             recent_traces = [
                 t for t in recent_traces
@@ -1981,13 +2025,12 @@ async def agents_graph(history: str = ""):
         return {
             "nodes": nodes,
             "edges": edges,
-            "active_traces": traces,
+            "active_traces": traces_list,
             "recent_traces": recent_traces,
         }
     except Exception as e:
         logger.error(f"Ошибка получения графа агентов: {e}")
         return {"nodes": [], "edges": [], "active_traces": [], "recent_traces": []}
-
 
 @app.get("/api/agents/{agent_name}")
 async def get_agent_status(agent_name: str):
@@ -2223,6 +2266,21 @@ async def stop_parser_background():
         logger.error(f"Ошибка остановки парсера: {e}")
         return {"success": False, "error": str(e)}
 
+@app.post("/api/index_file")
+async def index_single_file(file_path: str):
+    """Запускает индексацию одного файла."""
+    try:
+        if not os.path.exists(file_path):
+            return {"success": False, "error": "Файл не найден"}
+        from agents.parser_agent import ParserAgent
+        agent = ParserAgent()
+        result = agent.index_single_file(file_path)
+        return {"success": True, "message": f"Индексация запущена для {file_path}", "result": result}
+    except Exception as e:
+        logger.error(f"Ошибка индексации файла: {e}")
+        return {"success": False, "error": str(e)}
+
+
 @app.post("/api/agent/parser/task/{task_name}")
 async def run_parser_task(task_name: str):
     """Ручной запуск конкретной задачи парсера."""
@@ -2413,7 +2471,7 @@ async def websocket_telemetry(websocket: WebSocket):
                 # Алерты по падениям сервисов
                 try:
                     import httpx
-                    async with httpx.AsyncClient(timeout=2) as client:
+                    async with httpx.AsyncClient(timeout=5.0) as client:
                         r = await client.get("http://localhost:11434/api/tags")
                         if r.status_code != 200:
                             alerts.append({
@@ -2421,12 +2479,14 @@ async def websocket_telemetry(websocket: WebSocket):
                                 "message": "Ollama недоступен",
                                 "timestamp": datetime.now().isoformat()
                             })
-                except:
+                except httpx.ConnectError:
                     alerts.append({
                         "severity": "error",
                         "message": "Ollama недоступен",
                         "timestamp": datetime.now().isoformat()
                     })
+                except Exception as e:
+                    logger.warning(f"Ollama check failed: {e}")
                 if not MEMORY_AVAILABLE:
                     alerts.append({
                         "severity": "error",
@@ -2469,6 +2529,82 @@ async def websocket_telemetry(websocket: WebSocket):
             await websocket.close()
         except:
             pass
+
+
+# ======================================================================
+# Эндпоинт для оценки RAG через Opik
+# ======================================================================
+
+@app.post("/api/rag/evaluate_opik")
+async def evaluate_rag_opik():
+    """Запускает оценку RAG и логирует результаты в Opik."""
+    try:
+        import opik
+        import json
+        
+        # Загружаем тестовый датасет
+        dataset_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "data", "rag_test_set.json")
+        if not os.path.exists(dataset_path):
+            return {"success": False, "error": "Файл data/rag_test_set.json не найден"}
+        
+        with open(dataset_path, "r", encoding="utf-8") as f:
+            dataset = json.load(f)
+        
+        @opik.track
+        def run_rag_query(query):
+            # Вызываем реальный RAG-пайплайн
+            if MEMORY_AVAILABLE and _memory:
+                result = _memory.hybrid_search(query, limit=5)
+                return result
+            return []
+        
+        results_summary = []
+        for item in dataset:
+            query = item.get("query", "")
+            expected_chunk_id = item.get("chunk_id", "")
+            if not query:
+                continue
+            
+            retrieved = run_rag_query(query)
+            retrieved_chunk_ids = [r.get("chunk_id", "") for r in retrieved]
+            
+            # Логируем в Opik
+            try:
+                opik.log_rag_evaluation(
+                    query=query,
+                    retrieved_chunks=retrieved_chunk_ids,
+                    expected_chunks=[expected_chunk_id]
+                )
+            except Exception as opik_err:
+                logger.warning(f"Opik logging warning: {opik_err}")
+            
+            results_summary.append({
+                "query": query[:50],
+                "expected_chunk_id": expected_chunk_id,
+                "retrieved_count": len(retrieved),
+                "retrieved_chunk_ids": retrieved_chunk_ids[:3]
+            })
+        
+        return {
+            "success": True,
+            "message": f"Оценка запущена для {len(results_summary)} запросов, результаты доступны в Opik",
+            "results": results_summary
+        }
+    except Exception as e:
+        logger.error(f"Ошибка оценки RAG через Opik: {e}")
+        return {"success": False, "error": str(e)}
+
+
+@app.post("/api/rag/evaluate_laminar")
+async def evaluate_rag_laminar():
+    """Запускает оценку RAG и отправляет результаты в Laminar."""
+    try:
+        from tools.rag_eval_laminar import run_rag_evaluation
+        run_rag_evaluation()
+        return {"success": True, "message": "Оценка RAG запущена, результаты доступны в Laminar"}
+    except Exception as e:
+        logger.error(f"Ошибка оценки RAG через Laminar: {e}")
+        return {"success": False, "error": str(e)}
 
 
 # ======================================================================

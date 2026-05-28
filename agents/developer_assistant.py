@@ -37,7 +37,7 @@ class DeveloperAssistant(BaseAgent):
     """Ассистент разработчика с двухуровневой архитектурой Plan/Act."""
 
     role = AgentRole.DEVELOPER
-    display_name = "Разработчик Ria"
+    display_name = "Ассистент Ria"
     description = "Помогает писать код, анализировать архитектуру, искать информацию в коде и документации"
     tools = ["read_file", "write_file", "list_directory", "run_command", "get_page_text", "get_page_html"]
 

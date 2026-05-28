@@ -24,7 +24,6 @@ export default function AlertBar() {
   const [visibleAlerts, setVisibleAlerts] = useState<AlertItem[]>([]);
   const [dismissed, setDismissed] = useState<Set<number>>(new Set());
 
-  // Преобразуем входящие алерты в AlertItem с id
   useEffect(() => {
     if (alerts.length === 0) return;
     const newItems: AlertItem[] = alerts
@@ -35,18 +34,12 @@ export default function AlertBar() {
         timestamp: a.timestamp,
         id: a.id ?? ++_alertCounter,
       }));
-    setVisibleAlerts((prev) => {
-      const combined = [...newItems, ...prev];
-      return combined.slice(0, 10);
-    });
+    setVisibleAlerts((prev) => [...newItems, ...prev].slice(0, 10));
   }, [alerts, dismissed]);
 
-  // Авто-исчезновение через 8 секунд
   useEffect(() => {
     if (visibleAlerts.length === 0) return;
-    const timer = setTimeout(() => {
-      setVisibleAlerts((prev) => prev.slice(0, -1));
-    }, 8000);
+    const timer = setTimeout(() => setVisibleAlerts((prev) => prev.slice(0, -1)), 8000);
     return () => clearTimeout(timer);
   }, [visibleAlerts]);
 
@@ -70,7 +63,7 @@ export default function AlertBar() {
             <div className="flex-1 min-w-0">
               <span className="text-sm block">{alert.message}</span>
               {alert.timestamp && (
-                <span className="text-[10px] text-zora-muted flex items-center gap-1 mt-0.5">
+                <span className="text-[10px] text-muted-foreground flex items-center gap-1 mt-0.5">
                   <FiClock className="text-[10px]" />
                   {new Date(alert.timestamp).toLocaleTimeString('ru-RU')}
                 </span>
@@ -78,7 +71,7 @@ export default function AlertBar() {
             </div>
             <button
               onClick={() => dismiss(alert.id)}
-              className="shrink-0 text-zora-muted hover:text-white transition-colors"
+              className="shrink-0 text-muted-foreground hover:text-foreground transition-colors"
             >
               <FiX className="text-sm" />
             </button>

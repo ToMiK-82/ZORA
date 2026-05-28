@@ -3,6 +3,29 @@
 @tailwind utilities;
 
 @layer base {
+  :root {
+    --background: 222.2 84% 4.9%;
+    --foreground: 210 40% 98%;
+    --card: 222.2 84% 4.9%;
+    --card-foreground: 210 40% 98%;
+    --popover: 222.2 84% 4.9%;
+    --popover-foreground: 210 40% 98%;
+    --primary: 210 40% 98%;
+    --primary-foreground: 222.2 47.4% 11.2%;
+    --secondary: 217.2 32.6% 17.5%;
+    --secondary-foreground: 210 40% 98%;
+    --muted: 217.2 32.6% 17.5%;
+    --muted-foreground: 215 20.2% 65.1%;
+    --accent: 25 100% 63%;
+    --accent-foreground: 222.2 47.4% 11.2%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 217.2 32.6% 17.5%;
+    --input: 217.2 32.6% 17.5%;
+    --ring: 25 100% 63%;
+    --radius: 0.75rem;
+  }
+
   * {
     margin: 0;
     padding: 0;
@@ -10,8 +33,8 @@
   }
 
   body {
-    background-color: #0B111E;
-    color: #FFFFFF;
+    background-color: hsl(var(--background));
+    color: hsl(var(--foreground));
     font-family: 'Inter', system-ui, -apple-system, sans-serif;
     min-height: 100vh;
   }
@@ -36,94 +59,182 @@
 }
 
 @layer components {
-  .card {
-    background-color: #131B2A;
-    border: 1px solid #2A3A4E;
+  .glass-card {
+    background: rgba(19, 27, 42, 0.7);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: 16px;
-    padding: 16px;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
   }
 
-  .card-header {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    margin-bottom: 12px;
+  /* Orbital ring */
+  .orbit-ring-svg {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
   }
 
-  .card-header h3 {
-    font-size: 1rem;
-    font-weight: 600;
-    color: #FFFFFF;
+
+
+  /* Status pulse */
+  @keyframes status-pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
   }
 
-  .metric-value {
-    font-size: 1.125rem;
-    font-weight: 700;
-    color: #3B82F6;
+  .animate-status-pulse {
+    animation: status-pulse 2s ease-in-out infinite;
   }
 
-  .metric-label {
-    font-size: 0.75rem;
-    color: #6B7280;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
+  /* Dash flow for edges */
+  @keyframes dash-flow {
+    to {
+      stroke-dashoffset: -24;
+    }
   }
 
-  .status-dot {
-    width: 10px;
-    height: 10px;
-    border-radius: 50%;
-    display: inline-block;
+  .animate-dash-flow {
+    animation: dash-flow 1s linear infinite;
   }
 
-  .status-dot.healthy {
-    background-color: #22C55E;
-    box-shadow: 0 0 6px #22C55E;
+  /* Slide up animation for alerts */
+  @keyframes slide-up {
+    from {
+      opacity: 0;
+      transform: translateY(20px) scale(0.95);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
   }
 
-  .status-dot.degraded {
-    background-color: #F59E0B;
-    box-shadow: 0 0 6px #F59E0B;
+  .animate-slide-up {
+    animation: slide-up 0.3s ease-out;
   }
 
-  .status-dot.down {
-    background-color: #EF4444;
-    box-shadow: 0 0 6px #EF4444;
+  /* Spin for loading */
+  @keyframes spin-slow {
+    to { transform: rotate(360deg); }
   }
 
-  .btn {
-    padding: 8px 16px;
-    border-radius: 9999px;
-    font-weight: 600;
-    font-size: 0.875rem;
-    transition: all 0.2s ease;
-    cursor: pointer;
-    border: 1px solid;
+  .animate-spin-slow {
+    animation: spin-slow 3s linear infinite;
   }
 
-  .btn-primary {
-    background-color: #3B82F6;
-    color: #0B111E;
-    border-color: #3B82F6;
+  /* Orbit animation for agent graph */
+  @keyframes orbit-ellipse {
+    0% {
+      transform: rotate(0deg) translateX(var(--orbit-rx, 100px)) rotate(0deg);
+    }
+    100% {
+      transform: rotate(360deg) translateX(var(--orbit-rx, 100px)) rotate(-360deg);
+    }
   }
 
-  .btn-primary:hover {
-    background-color: #60A5FA;
-    transform: translateY(-2px);
+  .animate-orbit {
+    animation: orbit-ellipse var(--orbit-duration, 12s) linear infinite;
   }
 
-  .btn-ghost {
-    background-color: #1E2A3A;
-    color: #6B7280;
-    border-color: #2A3A4E;
+  /* Float animation — парение 5s (плавное) */
+  @keyframes float {
+    0%, 100% {
+      transform: translateY(0px);
+    }
+    50% {
+      transform: translateY(-6px);
+    }
   }
 
-  .btn-ghost:hover {
-    background-color: #2A3A4E;
-    color: #FFFFFF;
+  .animate-float {
+    animation: float 5s ease-in-out infinite;
   }
 
+  /* █═╗ ПАРЕНИЕ + МЕРЦАНИЕ ПЛАНЕТ (напрямую, чтобы не зависеть от safelist) ╔═█ */
+  
+  @keyframes glow-pulse-green {
+    0%, 100% { box-shadow: 0 0 8px rgba(34,197,94,0.3); }
+    50%      { box-shadow: 0 0 22px rgba(34,197,94,0.8); }
+  }
+  @keyframes glow-pulse-yellow {
+    0%, 100% { box-shadow: 0 0 8px rgba(245,158,11,0.3); }
+    50%      { box-shadow: 0 0 22px rgba(245,158,11,0.8); }
+  }
+  @keyframes glow-pulse-red {
+    0%, 100% { box-shadow: 0 0 8px rgba(239,68,68,0.3); }
+    50%      { box-shadow: 0 0 22px rgba(239,68,68,0.8); }
+  }
+  @keyframes glow-pulse-gray {
+    0%, 100% { box-shadow: 0 0 8px rgba(107,114,128,0.3); }
+    50%      { box-shadow: 0 0 22px rgba(107,114,128,0.8); }
+  }
+
+  /* 🟢 парение 5s + свечение зелёное 5s */
+  .animate-float-glow-green {
+    animation: float 5s ease-in-out infinite, glow-pulse-green 5s ease-in-out infinite;
+  }
+  /* ⚪ парение 5s + свечение серое 5s */
+  .animate-float-glow-gray {
+    animation: float 5s ease-in-out infinite, glow-pulse-gray 5s ease-in-out infinite;
+  }
+  /* 🟡 парение 5s + свечение жёлтое 3s */
+  .animate-float-glow-yellow {
+    animation: float 5s ease-in-out infinite, glow-pulse-yellow 3s ease-in-out infinite;
+  }
+  /* 🔴 парение 5s + свечение красное 1.5s */
+  .animate-float-glow-red {
+    animation: float 5s ease-in-out infinite, glow-pulse-red 1.5s ease-in-out infinite;
+  }
+
+  /* Dash flow for active edges (bright version) */
+
+  @keyframes dash-flow-bright {
+    to {
+      stroke-dashoffset: -18;
+    }
+  }
+
+  .animate-dash-flow-bright {
+    animation: dash-flow-bright 0.8s linear infinite;
+  }
+
+
+  /* React Flow dark theme */
+
+  .react-flow__controls {
+    background: #131B2A !important;
+    border: 1px solid #2A3A4E !important;
+    border-radius: 12px !important;
+    overflow: hidden !important;
+  }
+  .react-flow__controls-button {
+    background: #1A2536 !important;
+    border-bottom: 1px solid #2A3A4E !important;
+    fill: #A0B3CC !important;
+    color: #A0B3CC !important;
+    width: 28px !important;
+    height: 28px !important;
+  }
+  .react-flow__controls-button:hover {
+    background: #2A3A4E !important;
+  }
+  .react-flow__controls-button svg {
+    fill: #A0B3CC !important;
+  }
+  .react-flow__controls-button:last-child {
+    border-bottom: none !important;
+  }
+  .react-flow__background {
+    background: #0C111D !important;
+  }
+  .react-flow__minimap {
+    background: #0C111D !important;
+    border: 1px solid #2A3A4E !important;
+    border-radius: 12px !important;
+  }
+
+  /* Progress bar */
   .progress-bar {
     height: 4px;
     background-color: #1F2A3C;
@@ -133,8 +244,20 @@
 
   .progress-fill {
     height: 100%;
-    background: linear-gradient(to right, #3B82F6, #60A5FA);
+    background: linear-gradient(to right, #FF8C42, #FFB347);
     border-radius: 9999px;
     transition: all 0.5s ease;
+  }
+
+  /* Grid layout drag handle */
+  .drag-handle {
+    cursor: grab;
+  }
+  .drag-handle:active {
+    cursor: grabbing;
+  }
+  .react-grid-item > .react-resizable-handle::after {
+    border-right-color: rgba(255, 140, 66, 0.4) !important;
+    border-bottom-color: rgba(255, 140, 66, 0.4) !important;
   }
 }

@@ -87,4 +87,22 @@ export function getKnowledgeGraph(): Promise<{ nodes: any[]; edges: any[] }> {
   return fetchJson<{ nodes: any[]; edges: any[] }>('/knowledge_graph');
 }
 
+// ===== Reindex =====
+export function runReindex(mode = 'incremental'): Promise<{ success: boolean; message: string }> {
+  return fetchJson(`/reindex?mode=${mode}`, { method: 'POST' });
+}
 
+// ===== Parser Tasks =====
+export function runParserTask(taskName: string): Promise<{ success: boolean; message: string }> {
+  return fetchJson(`/agent/parser/task/${taskName}`, { method: 'POST' });
+}
+
+// ===== Scheduler =====
+export function startScheduler(): Promise<{ success: boolean; message: string }> {
+  return fetchJson('/scheduler/start', { method: 'POST' });
+}
+
+// ===== Index Single File =====
+export function indexFile(filePath: string): Promise<{ success: boolean; message: string }> {
+  return fetchJson(`/index_file?file_path=${encodeURIComponent(filePath)}`, { method: 'POST' });
+}

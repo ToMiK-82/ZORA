@@ -1,146 +1,194 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { getDataPipeline, getParsingStatus } from '../api/dashboardApi';
-import { FiShare2, FiDatabase, FiCloud, FiFileText, FiArrowRight, FiCpu, FiSearch } from 'react-icons/fi';
+import { getDataPipeline, runReindex } from '../api/dashboardApi';
+import {
+  FiArrowDown,
+  FiFileText,
+  FiGitBranch,
+  FiDatabase,
+  FiAlertCircle,
+  FiCheckCircle,
+  FiClock,
+  FiRefreshCw,
+} from 'react-icons/fi';
+import { Card, CardHeader, CardTitle, CardContent } from './ui/card';
+import { Button } from './ui/button';
+import toast from 'react-hot-toast';
+import type { PipelineSource } from '../types';
 
-const stages = [
-  { id: 'sources', label: 'Источники', icon: FiDatabase, color: 'text-blue-400' },
-  { id: 'parsing', label: 'Парсинг', icon: FiCloud, color: 'text-purple-400' },
-  { id: 'indexing', label: 'Индексация', icon: FiFileText, color: 'text-zora-accent' },
-  { id: 'qdrant', label: 'Qdrant', icon: FiDatabase, color: 'text-zora-green' },
-  { id: 'rag', label: 'RAG', icon: FiSearch, color: 'text-zora-accent-light' },
-];
-
-const sourceIcons: Record<string, React.ReactNode> = {
-  '1C OData': <FiDatabase />,
-  'ITS Parser': <FiCloud />,
-  'File Indexer': <FiFileText />,
+const stageIcons: Record<string, React.ReactNode> = {
+  collector_its: <FiArrowDown className="text-white text-lg" />,
+  collector_ukorona: <FiArrowDown className="text-white text-lg" />,
+  parser: <FiFileText className="text-white text-lg" />,
+  chunk: <FiGitBranch className="text-white text-lg" />,
+  embed: <FiDatabase className="text-white text-lg" />,
 };
 
-const statusColors: Record<string, string> = {
-  active: 'bg-zora-green shadow-[0_0_6px_rgba(34,197,94,0.5)]',
-  idle: 'bg-zora-yellow shadow-[0_0_6px_rgba(245,158,11,0.5)]',
-  error: 'bg-zora-red shadow-[0_0_6px_rgba(239,68,68,0.5)]',
+const stageGradients: Record<string, string> = {
+  collector_its: 'from-blue-400 to-blue-600',
+  collector_ukorona: 'from-blue-400 to-blue-600',
+  parser: 'from-purple-400 to-purple-600',
+  chunk: 'from-pink-400 to-pink-600',
+  embed: 'from-emerald-400 to-emerald-600',
+};
+
+
+const statusIcons: Record<string, React.ReactNode> = {
+  active: <FiCheckCircle className="w-4 h-4 text-zora-green" />,
+  idle: <FiClock className="w-4 h-4 text-zora-gray" />,
+  error: <FiAlertCircle className="w-4 h-4 text-zora-red" />,
 };
 
 export default function DataPipeline() {
-  const { data: pipeline, isLoading } = useQuery({
+  const { data, isLoading, refetch } = useQuery({
     queryKey: ['dataPipeline'],
     queryFn: getDataPipeline,
-    refetchInterval: 10_000,
+    refetchInterval: 15_000,
   });
 
-  const { data: parsing } = useQuery({
-    queryKey: ['parsingStatus'],
-    queryFn: getParsingStatus,
-    refetchInterval: 10_000,
-  });
+  const [indexing, setIndexing] = useState(false);
+  const [actionLabel, setActionLabel] = useState<string | null>(null);
 
-  const sources = pipeline?.sources ?? [];
-  const parsingProgress = parsing?.data?.progress;
-  const progressPct = parsingProgress?.percent ?? 0;
-  const isParsing = parsingProgress?.is_running ?? false;
+  const sources: PipelineSource[] = data?.sources ?? [];
 
-  // Determine stage statuses
-  const stageStatuses: Record<string, 'active' | 'idle' | 'error'> = {
-    sources: sources.some((s: any) => s.status === 'active') ? 'active' :
-             sources.some((s: any) => s.status === 'error') ? 'error' : 'idle',
-    parsing: isParsing ? 'active' : 'idle',
-    indexing: sources.some((s: any) => s.status === 'active') ? 'active' : 'idle',
-    qdrant: 'active',
-    rag: 'idle',
+  const handleReindex = async (mode: 'full' | 'incremental') => {
+    setIndexing(true);
+    setActionLabel(mode === 'full' ? 'Полная индексация...' : 'Инкрементальная...');
+    try {
+      const result = await runReindex(mode);
+      if (result.success) {
+        toast.success(`Индексация (${mode}) запущена`);
+        setTimeout(() => refetch(), 3000);
+      } else {
+        toast.error(result.message || 'Ошибка индексации');
+      }
+    } catch (e: any) {
+      toast.error(e.message || 'Ошибка сети');
+    } finally {
+      setIndexing(false);
+      setActionLabel(null);
+    }
   };
 
   return (
-    <div className="card h-full flex flex-col">
-      <div className="card-header">
-        <FiShare2 className="text-zora-accent" />
-        <h3>Конвейер данных</h3>
-      </div>
-
-      {/* Horizontal Pipeline */}
-      <div className="flex items-center justify-between gap-1 mb-4 px-2">
-        {stages.map((stage, idx) => {
-          const StageIcon = stage.icon;
-          const status = stageStatuses[stage.id];
-          return (
-            <React.Fragment key={stage.id}>
-              <div className="flex flex-col items-center gap-1.5 group relative">
-                <div
-                  className={`w-10 h-10 rounded-xl flex items-center justify-center border transition-all duration-200 ${
-                    status === 'active'
-                      ? 'bg-zora-green/10 border-zora-green text-zora-green'
-                      : status === 'error'
-                      ? 'bg-zora-red/10 border-zora-red text-zora-red'
-                      : 'bg-zora-bg border-zora-border text-zora-muted'
-                  }`}
-                >
-                  <StageIcon className="text-lg" />
-                </div>
-                <span className="text-[10px] text-zora-muted font-medium whitespace-nowrap">
-                  {stage.label}
-                </span>
-                <span className={`w-1.5 h-1.5 rounded-full ${statusColors[status] || 'bg-zora-gray'}`} />
-                {/* Tooltip on hover */}
-                <div className="absolute -bottom-8 left-1/2 -translate-x-1/2 bg-zora-card border border-zora-border rounded-lg px-2 py-1 text-[10px] text-zora-muted whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10">
-                  {status === 'active' ? 'Активно' : status === 'error' ? 'Ошибка' : 'Ожидает'}
-                </div>
-              </div>
-              {idx < stages.length - 1 && (
-                <FiArrowRight className="text-zora-border shrink-0 -mt-4" />
-              )}
-            </React.Fragment>
-          );
-        })}
-      </div>
-
-      {/* Sources Detail */}
-      <div className="flex-1 space-y-2">
-        <div className="text-xs font-semibold text-zora-muted mb-1">Источники</div>
-        {sources.length === 0 && !isLoading && (
-          <p className="text-zora-muted text-sm text-center py-2">Нет данных о конвейере</p>
-        )}
-        {sources.map((source: any) => (
-          <div
-            key={source.name}
-            className="flex items-center gap-3 p-2.5 rounded-xl bg-zora-bg/50 border border-zora-border"
-          >
-            <div className="w-7 h-7 rounded-lg bg-zora-card flex items-center justify-center text-zora-accent shrink-0">
-              {sourceIcons[source.name] || <FiDatabase />}
-            </div>
-            <div className="flex-1 min-w-0">
-              <div className="font-semibold text-xs">{source.name}</div>
-              <div className="text-[10px] text-zora-muted">
-                {source.throughput_chunks_per_hour} чанков/ч
-                {source.queue_size > 0 && ` | очередь: ${source.queue_size}`}
-              </div>
-            </div>
-            <div className="flex items-center gap-1.5">
-              <span className={`w-1.5 h-1.5 rounded-full ${statusColors[source.status] || 'bg-zora-gray'}`} />
-              <span className="text-[10px] text-zora-muted capitalize">{source.status}</span>
-            </div>
-          </div>
-        ))}
-      </div>
-
-      {/* Parsing Progress */}
-      {isParsing && (
-        <div className="mt-2 p-2.5 rounded-xl bg-zora-bg border border-zora-border">
-          <div className="flex items-center justify-between mb-1.5">
-            <span className="text-[10px] font-medium text-zora-muted">
-              {parsingProgress?.operation || 'Парсинг'}
-            </span>
-            <span className="text-[10px] text-zora-accent">{progressPct.toFixed(0)}%</span>
-          </div>
-          <div className="progress-bar">
-            <div className="progress-fill" style={{ width: `${progressPct}%` }} />
-          </div>
-          <div className="text-[10px] text-zora-muted mt-1">
-            Шаг {parsingProgress?.current_step ?? 0} / {parsingProgress?.total_steps ?? 0}
-            {parsingProgress?.current_subject && ` • ${parsingProgress.current_subject}`}
+    <Card className="h-full border-border bg-card/50">
+      <CardHeader className="pb-2">
+        <div className="flex items-center justify-between">
+          <CardTitle className="text-sm font-semibold flex items-center gap-2">
+            <FiGitBranch className="text-zora-accent" />
+            Конвейер данных
+          </CardTitle>
+          <div className="flex items-center gap-1">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => refetch()}
+              className="h-7 w-7 p-0"
+            >
+              <FiRefreshCw className="text-xs text-muted-foreground" />
+            </Button>
+            <span className="text-[10px] text-muted-foreground">{sources.length} источников</span>
           </div>
         </div>
-      )}
-    </div>
+      </CardHeader>
+      <CardContent className="space-y-3">
+        {isLoading ? (
+          <div className="flex items-center justify-center py-6">
+            <p className="text-muted-foreground text-sm">Загрузка...</p>
+          </div>
+        ) : sources.length === 0 ? (
+          <div className="flex items-center justify-center py-6">
+            <p className="text-muted-foreground text-sm">Нет активных источников</p>
+          </div>
+        ) : (
+          <div className="flex flex-col gap-2">
+            {sources.map((source, idx) => {
+              const gradient = stageGradients[source.name] || 'from-zora-gray to-zora-gray/50';
+              const icon = stageIcons[source.name] || <FiDatabase className="text-lg" />;
+              const statusIcon = statusIcons[source.status];
+
+              return (
+                <div
+                  key={source.name}
+                  className={`flex items-center gap-3 p-2 rounded-xl border transition-all ${
+                    source.status === 'active'
+                      ? 'border-zora-green/30 bg-zora-green/5'
+                      : source.status === 'error'
+                      ? 'border-zora-red/30 bg-zora-red/5'
+                      : 'border-border/50 bg-background/30'
+                  }`}
+                >
+                  <div className={`w-8 h-8 rounded-full bg-gradient-to-br ${gradient} flex items-center justify-center shrink-0 shadow-lg shadow-black/20`}>
+                    {icon}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="text-xs font-medium text-foreground truncate">{source.name}</div>
+                    <div className="text-[10px] text-muted-foreground">
+                      {source.throughput_chunks_per_hour} ч/ч · оч. {source.queue_size}
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    {statusIcon}
+                    <span className="text-[10px] text-muted-foreground capitalize">{source.status}</span>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
+
+        {/* Кнопки индексации */}
+        <div className="flex gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => handleReindex('incremental')}
+            disabled={indexing}
+            className="flex-1 text-[10px] h-7 border-border text-muted-foreground hover:text-white"
+          >
+            {indexing && actionLabel === 'Инкрементальная...' ? (
+              <span className="animate-pulse">⏳</span>
+            ) : (
+              '▶ Инкрементально'
+            )}
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => handleReindex('full')}
+            disabled={indexing}
+            className="flex-1 text-[10px] h-7 border-border text-muted-foreground hover:text-white"
+          >
+            {indexing && actionLabel === 'Полная индексация...' ? (
+              <span className="animate-pulse">⏳</span>
+            ) : (
+              '▶ Полная'
+            )}
+          </Button>
+        </div>
+
+        {/* Quick Stats */}
+        <div className="grid grid-cols-3 gap-2 pt-1">
+          <div className="text-center">
+            <div className="text-lg font-bold text-zora-green">
+              {sources.filter((s) => s.status === 'active').length}
+            </div>
+            <div className="text-[10px] text-muted-foreground">Активно</div>
+          </div>
+          <div className="text-center">
+            <div className="text-lg font-bold text-zora-yellow">
+              {sources.filter((s) => s.status === 'idle').length}
+            </div>
+            <div className="text-[10px] text-muted-foreground">Ожидают</div>
+          </div>
+          <div className="text-center">
+            <div className="text-lg font-bold text-zora-red">
+              {sources.filter((s) => s.status === 'error').length}
+            </div>
+            <div className="text-[10px] text-muted-foreground">Ошибок</div>
+          </div>
+        </div>
+      </CardContent>
+    </Card>
   );
 }

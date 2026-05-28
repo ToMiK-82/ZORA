@@ -14,6 +14,9 @@ from datetime import datetime
 from typing import Dict, Any, TypedDict, Annotated, List, Optional
 
 from langgraph.graph import StateGraph, END
+# Комментируем langgraphics — модуль не установлен, вызывает ошибку WebSocket
+# from langgraphics import watch
+
 
 try:
     from memory import memory
@@ -276,7 +279,10 @@ class ZoraOrchestrator:
             workflow.add_edge(role_value, END)
 
         workflow.add_conditional_edges("router", self._should_continue, {"continue": END, "end": END})
-        return workflow.compile()
+        compiled = workflow.compile()
+        # LangGraphics отключён (модуль не установлен)
+        return compiled
+
 
     def _classify_intent(self, query: str, interface: str = "user") -> str:
         query_hash = hashlib.md5(query.lower().strip().encode()).hexdigest()
@@ -622,5 +628,21 @@ class ZoraOrchestrator:
                 "result": "Произошла ошибка при обработке запроса.",
                 "reasoning": [f"Ошибка: {str(e)}"]
             }
+
+# Инициализация Laminar (если установлен и есть API-ключ)
+import os
+_laminar_client = None
+try:
+    from lmnr import LaminarClient
+    api_key = os.getenv("LMNR_PROJECT_API_KEY", "")
+    if api_key:
+        _laminar_client = LaminarClient(project_api_key=api_key)
+        logging.info("Laminar инициализирован для трассировки")
+    else:
+        logging.info("Laminar не настроен: установите LMNR_PROJECT_API_KEY")
+except ImportError:
+    logging.info("Laminar не установлен, трассировка через Laminar недоступна")
+except Exception as e:
+    logging.warning(f"Ошибка инициализации Laminar: {e}")
 
 orchestrator = ZoraOrchestrator()

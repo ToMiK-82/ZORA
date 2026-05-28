@@ -1,4 +1,4 @@
-version: '3.8'
+ ersion: '3.8'
 
 services:
   qdrant:
@@ -21,6 +21,14 @@ services:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    restart: unless-stopped
+
+  opik:
+    image: ghcr.io/comet-ml/opik:latest
+    container_name: zora-opik
+    ports:
+      - "5173:5173"
+      - "3003:3003"
     restart: unless-stopped
 
 volumes:

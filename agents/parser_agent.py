@@ -21,6 +21,7 @@ from typing import Dict, Any, List, Optional, Generator, Tuple
 
 from agents.base import BaseAgent
 from core.roles import AgentRole, get_system_prompt
+from core.orchestrator import agent_status_tracker
 
 try:
     from memory.qdrant_memory import memory as _memory
@@ -83,6 +84,8 @@ class ParserAgent(BaseAgent):
             self.status_message = "Активна"
             self._operation_start_time = time.time()
             self.current_task = name or operation
+        # Уведомляем трекер статусов для графа агентов
+        agent_status_tracker.set_running("parser", self.current_task or operation)
         self.logger.info(f"▶ Начало операции: {self.operation_name} (шагов: {total_steps or 'неизвестно'})")
 
     def update_progress(self, step_increment: int = 0, indexed_increment: int = 0,
@@ -111,6 +114,8 @@ class ParserAgent(BaseAgent):
                 self.logger.error(f"⛔ Операция {self.operation_name} завершилась ошибкой: {message}")
             else:
                 self.logger.info(f"✅ Операция {self.operation_name} завершена за {elapsed:.1f}с: {message}")
+        # Уведомляем трекер статусов о завершении
+        agent_status_tracker.set_idle("parser")
 
     def get_progress(self) -> Dict[str, Any]:
         """Возвращает текущий прогресс операции."""
